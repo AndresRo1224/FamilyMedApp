@@ -1,0 +1,45 @@
+/**
+ * Pantalla: Atlas Visual (STUB provisional)
+ * Se expandirá en el archivo 8 de la Etapa 1.
+ * Mostrará galería grid con filtros por categoría (fondo de ojo, ECG, Rx, técnica).
+ */
+
+import React from 'react';
+import { SafeAreaView, StyleSheet, Text, View } from 'react-native';
+import { Colors } from '../../constants/colors';
+import { Typography } from '../../constants/typography';
+
+const AtlasScreen: React.FC = () => {
+  return (
+    <SafeAreaView style={styles.container}>
+      <View style={styles.content}>
+        <Text style={styles.title}>Atlas</Text>
+        <Text style={styles.subtitle}>Pantalla en construcción</Text>
+      </View>
+    </SafeAreaView>
+  );
+};
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: Colors.background,
+  },
+  content: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  title: {
+    ...Typography.h2,
+    color: Colors.text,
+    marginBottom: 8,
+  },
+  subtitle: {
+    ...Typography.body,
+    color: Colors.textSecondary,
+  },
+});
+
+export default AtlasScreen;
