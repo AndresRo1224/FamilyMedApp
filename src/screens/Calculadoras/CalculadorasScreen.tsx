@@ -1,8 +1,4 @@
-/**
- * Pantalla: Calculadoras Clínicas (STUB provisional)
- * Se expandirá en el archivo 7 de la Etapa 1.
- * Listará calculadoras en modo exhibición únicamente (sin formularios).
- */
+// pantalla de calculadoras (por ahora en construccion)
 
 import React from 'react';
 import { SafeAreaView, StyleSheet, Text, View } from 'react-native';

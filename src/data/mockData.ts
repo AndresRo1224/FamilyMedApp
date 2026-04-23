@@ -1,41 +1,20 @@
-/**
- * Datos de prueba (mock data) - FamilyMed App
- * Contenido clínico sobre Hipertensión Arterial.
- * Universidad de Santander - Medicina Familiar
- * Proyecto de grado 65-2026-071
- *
- * Todos los datos de la app se consumen desde este archivo.
- * Nunca se deben hardcodear en las pantallas.
- */
+// datos de prueba de la app
 
-// ============================================================================
-// TIPOS E INTERFACES GENERALES
-// ============================================================================
-
-/** Identificador único de cada módulo principal de la app */
+// tipos generales
 export type ModuleId = 'hipertension' | 'calculadoras' | 'atlas' | 'guias';
-
-/** Nivel de dificultad / profundidad del contenido clínico */
 export type ContentLevel = 'basico' | 'intermedio' | 'avanzado';
-
-/** Categoría general de los ítems del atlas visual */
 export type AtlasCategory =
   | 'fondo_ojo'
   | 'ecg'
   | 'radiologia'
   | 'tecnica_clinica';
-
-/** Tipo de guía clínica */
 export type GuideType =
   | 'algoritmo'
   | 'protocolo'
   | 'tecnica'
   | 'situacion_especial';
 
-// ============================================================================
-// MÓDULO: HIPERTENSIÓN (CONTENIDO TEÓRICO)
-// ============================================================================
-
+// contenido teorico de hipertension
 export interface HypertensionSection {
   id: string;
   title: string;
@@ -146,10 +125,7 @@ export const HypertensionContent: HypertensionSection[] = [
   },
 ];
 
-// ============================================================================
-// MÓDULO: CALCULADORAS CLÍNICAS (SOLO EXHIBICIÓN)
-// ============================================================================
-
+// calculadoras clinicas (solo exhibicion)
 export interface ClinicalCalculator {
   id: string;
   name: string;
@@ -287,10 +263,7 @@ export const Calculators: ClinicalCalculator[] = [
   },
 ];
 
-// ============================================================================
-// MÓDULO: ATLAS VISUAL (CON FILTROS POR CATEGORÍA)
-// ============================================================================
-
+// atlas visual
 export interface AtlasItem {
   id: string;
   title: string;
@@ -299,7 +272,7 @@ export interface AtlasItem {
   description: string;
   findings: string[];
   clinicalSignificance: string;
-  imagePlaceholder: string; // URL o identificador del recurso visual
+  imagePlaceholder: string;
 }
 
 export const AtlasItems: AtlasItem[] = [
@@ -406,10 +379,7 @@ export const AtlasItems: AtlasItem[] = [
   },
 ];
 
-/**
- * Categorías disponibles para filtrar el atlas visual.
- * Se usa en el componente de filtros.
- */
+// categorias para el filtro del atlas
 export const AtlasCategories: { id: AtlasCategory | 'all'; label: string }[] = [
   { id: 'all', label: 'Todas' },
   { id: 'fondo_ojo', label: 'Fondo de Ojo' },
@@ -418,10 +388,7 @@ export const AtlasCategories: { id: AtlasCategory | 'all'; label: string }[] = [
   { id: 'tecnica_clinica', label: 'Técnica Clínica' },
 ];
 
-// ============================================================================
-// MÓDULO: GUÍAS CLÍNICAS
-// ============================================================================
-
+// guias clinicas
 export interface ClinicalGuide {
   id: string;
   title: string;
@@ -431,7 +398,7 @@ export interface ClinicalGuide {
   steps: string[];
   warnings: string[];
   source: string;
-  lastUpdated: string; // Formato YYYY-MM-DD
+  lastUpdated: string;
 }
 
 export const ClinicalGuides: ClinicalGuide[] = [
@@ -583,16 +550,13 @@ export const ClinicalGuides: ClinicalGuide[] = [
   },
 ];
 
-// ============================================================================
-// ÍTEMS RECIENTES / HISTORIAL (para el Home)
-// ============================================================================
-
+// items recientes para el home
 export interface RecentItem {
   id: string;
   title: string;
   moduleId: ModuleId;
   moduleLabel: string;
-  accessedAt: string; // Formato YYYY-MM-DD
+  accessedAt: string;
 }
 
 export const RecentItems: RecentItem[] = [
@@ -626,16 +590,13 @@ export const RecentItems: RecentItem[] = [
   },
 ];
 
-// ============================================================================
-// MÓDULOS PRINCIPALES (para el grid del Home)
-// ============================================================================
-
+// modulos del home (grid)
 export interface AppModule {
   id: ModuleId;
   title: string;
   description: string;
   itemCount: number;
-  route: string; // Nombre de la ruta de navegación
+  route: string;
 }
 
 export const AppModules: AppModule[] = [
@@ -669,10 +630,7 @@ export const AppModules: AppModule[] = [
   },
 ];
 
-// ============================================================================
-// INFORMACIÓN DE USUARIO DE PRUEBA (para Login y Settings)
-// ============================================================================
-
+// usuario de prueba
 export interface MockUser {
   id: string;
   fullName: string;

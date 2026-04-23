@@ -1,8 +1,4 @@
-/**
- * TabNavigator principal - FamilyMed App
- * 4 tabs: Home, Contenidos, Calculadoras, Atlas.
- * Diseño con colores oficiales UDES.
- */
+// navegacion por tabs
 
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
@@ -19,10 +15,6 @@ import AtlasScreen from '../screens/Atlas/AtlasScreen';
 import { Colors } from '../constants/colors';
 import { Typography } from '../constants/typography';
 
-/**
- * Lista de rutas y sus parámetros. Permite tipado estricto
- * cuando se consuma con useNavigation / useRoute.
- */
 export type TabParamList = {
   Home: undefined;
   Contenidos: undefined;
@@ -32,10 +24,7 @@ export type TabParamList = {
 
 const Tab = createBottomTabNavigator<TabParamList>();
 
-/**
- * Icono custom del tab. Sin dependencias externas: el "icono" es una
- * pastilla (pill) con la etiqueta del tab. El fondo cambia cuando está activo.
- */
+// icono custom con pill de color
 interface TabIconProps {
   label: string;
   focused: boolean;
@@ -62,9 +51,6 @@ const TabIcon: React.FC<TabIconProps> = ({ label, focused }) => {
   );
 };
 
-/**
- * Opciones globales del tab navigator.
- */
 const screenOptions: BottomTabNavigationOptions = {
   headerShown: false,
   tabBarShowLabel: false,
@@ -82,9 +68,6 @@ const screenOptions: BottomTabNavigationOptions = {
   },
 };
 
-/**
- * Componente principal del TabNavigator.
- */
 const TabNavigator: React.FC = () => {
   return (
     <Tab.Navigator screenOptions={screenOptions} initialRouteName="Home">

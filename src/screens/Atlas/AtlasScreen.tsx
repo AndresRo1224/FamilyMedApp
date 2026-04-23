@@ -1,8 +1,4 @@
-/**
- * Pantalla: Atlas Visual (STUB provisional)
- * Se expandirá en el archivo 8 de la Etapa 1.
- * Mostrará galería grid con filtros por categoría (fondo de ojo, ECG, Rx, técnica).
- */
+// pantalla del atlas (por ahora en construccion)
 
 import React from 'react';
 import { SafeAreaView, StyleSheet, Text, View } from 'react-native';

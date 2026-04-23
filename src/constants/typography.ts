@@ -1,16 +1,7 @@
-/**
- * Sistema tipográfico UDES - FamilyMed App
- * Fuente oficial: Open Sans
- * Universidad de Santander - Medicina Familiar
- */
+// tipografia de la app - Open Sans
 
 import { Platform, TextStyle } from 'react-native';
 
-/**
- * Familias tipográficas Open Sans.
- * En React Native se usan nombres del postScriptName en iOS
- * y nombres del archivo en Android (sin extensión).
- */
 export const FontFamily = {
   regular: Platform.select({
     ios: 'OpenSans-Regular',
@@ -43,26 +34,19 @@ export const FontFamily = {
   }) as string,
 } as const;
 
-/**
- * Escala de tamaños de fuente (en píxeles).
- * Basada en una escala modular 1.25 para buena jerarquía visual.
- */
+// tamaños de fuente
 export const FontSize = {
-  xs: 11,    // Etiquetas diminutas, pies de página
-  sm: 13,    // Texto secundario, captions
-  base: 15,  // Texto base de lectura
-  md: 17,    // Texto destacado
-  lg: 20,    // Subtítulos
-  xl: 24,    // Títulos de sección
-  xxl: 28,   // Títulos de pantalla
-  xxxl: 34,  // Títulos principales / hero
-  display: 42, // Números grandes (resultados de calculadoras)
+  xs: 11,
+  sm: 13,
+  base: 15,
+  md: 17,
+  lg: 20,
+  xl: 24,
+  xxl: 28,
+  xxxl: 34,
+  display: 42,
 } as const;
 
-/**
- * Alturas de línea coherentes con cada tamaño de fuente.
- * Factor ~1.4 para texto general y ~1.2 para títulos.
- */
 export const LineHeight = {
   xs: 16,
   sm: 18,
@@ -75,9 +59,6 @@ export const LineHeight = {
   display: 50,
 } as const;
 
-/**
- * Pesos de fuente estandarizados.
- */
 export const FontWeight = {
   light: '300',
   regular: '400',
@@ -86,12 +67,8 @@ export const FontWeight = {
   bold: '700',
 } as const;
 
-/**
- * Estilos tipográficos predefinidos listos para usar en componentes.
- * Garantizan consistencia en toda la app.
- */
+// estilos listos para usar
 export const Typography: Record<string, TextStyle> = {
-  // Títulos principales
   h1: {
     fontFamily: FontFamily.bold,
     fontSize: FontSize.xxxl,
@@ -117,7 +94,6 @@ export const Typography: Record<string, TextStyle> = {
     fontWeight: FontWeight.semiBold,
   },
 
-  // Texto corporal
   bodyLarge: {
     fontFamily: FontFamily.regular,
     fontSize: FontSize.md,
@@ -137,7 +113,6 @@ export const Typography: Record<string, TextStyle> = {
     fontWeight: FontWeight.regular,
   },
 
-  // Elementos utilitarios
   caption: {
     fontFamily: FontFamily.regular,
     fontSize: FontSize.xs,
@@ -159,7 +134,6 @@ export const Typography: Record<string, TextStyle> = {
     letterSpacing: 0.4,
   },
 
-  // Específicos para datos clínicos
   metricValue: {
     fontFamily: FontFamily.bold,
     fontSize: FontSize.display,
@@ -175,9 +149,6 @@ export const Typography: Record<string, TextStyle> = {
   },
 };
 
-/**
- * Espaciado entre letras estandarizado.
- */
 export const LetterSpacing = {
   tight: -0.5,
   normal: 0,

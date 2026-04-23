@@ -1,13 +1,4 @@
-/**
- * HomeScreen - Pantalla principal de la app FamilyMed.
- *
- * Estructura:
- *  1. Header con saludo personalizado al usuario
- *  2. Grid 2x2 con los cuatro módulos principales
- *  3. Sección "Accedidos recientemente" en lista horizontal
- *
- * Todos los datos provienen de src/data/mockData.ts.
- */
+// pantalla principal
 
 import React from 'react';
 import {
@@ -34,13 +25,9 @@ import {
 } from '../../data/mockData';
 import type { TabParamList } from '../../navigation/TabNavigator';
 
-/** Navegación tipada hacia cualquiera de los tabs principales */
 type HomeNavigationProp = BottomTabNavigationProp<TabParamList>;
 
-// ============================================================================
-// Tarjeta individual de módulo (utilizada en el grid 2x2)
-// ============================================================================
-
+// card de cada modulo en el grid
 interface ModuleCardProps {
   module: AppModule;
   onPress: (module: AppModule) => void;
@@ -65,10 +52,7 @@ const ModuleCard: React.FC<ModuleCardProps> = ({ module, onPress }) => {
   );
 };
 
-// ============================================================================
-// Tarjeta individual de ítem reciente (lista horizontal)
-// ============================================================================
-
+// card de items recientes
 interface RecentCardProps {
   item: RecentItem;
 }
@@ -85,21 +69,14 @@ const RecentCard: React.FC<RecentCardProps> = ({ item }) => {
   );
 };
 
-// ============================================================================
-// Pantalla principal Home
-// ============================================================================
-
 const HomeScreen: React.FC = () => {
   const navigation = useNavigation<HomeNavigationProp>();
 
-  /** Navega al tab correspondiente cuando se pulsa un módulo */
   const handleModulePress = (module: AppModule) => {
-    // El campo route de mockData se alinea con los nombres del TabParamList
     const target = module.route as keyof TabParamList;
     navigation.navigate(target);
   };
 
-  /** Se extrae el primer nombre del usuario para mostrarlo en el saludo */
   const firstName = MockCurrentUser.fullName.split(' ')[0];
 
   return (
@@ -110,7 +87,7 @@ const HomeScreen: React.FC = () => {
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        {/* HEADER */}
+        {/* header */}
         <View style={styles.header}>
           <Text style={styles.greeting}>Hola, {firstName}</Text>
           <Text style={styles.subtitle}>
@@ -118,7 +95,7 @@ const HomeScreen: React.FC = () => {
           </Text>
         </View>
 
-        {/* GRID 2x2 DE MÓDULOS */}
+        {/* grid 2x2 */}
         <Text style={styles.sectionTitle}>Módulos</Text>
         <View style={styles.modulesGrid}>
           {AppModules.map((module) => (
@@ -130,7 +107,7 @@ const HomeScreen: React.FC = () => {
           ))}
         </View>
 
-        {/* RECIENTES */}
+        {/* recientes */}
         <Text style={styles.sectionTitle}>Recientes</Text>
         <FlatList
           data={RecentItems}
@@ -141,7 +118,7 @@ const HomeScreen: React.FC = () => {
           renderItem={({ item }) => <RecentCard item={item} />}
         />
 
-        {/* FOOTER INFO */}
+        {/* footer */}
         <View style={styles.footer}>
           <Text style={styles.footerText}>
             Universidad de Santander - UDES
@@ -155,10 +132,6 @@ const HomeScreen: React.FC = () => {
   );
 };
 
-// ============================================================================
-// Estilos
-// ============================================================================
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -168,7 +141,6 @@ const styles = StyleSheet.create({
     paddingBottom: 32,
   },
 
-  // Header
   header: {
     paddingHorizontal: 20,
     paddingTop: 16,
@@ -184,7 +156,6 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
 
-  // Secciones
   sectionTitle: {
     ...Typography.h3,
     color: Colors.text,
@@ -193,7 +164,6 @@ const styles = StyleSheet.create({
     marginBottom: 14,
   },
 
-  // Grid de módulos (2x2)
   modulesGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
@@ -235,7 +205,6 @@ const styles = StyleSheet.create({
     letterSpacing: 0.5,
   },
 
-  // Recientes
   recentList: {
     paddingHorizontal: 20,
     gap: 12,
@@ -266,7 +235,6 @@ const styles = StyleSheet.create({
     color: Colors.textSecondary,
   },
 
-  // Footer
   footer: {
     paddingHorizontal: 20,
     paddingTop: 28,

@@ -1,13 +1,4 @@
-/**
- * ContenidosScreen - Lista del contenido teórico sobre Hipertensión.
- *
- * Estructura:
- *  1. Header con título y contador
- *  2. Barra de filtros por nivel (Todos, Básico, Intermedio, Avanzado)
- *  3. Lista de tarjetas con cada sección clínica
- *
- * Datos desde src/data/mockData.ts -> HypertensionContent
- */
+// pantalla de contenidos con filtros
 
 import React, { useMemo, useState } from 'react';
 import {
@@ -28,10 +19,6 @@ import {
   HypertensionSection,
 } from '../../data/mockData';
 
-// ============================================================================
-// Configuración de filtros
-// ============================================================================
-
 type FilterValue = ContentLevel | 'all';
 
 interface FilterOption {
@@ -46,17 +33,13 @@ const FILTER_OPTIONS: FilterOption[] = [
   { value: 'avanzado', label: 'Avanzado' },
 ];
 
-/** Etiquetas legibles por nivel (para mostrar en la tarjeta) */
 const LEVEL_LABELS: Record<ContentLevel, string> = {
   basico: 'Básico',
   intermedio: 'Intermedio',
   avanzado: 'Avanzado',
 };
 
-// ============================================================================
-// Componente: Chip de filtro
-// ============================================================================
-
+// chip del filtro
 interface FilterChipProps {
   option: FilterOption;
   active: boolean;
@@ -82,10 +65,7 @@ const FilterChip: React.FC<FilterChipProps> = ({ option, active, onPress }) => {
   );
 };
 
-// ============================================================================
-// Componente: Tarjeta de contenido
-// ============================================================================
-
+// card de cada seccion
 interface ContentCardProps {
   section: HypertensionSection;
 }
@@ -123,14 +103,10 @@ const ContentCard: React.FC<ContentCardProps> = ({ section }) => {
   );
 };
 
-// ============================================================================
-// Pantalla principal
-// ============================================================================
-
 const ContenidosScreen: React.FC = () => {
   const [activeFilter, setActiveFilter] = useState<FilterValue>('all');
 
-  /** Lista filtrada según el chip activo */
+  // lista filtrada segun el chip activo
   const filteredContent = useMemo(() => {
     if (activeFilter === 'all') {
       return HypertensionContent;
@@ -144,7 +120,7 @@ const ContenidosScreen: React.FC = () => {
     <SafeAreaView style={styles.container} edges={['top']}>
       <StatusBar barStyle="light-content" backgroundColor={Colors.background} />
 
-      {/* HEADER */}
+      {/* header */}
       <View style={styles.header}>
         <Text style={styles.title}>Contenidos</Text>
         <Text style={styles.subtitle}>
@@ -153,7 +129,7 @@ const ContenidosScreen: React.FC = () => {
         </Text>
       </View>
 
-      {/* FILTROS */}
+      {/* filtros */}
       <View style={styles.filtersWrapper}>
         <FlatList
           data={FILTER_OPTIONS}
@@ -171,7 +147,7 @@ const ContenidosScreen: React.FC = () => {
         />
       </View>
 
-      {/* LISTADO DE CONTENIDO */}
+      {/* listado */}
       <FlatList
         data={filteredContent}
         keyExtractor={(item) => item.id}
@@ -190,17 +166,12 @@ const ContenidosScreen: React.FC = () => {
   );
 };
 
-// ============================================================================
-// Estilos
-// ============================================================================
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: Colors.background,
   },
 
-  // Header
   header: {
     paddingHorizontal: 20,
     paddingTop: 16,
@@ -216,7 +187,6 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
 
-  // Filtros
   filtersWrapper: {
     paddingBottom: 16,
     borderBottomWidth: 1,
@@ -251,7 +221,6 @@ const styles = StyleSheet.create({
     color: Colors.textSecondary,
   },
 
-  // Lista
   listContent: {
     paddingHorizontal: 20,
     paddingBottom: 24,
@@ -299,7 +268,6 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
 
-  // Key points
   keyPointsContainer: {
     marginTop: 4,
     gap: 6,
@@ -321,7 +289,6 @@ const styles = StyleSheet.create({
     flex: 1,
   },
 
-  // Empty state
   emptyState: {
     padding: 40,
     alignItems: 'center',
