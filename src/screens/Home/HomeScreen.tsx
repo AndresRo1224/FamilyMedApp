@@ -1,21 +1,20 @@
 // pantalla principal
 
-import React from 'react';
+import React, { useCallback, useRef } from 'react';
 import {
+  Animated,
   FlatList,
   ScrollView,
   StatusBar,
-  StyleSheet,
   Text,
   TouchableOpacity,
   View,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { useNavigation } from '@react-navigation/native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import type { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 
 import { Colors } from '../../constants/colors';
-import { Typography } from '../../constants/typography';
 import {
   AppModule,
   AppModules,
@@ -24,53 +23,162 @@ import {
   RecentItems,
 } from '../../data/mockData';
 import type { TabParamList } from '../../navigation/TabNavigator';
+import { homeStyles as s } from './HomeScreen.styles';
 
 type HomeNavigationProp = BottomTabNavigationProp<TabParamList>;
 
-// card de cada modulo en el grid
+// card de modulo con animacion de stagger y scale al presionar
 interface ModuleCardProps {
   module: AppModule;
+  animValue: Animated.Value;
   onPress: (module: AppModule) => void;
 }
 
-const ModuleCard: React.FC<ModuleCardProps> = ({ module, onPress }) => {
+const ModuleCard: React.FC<ModuleCardProps> = ({
+  module,
+  animValue,
+  onPress,
+}) => {
+  const scale = useRef(new Animated.Value(1)).current;
+
+  const pressIn = () => {
+    Animated.spring(scale, {
+      toValue: 0.95,
+      useNativeDriver: true,
+      speed: 40,
+      bounciness: 0,
+    }).start();
+  };
+
+  const pressOut = () => {
+    Animated.spring(scale, {
+      toValue: 1,
+      useNativeDriver: true,
+      speed: 30,
+      bounciness: 6,
+    }).start();
+  };
+
+  const translateY = animValue.interpolate({
+    inputRange: [0, 1],
+    outputRange: [30, 0],
+  });
+
   return (
-    <TouchableOpacity
-      activeOpacity={0.85}
-      style={styles.moduleCard}
-      onPress={() => onPress(module)}
+    <Animated.View
+      style={{
+        width: '48%',
+        marginBottom: 14,
+        opacity: animValue,
+        transform: [{ translateY }, { scale }],
+      }}
     >
-      <View style={styles.moduleAccent} />
-      <Text style={styles.moduleTitle}>{module.title}</Text>
-      <Text style={styles.moduleDescription} numberOfLines={2}>
-        {module.description}
-      </Text>
-      <Text style={styles.moduleCount}>
-        {module.itemCount} {module.itemCount === 1 ? 'ítem' : 'ítems'}
-      </Text>
-    </TouchableOpacity>
+      <TouchableOpacity
+        activeOpacity={0.9}
+        onPressIn={pressIn}
+        onPressOut={pressOut}
+        onPress={() => onPress(module)}
+        style={s.moduleCard}
+      >
+        <View style={s.moduleAccent} />
+        <Text style={s.moduleTitle}>{module.title}</Text>
+        <Text style={s.moduleDescription} numberOfLines={2}>
+          {module.description}
+        </Text>
+        <Text style={s.moduleCount}>
+          {module.itemCount} {module.itemCount === 1 ? 'ítem' : 'ítems'}
+        </Text>
+      </TouchableOpacity>
+    </Animated.View>
   );
 };
 
-// card de items recientes
+// card de item reciente con animacion
 interface RecentCardProps {
   item: RecentItem;
+  animValue: Animated.Value;
 }
 
-const RecentCard: React.FC<RecentCardProps> = ({ item }) => {
+const RecentCard: React.FC<RecentCardProps> = ({ item, animValue }) => {
+  const translateX = animValue.interpolate({
+    inputRange: [0, 1],
+    outputRange: [30, 0],
+  });
+
   return (
-    <View style={styles.recentCard}>
-      <Text style={styles.recentModule}>{item.moduleLabel}</Text>
-      <Text style={styles.recentTitle} numberOfLines={2}>
-        {item.title}
-      </Text>
-      <Text style={styles.recentDate}>{item.accessedAt}</Text>
-    </View>
+    <Animated.View
+      style={{ opacity: animValue, transform: [{ translateX }] }}
+    >
+      <View style={s.recentCard}>
+        <Text style={s.recentModule}>{item.moduleLabel}</Text>
+        <Text style={s.recentTitle} numberOfLines={2}>
+          {item.title}
+        </Text>
+        <Text style={s.recentDate}>{item.accessedAt}</Text>
+      </View>
+    </Animated.View>
   );
 };
 
 const HomeScreen: React.FC = () => {
   const navigation = useNavigation<HomeNavigationProp>();
+  const insets = useSafeAreaInsets();
+
+  // animaciones del header y las cards
+  const headerAnim = useRef(new Animated.Value(0)).current;
+  const sectionTitleAnim = useRef(new Animated.Value(0)).current;
+  const moduleAnims = useRef(
+    AppModules.map(() => new Animated.Value(0)),
+  ).current;
+  const recentAnims = useRef(
+    RecentItems.map(() => new Animated.Value(0)),
+  ).current;
+
+  // se dispara cada vez que la pantalla recibe focus
+  useFocusEffect(
+    useCallback(() => {
+      headerAnim.setValue(0);
+      sectionTitleAnim.setValue(0);
+      moduleAnims.forEach((a) => a.setValue(0));
+      recentAnims.forEach((a) => a.setValue(0));
+
+      // secuencia: header -> titulos -> cards stagger
+      Animated.sequence([
+        Animated.timing(headerAnim, {
+          toValue: 1,
+          duration: 400,
+          useNativeDriver: true,
+        }),
+        Animated.parallel([
+          Animated.timing(sectionTitleAnim, {
+            toValue: 1,
+            duration: 300,
+            useNativeDriver: true,
+          }),
+          Animated.stagger(
+            70,
+            moduleAnims.map((a) =>
+              Animated.timing(a, {
+                toValue: 1,
+                duration: 380,
+                useNativeDriver: true,
+              }),
+            ),
+          ),
+        ]),
+        Animated.stagger(
+          60,
+          recentAnims.map((a) =>
+            Animated.timing(a, {
+              toValue: 1,
+              duration: 350,
+              useNativeDriver: true,
+            }),
+          ),
+        ),
+      ]).start();
+    }, [headerAnim, sectionTitleAnim, moduleAnims, recentAnims]),
+  );
 
   const handleModulePress = (module: AppModule) => {
     const target = module.route as keyof TabParamList;
@@ -79,172 +187,68 @@ const HomeScreen: React.FC = () => {
 
   const firstName = MockCurrentUser.fullName.split(' ')[0];
 
+  const headerTranslate = headerAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: [-20, 0],
+  });
+
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
-      <StatusBar barStyle="light-content" backgroundColor={Colors.background} />
+    <View style={s.container}>
+      <StatusBar barStyle="light-content" backgroundColor={Colors.primary} />
+
+      {/* banner azul con animacion */}
+      <Animated.View
+        style={{
+          opacity: headerAnim,
+          transform: [{ translateY: headerTranslate }],
+        }}
+      >
+        <View style={[s.headerBanner, { paddingTop: insets.top + 16 }]}>
+          <View style={s.headerAccent} />
+          <Text style={s.greeting}>Hola, {firstName}</Text>
+          <Text style={s.subtitle}>Bienvenido a FamilyMed App · UDES</Text>
+        </View>
+      </Animated.View>
 
       <ScrollView
-        contentContainerStyle={styles.scrollContent}
+        contentContainerStyle={s.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        {/* header */}
-        <View style={styles.header}>
-          <Text style={styles.greeting}>Hola, {firstName}</Text>
-          <Text style={styles.subtitle}>
-            Bienvenido a FamilyMed App · UDES
-          </Text>
-        </View>
-
         {/* grid 2x2 */}
-        <Text style={styles.sectionTitle}>Módulos</Text>
-        <View style={styles.modulesGrid}>
-          {AppModules.map((module) => (
+        <Animated.Text style={[s.sectionTitle, { opacity: sectionTitleAnim }]}>
+          Módulos
+        </Animated.Text>
+        <View style={s.modulesGrid}>
+          {AppModules.map((module, index) => (
             <ModuleCard
               key={module.id}
               module={module}
+              animValue={moduleAnims[index] ?? new Animated.Value(1)}
               onPress={handleModulePress}
             />
           ))}
         </View>
 
         {/* recientes */}
-        <Text style={styles.sectionTitle}>Recientes</Text>
+        <Animated.Text style={[s.sectionTitle, { opacity: sectionTitleAnim }]}>
+          Recientes
+        </Animated.Text>
         <FlatList
           data={RecentItems}
           keyExtractor={(item) => item.id}
           horizontal
           showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.recentList}
-          renderItem={({ item }) => <RecentCard item={item} />}
+          contentContainerStyle={s.recentList}
+          renderItem={({ item, index }) => (
+            <RecentCard
+              item={item}
+              animValue={recentAnims[index] ?? new Animated.Value(1)}
+            />
+          )}
         />
-
-        {/* footer */}
-        <View style={styles.footer}>
-          <Text style={styles.footerText}>
-            Universidad de Santander - UDES
-          </Text>
-          <Text style={styles.footerText}>
-            Proyecto de grado {MockCurrentUser.programCode}
-          </Text>
-        </View>
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: Colors.background,
-  },
-  scrollContent: {
-    paddingBottom: 32,
-  },
-
-  header: {
-    paddingHorizontal: 20,
-    paddingTop: 16,
-    paddingBottom: 24,
-  },
-  greeting: {
-    ...Typography.h1,
-    color: Colors.text,
-  },
-  subtitle: {
-    ...Typography.body,
-    color: Colors.textSecondary,
-    marginTop: 4,
-  },
-
-  sectionTitle: {
-    ...Typography.h3,
-    color: Colors.text,
-    paddingHorizontal: 20,
-    marginTop: 8,
-    marginBottom: 14,
-  },
-
-  modulesGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
-    paddingHorizontal: 20,
-    marginBottom: 24,
-  },
-  moduleCard: {
-    width: '48%',
-    backgroundColor: Colors.surface,
-    borderRadius: 14,
-    padding: 16,
-    marginBottom: 14,
-    borderWidth: 1,
-    borderColor: Colors.border,
-  },
-  moduleAccent: {
-    width: 36,
-    height: 4,
-    backgroundColor: Colors.gold,
-    borderRadius: 2,
-    marginBottom: 12,
-  },
-  moduleTitle: {
-    ...Typography.h4,
-    color: Colors.text,
-    marginBottom: 4,
-  },
-  moduleDescription: {
-    ...Typography.bodySmall,
-    color: Colors.textSecondary,
-    marginBottom: 10,
-    minHeight: 36,
-  },
-  moduleCount: {
-    ...Typography.caption,
-    color: Colors.gold,
-    textTransform: 'uppercase',
-    letterSpacing: 0.5,
-  },
-
-  recentList: {
-    paddingHorizontal: 20,
-    gap: 12,
-  },
-  recentCard: {
-    width: 200,
-    backgroundColor: Colors.surface,
-    borderRadius: 12,
-    padding: 14,
-    borderWidth: 1,
-    borderColor: Colors.border,
-  },
-  recentModule: {
-    ...Typography.caption,
-    color: Colors.gold,
-    textTransform: 'uppercase',
-    letterSpacing: 0.5,
-    marginBottom: 6,
-  },
-  recentTitle: {
-    ...Typography.bodyLarge,
-    color: Colors.text,
-    marginBottom: 10,
-    minHeight: 48,
-  },
-  recentDate: {
-    ...Typography.caption,
-    color: Colors.textSecondary,
-  },
-
-  footer: {
-    paddingHorizontal: 20,
-    paddingTop: 28,
-    alignItems: 'center',
-  },
-  footerText: {
-    ...Typography.caption,
-    color: Colors.textSecondary,
-    textAlign: 'center',
-  },
-});
 
 export default HomeScreen;

@@ -1,71 +1,64 @@
 // navegacion por tabs
 
 import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { Text, TouchableOpacity, View } from 'react-native';
 import {
-  createBottomTabNavigator,
+  BottomTabBarButtonProps,
   BottomTabNavigationOptions,
+  createBottomTabNavigator,
 } from '@react-navigation/bottom-tabs';
 
 import HomeScreen from '../screens/Home/HomeScreen';
 import ContenidosScreen from '../screens/Contenidos/ContenidosScreen';
 import CalculadorasScreen from '../screens/Calculadoras/CalculadorasScreen';
 import AtlasScreen from '../screens/Atlas/AtlasScreen';
+import GuiasScreen from '../screens/Guias/GuiasScreen';
 
-import { Colors } from '../constants/colors';
-import { Typography } from '../constants/typography';
+import { tabNavigatorStyles as s } from './TabNavigator.styles';
 
 export type TabParamList = {
   Home: undefined;
   Contenidos: undefined;
   Calculadoras: undefined;
   Atlas: undefined;
+  Guias: undefined;
 };
 
 const Tab = createBottomTabNavigator<TabParamList>();
 
-// icono custom con pill de color
-interface TabIconProps {
+// boton custom del tab
+interface CustomTabButtonProps extends BottomTabBarButtonProps {
   label: string;
-  focused: boolean;
 }
 
-const TabIcon: React.FC<TabIconProps> = ({ label, focused }) => {
+const CustomTabButton: React.FC<CustomTabButtonProps> = ({
+  label,
+  accessibilityState,
+  onPress,
+}) => {
+  const focused = accessibilityState?.selected ?? false;
+
   return (
-    <View
-      style={[
-        styles.iconContainer,
-        focused ? styles.iconContainerActive : styles.iconContainerInactive,
-      ]}
+    <TouchableOpacity
+      activeOpacity={0.75}
+      style={s.tabButton}
+      onPress={onPress ?? undefined}
+      accessibilityRole="button"
+      accessibilityState={accessibilityState}
     >
-      <Text
-        style={[
-          styles.iconLabel,
-          focused ? styles.iconLabelActive : styles.iconLabelInactive,
-        ]}
-        numberOfLines={1}
-      >
-        {label}
-      </Text>
-    </View>
+      <View style={[s.pill, focused ? s.pillActive : s.pillInactive]}>
+        <Text style={[s.label, focused ? s.labelActive : s.labelInactive]}>
+          {label}
+        </Text>
+      </View>
+    </TouchableOpacity>
   );
 };
 
 const screenOptions: BottomTabNavigationOptions = {
   headerShown: false,
   tabBarShowLabel: false,
-  tabBarStyle: {
-    backgroundColor: Colors.background,
-    borderTopColor: Colors.border,
-    borderTopWidth: 1,
-    height: 72,
-    paddingTop: 10,
-    paddingBottom: 12,
-    paddingHorizontal: 4,
-  },
-  tabBarItemStyle: {
-    paddingHorizontal: 2,
-  },
+  tabBarStyle: s.tabBar,
 };
 
 const TabNavigator: React.FC = () => {
@@ -75,8 +68,8 @@ const TabNavigator: React.FC = () => {
         name="Home"
         component={HomeScreen}
         options={{
-          tabBarIcon: ({ focused }) => (
-            <TabIcon label="Inicio" focused={focused} />
+          tabBarButton: (props) => (
+            <CustomTabButton {...props} label="Inicio" />
           ),
         }}
       />
@@ -84,8 +77,8 @@ const TabNavigator: React.FC = () => {
         name="Contenidos"
         component={ContenidosScreen}
         options={{
-          tabBarIcon: ({ focused }) => (
-            <TabIcon label="Contenidos" focused={focused} />
+          tabBarButton: (props) => (
+            <CustomTabButton {...props} label="Temas" />
           ),
         }}
       />
@@ -93,8 +86,8 @@ const TabNavigator: React.FC = () => {
         name="Calculadoras"
         component={CalculadorasScreen}
         options={{
-          tabBarIcon: ({ focused }) => (
-            <TabIcon label="Cálculos" focused={focused} />
+          tabBarButton: (props) => (
+            <CustomTabButton {...props} label="Cálculos" />
           ),
         }}
       />
@@ -102,40 +95,18 @@ const TabNavigator: React.FC = () => {
         name="Atlas"
         component={AtlasScreen}
         options={{
-          tabBarIcon: ({ focused }) => (
-            <TabIcon label="Atlas" focused={focused} />
-          ),
+          tabBarButton: (props) => <CustomTabButton {...props} label="Atlas" />,
+        }}
+      />
+      <Tab.Screen
+        name="Guias"
+        component={GuiasScreen}
+        options={{
+          tabBarButton: (props) => <CustomTabButton {...props} label="Guías" />,
         }}
       />
     </Tab.Navigator>
   );
 };
-
-const styles = StyleSheet.create({
-  iconContainer: {
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 20,
-    minWidth: 78,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  iconContainerActive: {
-    backgroundColor: Colors.primary,
-  },
-  iconContainerInactive: {
-    backgroundColor: Colors.transparent,
-  },
-  iconLabel: {
-    ...Typography.label,
-    fontSize: 12,
-  },
-  iconLabelActive: {
-    color: Colors.text,
-  },
-  iconLabelInactive: {
-    color: Colors.textSecondary,
-  },
-});
 
 export default TabNavigator;

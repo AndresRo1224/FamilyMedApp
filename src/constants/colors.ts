@@ -2,37 +2,60 @@
 
 export interface UdesColorPalette {
   primary: string;
+  primaryLight: string;
+  primaryDark: string;
   background: string;
   surface: string;
+  surfaceAlt: string;
   gold: string;
+  goldLight: string;
   text: string;
   textSecondary: string;
+  textTertiary: string;
   border: string;
+  borderSubtle: string;
   success: string;
   warning: string;
   danger: string;
   info: string;
+  shadow: string;
   overlay: string;
   transparent: string;
 }
 
 export const Colors: UdesColorPalette = {
+  // azules UDES como acento
   primary: '#004899',
-  background: '#0D1B3E',
-  surface: '#1A3472',
+  primaryLight: '#2E6FD9',
+  primaryDark: '#003270',
+
+  // fondos claros
+  background: '#F5F6FA',
+  surface: '#FFFFFF',
+  surfaceAlt: '#FAFBFD',
+
+  // oro UDES
   gold: '#C99F81',
+  goldLight: '#E8C6A8',
 
-  text: '#FFFFFF',
-  textSecondary: '#B8C9E8',
+  // texto
+  text: '#1A1F35',
+  textSecondary: '#5B6378',
+  textTertiary: '#8891A4',
 
-  border: '#1E3A6E',
+  // bordes
+  border: '#E2E5EC',
+  borderSubtle: '#EEF0F4',
 
+  // estados
   success: '#4CAF50',
   warning: '#FFB300',
   danger: '#E53935',
   info: '#29B6F6',
 
-  overlay: 'rgba(13, 27, 62, 0.85)',
+  // sombras y overlays
+  shadow: '#000000',
+  overlay: 'rgba(26, 31, 53, 0.55)',
   transparent: 'transparent',
 };
 
@@ -40,7 +63,7 @@ export const Colors: UdesColorPalette = {
 export const ModuleColors = {
   hipertension: '#004899',
   calculadoras: '#C99F81',
-  atlas: '#1A3472',
+  atlas: '#2E6FD9',
   guias: '#29B6F6',
 } as const;
 

@@ -1,4 +1,4 @@
-// pantalla de contenidos con filtros
+// pantalla de guias clinicas
 
 import React, { useCallback, useMemo, useRef, useState } from 'react';
 import {
@@ -14,13 +14,13 @@ import { useFocusEffect } from '@react-navigation/native';
 
 import { Colors } from '../../constants/colors';
 import {
-  ContentLevel,
-  HypertensionContent,
-  HypertensionSection,
+  ClinicalGuide,
+  ClinicalGuides,
+  GuideType,
 } from '../../data/mockData';
-import { contenidosStyles as s } from './ContenidosScreen.styles';
+import { guiasStyles as s } from './GuiasScreen.styles';
 
-type FilterValue = ContentLevel | 'all';
+type FilterValue = GuideType | 'all';
 
 interface FilterOption {
   value: FilterValue;
@@ -28,19 +28,14 @@ interface FilterOption {
 }
 
 const FILTER_OPTIONS: FilterOption[] = [
-  { value: 'all', label: 'Todos' },
-  { value: 'basico', label: 'Básico' },
-  { value: 'intermedio', label: 'Intermedio' },
-  { value: 'avanzado', label: 'Avanzado' },
+  { value: 'all', label: 'Todas' },
+  { value: 'algoritmo', label: 'Algoritmos' },
+  { value: 'protocolo', label: 'Protocolos' },
+  { value: 'tecnica', label: 'Técnicas' },
+  { value: 'situacion_especial', label: 'Situaciones' },
 ];
 
-const LEVEL_LABELS: Record<ContentLevel, string> = {
-  basico: 'Básico',
-  intermedio: 'Intermedio',
-  avanzado: 'Avanzado',
-};
-
-// chip del filtro
+// chip de filtro
 interface FilterChipProps {
   option: FilterOption;
   active: boolean;
@@ -63,13 +58,13 @@ const FilterChip: React.FC<FilterChipProps> = ({ option, active, onPress }) => {
   );
 };
 
-// card de seccion con animacion de stagger
-interface ContentCardProps {
-  section: HypertensionSection;
+// card con animacion (stagger + press scale)
+interface GuideCardProps {
+  guide: ClinicalGuide;
   animValue: Animated.Value;
 }
 
-const ContentCard: React.FC<ContentCardProps> = ({ section, animValue }) => {
+const GuideCard: React.FC<GuideCardProps> = ({ guide, animValue }) => {
   const scale = useRef(new Animated.Value(1)).current;
 
   const pressIn = () => {
@@ -109,45 +104,47 @@ const ContentCard: React.FC<ContentCardProps> = ({ section, animValue }) => {
         style={s.card}
       >
         <View style={s.cardHeader}>
-          <View style={s.levelBadge}>
-            <Text style={s.levelBadgeText}>
-              {LEVEL_LABELS[section.level]}
-            </Text>
+          <View style={s.typeBadge}>
+            <Text style={s.typeBadgeText}>{guide.typeLabel}</Text>
           </View>
-          <Text style={s.readingTime}>
-            {section.readingTimeMinutes} min
-          </Text>
+          <Text style={s.lastUpdated}>{guide.lastUpdated}</Text>
         </View>
 
-        <Text style={s.cardTitle}>{section.title}</Text>
-        <Text style={s.cardSubtitle} numberOfLines={2}>
-          {section.subtitle}
+        <Text style={s.cardTitle}>{guide.title}</Text>
+        <Text style={s.cardSummary} numberOfLines={3}>
+          {guide.summary}
         </Text>
 
-        <View style={s.keyPointsContainer}>
-          {section.keyPoints.slice(0, 2).map((point, idx) => (
-            <View key={idx} style={s.keyPointRow}>
-              <View style={s.keyPointDot} />
-              <Text style={s.keyPointText} numberOfLines={1}>
-                {point}
+        <View style={s.stepsContainer}>
+          {guide.steps.slice(0, 3).map((step, idx) => (
+            <View key={idx} style={s.stepRow}>
+              <Text style={s.stepNumber}>{idx + 1}.</Text>
+              <Text style={s.stepText} numberOfLines={2}>
+                {step}
               </Text>
             </View>
           ))}
         </View>
+
+        <Text style={s.sourceText} numberOfLines={1}>
+          Fuente: {guide.source}
+        </Text>
       </TouchableOpacity>
     </Animated.View>
   );
 };
 
-const ContenidosScreen: React.FC = () => {
+const GuiasScreen: React.FC = () => {
   const insets = useSafeAreaInsets();
   const [activeFilter, setActiveFilter] = useState<FilterValue>('all');
 
+  // animaciones de entrada
   const headerAnim = useRef(new Animated.Value(0)).current;
   const cardAnims = useRef(
-    HypertensionContent.map(() => new Animated.Value(0)),
+    ClinicalGuides.map(() => new Animated.Value(0)),
   ).current;
 
+  // se dispara cada vez que la pantalla recibe focus
   useFocusEffect(
     useCallback(() => {
       headerAnim.setValue(0);
@@ -172,13 +169,11 @@ const ContenidosScreen: React.FC = () => {
     }, [headerAnim, cardAnims]),
   );
 
-  const filteredContent = useMemo(() => {
+  const filteredGuides = useMemo(() => {
     if (activeFilter === 'all') {
-      return HypertensionContent;
+      return ClinicalGuides;
     }
-    return HypertensionContent.filter(
-      (section) => section.level === activeFilter,
-    );
+    return ClinicalGuides.filter((g) => g.type === activeFilter);
   }, [activeFilter]);
 
   const headerTranslate = headerAnim.interpolate({
@@ -192,17 +187,14 @@ const ContenidosScreen: React.FC = () => {
 
       {/* banner azul */}
       <Animated.View
-        style={{
-          opacity: headerAnim,
-          transform: [{ translateY: headerTranslate }],
-        }}
+        style={{ opacity: headerAnim, transform: [{ translateY: headerTranslate }] }}
       >
         <View style={[s.headerBanner, { paddingTop: insets.top + 16 }]}>
           <View style={s.headerAccent} />
-          <Text style={s.title}>Contenidos</Text>
+          <Text style={s.title}>Guías</Text>
           <Text style={s.subtitle}>
-            Hipertensión Arterial · {filteredContent.length}{' '}
-            {filteredContent.length === 1 ? 'sección' : 'secciones'}
+            {filteredGuides.length}{' '}
+            {filteredGuides.length === 1 ? 'guía' : 'guías'} clínicas
           </Text>
         </View>
       </Animated.View>
@@ -225,23 +217,21 @@ const ContenidosScreen: React.FC = () => {
         />
       </View>
 
-      {/* listado */}
+      {/* lista */}
       <FlatList
-        data={filteredContent}
+        data={filteredGuides}
         keyExtractor={(item) => item.id}
         contentContainerStyle={s.listContent}
         showsVerticalScrollIndicator={false}
         renderItem={({ item, index }) => (
-          <ContentCard
-            section={item}
+          <GuideCard
+            guide={item}
             animValue={cardAnims[index] ?? new Animated.Value(1)}
           />
         )}
         ListEmptyComponent={
           <View style={s.emptyState}>
-            <Text style={s.emptyText}>
-              No hay contenido para este filtro.
-            </Text>
+            <Text style={s.emptyText}>No hay guías para este filtro.</Text>
           </View>
         }
       />
@@ -249,4 +239,4 @@ const ContenidosScreen: React.FC = () => {
   );
 };
 
-export default ContenidosScreen;
+export default GuiasScreen;
