@@ -10,9 +10,11 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import type { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 import { Colors } from '../../constants/colors';
 import {
@@ -23,9 +25,12 @@ import {
   RecentItems,
 } from '../../data/mockData';
 import type { TabParamList } from '../../navigation/TabNavigator';
+import type { RootStackParamList } from '../../navigation/RootNavigator';
 import { homeStyles as s } from './HomeScreen.styles';
 
-type HomeNavigationProp = BottomTabNavigationProp<TabParamList>;
+// navegacion combinada: tabs + stack (para ir a Settings)
+type HomeNavigationProp = BottomTabNavigationProp<TabParamList> &
+  NativeStackNavigationProp<RootStackParamList>;
 
 // card de modulo con animacion de stagger y scale al presionar
 interface ModuleCardProps {
@@ -142,7 +147,6 @@ const HomeScreen: React.FC = () => {
       moduleAnims.forEach((a) => a.setValue(0));
       recentAnims.forEach((a) => a.setValue(0));
 
-      // secuencia: header -> titulos -> cards stagger
       Animated.sequence([
         Animated.timing(headerAnim, {
           toValue: 1,
@@ -204,6 +208,15 @@ const HomeScreen: React.FC = () => {
         }}
       >
         <View style={[s.headerBanner, { paddingTop: insets.top + 16 }]}>
+          {/* boton de settings en la esquina */}
+          <TouchableOpacity
+            style={[s.settingsButton, { top: insets.top + 12 }]}
+            activeOpacity={0.8}
+            onPress={() => navigation.navigate('Settings')}
+          >
+            <Ionicons name="settings-outline" size={20} color="#FFFFFF" />
+          </TouchableOpacity>
+
           <View style={s.headerAccent} />
           <Text style={s.greeting}>Hola, {firstName}</Text>
           <Text style={s.subtitle}>Bienvenido a FamilyMed App · UDES</Text>

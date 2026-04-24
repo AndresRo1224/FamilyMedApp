@@ -9,9 +9,9 @@ export const tabNavigatorStyles = StyleSheet.create({
     backgroundColor: Colors.surface,
     borderTopColor: Colors.border,
     borderTopWidth: 1,
-    height: 72,
-    paddingTop: 10,
-    paddingBottom: 12,
+    height: 76,
+    paddingTop: 8,
+    paddingBottom: 10,
     shadowColor: Colors.shadow,
     shadowOffset: { width: 0, height: -2 },
     shadowOpacity: 0.05,
@@ -28,26 +28,31 @@ export const tabNavigatorStyles = StyleSheet.create({
     paddingHorizontal: 2,
   },
 
-  // pill interno
-  pill: {
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-    borderRadius: 16,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  pillActive: {
+  // indicador superior del tab activo
+  indicator: {
+    position: 'absolute',
+    top: 0,
+    width: 28,
+    height: 3,
+    borderRadius: 2,
     backgroundColor: Colors.primary,
   },
-  pillInactive: {
-    backgroundColor: Colors.transparent,
+
+  // contenido interno (icono + label)
+  tabContent: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingTop: 6,
+  },
+  iconBox: {
+    marginBottom: 3,
   },
   label: {
     ...Typography.label,
     fontSize: 10.5,
   },
   labelActive: {
-    color: '#FFFFFF',
+    color: Colors.primary,
     fontWeight: '700',
   },
   labelInactive: {

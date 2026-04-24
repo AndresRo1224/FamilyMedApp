@@ -33,6 +33,17 @@ export const homeStyles = StyleSheet.create({
     borderRadius: 2,
     marginBottom: 14,
   },
+  settingsButton: {
+    position: 'absolute',
+    right: 20,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: 'rgba(255, 255, 255, 0.15)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    zIndex: 2,
+  },
   greeting: {
     ...Typography.h1,
     color: '#FFFFFF',
