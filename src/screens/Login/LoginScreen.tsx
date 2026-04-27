@@ -79,7 +79,7 @@ const LoginScreen: React.FC = () => {
               resizeMode="contain"
             />
           </View>
-          <Text style={s.appName}>FamilyMed App</Text>
+          <Text style={s.appName}>FamilyMed</Text>
           <Text style={s.institution}>Universidad de Santander</Text>
         </View>
 
@@ -195,9 +195,7 @@ const LoginScreen: React.FC = () => {
           </TouchableOpacity>
 
           <View style={s.footer}>
-            <Text style={s.footerText}>
-              Proyecto de grado 65-2026-071
-            </Text>
+            
             <Text style={s.footerText}>
               Facultad de Medicina · Medicina Familiar
             </Text>
