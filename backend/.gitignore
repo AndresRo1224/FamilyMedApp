@@ -1,0 +1,46 @@
+# variables de entorno y secretos
+.env
+.env.local
+.env.*.local
+
+# python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# entornos virtuales
+venv/
+env/
+.venv/
+ENV/
+
+# distribuciones / builds
+build/
+dist/
+*.egg-info/
+*.egg
+
+# django
+*.log
+*.pot
+*.pyc
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+staticfiles/
+media/
+
+# coverage / tests
+.coverage
+.coverage.*
+htmlcov/
+.pytest_cache/
+.tox/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
