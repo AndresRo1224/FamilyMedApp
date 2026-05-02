@@ -33,6 +33,9 @@ ALLOWED_HOSTS = os.getenv(
 
 # apps instaladas
 INSTALLED_APPS = [
+    # tema del admin (debe ir antes de django.contrib.admin)
+    'jazzmin',
+
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -42,6 +45,9 @@ INSTALLED_APPS = [
 
     # api rest
     'rest_framework',
+
+    # apps del proyecto
+    'apps.contenidos',
 ]
 
 
@@ -109,5 +115,88 @@ USE_TZ = True
 STATIC_URL = 'static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
+# carpeta extra de archivos estaticos del proyecto (logo UDES, CSS custom)
+STATICFILES_DIRS = [
+    BASE_DIR / 'static',
+]
+
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+# configuracion del tema jazzmin (admin de django con branding UDES)
+JAZZMIN_SETTINGS = {
+    # textos del sitio
+    'site_title': 'FamilyMed Admin',
+    'site_header': 'FamilyMed',
+    'site_brand': 'FamilyMed',
+    'welcome_sign': 'Bienvenido al panel de FamilyMed',
+    'copyright': 'Universidad de Santander · UDES',
+
+    # logo UDES (en la sidebar y login)
+    'site_logo': 'images/logo.png',
+    'login_logo': 'images/logo.png',
+    'site_logo_classes': 'img-circle',
+
+    # CSS personalizado con paleta UDES (light + dark)
+    'custom_css': 'css/admin-udes.css',
+
+    # JS personalizado: toggle de tema claro / oscuro
+    'custom_js': 'js/admin-theme.js',
+
+    # buscador
+    'search_model': ['auth.User'],
+
+    # menu superior
+    'topmenu_links': [
+        {'name': 'Inicio', 'url': 'admin:index', 'permissions': ['auth.view_user']},
+    ],
+
+    # iconos por modelo (font awesome 5)
+    'icons': {
+        'auth': 'fas fa-users-cog',
+        'auth.user': 'fas fa-user-md',
+        'auth.Group': 'fas fa-users',
+    },
+    'default_icon_parents': 'fas fa-chevron-circle-right',
+    'default_icon_children': 'fas fa-circle',
+
+    # comportamiento
+    'related_modal_active': True,
+    'show_ui_builder': False,
+    'changeform_format': 'horizontal_tabs',
+}
+
+
+# tweaks visuales del tema (paleta y layout)
+JAZZMIN_UI_TWEAKS = {
+    'navbar_small_text': False,
+    'footer_small_text': False,
+    'body_small_text': False,
+    'brand_small_text': False,
+    'brand_colour': 'navbar-primary',
+    'accent': 'accent-primary',
+    'navbar': 'navbar-primary navbar-dark',
+    'no_navbar_border': False,
+    'navbar_fixed': True,
+    'layout_boxed': False,
+    'footer_fixed': False,
+    'sidebar_fixed': True,
+    'sidebar': 'sidebar-dark-primary',
+    'sidebar_nav_small_text': False,
+    'sidebar_disable_expand': False,
+    'sidebar_nav_child_indent': False,
+    'sidebar_nav_compact_style': False,
+    'sidebar_nav_legacy_style': False,
+    'sidebar_nav_flat_style': False,
+    'theme': 'default',
+    'dark_mode_theme': None,
+    'button_classes': {
+        'primary': 'btn-primary',
+        'secondary': 'btn-secondary',
+        'info': 'btn-info',
+        'warning': 'btn-warning',
+        'danger': 'btn-danger',
+        'success': 'btn-success',
+    },
+}

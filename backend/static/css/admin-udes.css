@@ -1,0 +1,593 @@
+/* paleta oficial UDES con soporte para tema claro y oscuro
+   el toggle se controla via data-theme en html/body desde admin-theme.js
+   el JS tambien fuerza color-scheme inline para vencer al modo del SO */
+
+
+/* =================== OVERRIDE AGRESIVO DEL DARK MODE DEL SO =================== */
+/* cuando el usuario eligio modo claro pero el SO esta en oscuro,
+   forzamos los colores claros pase lo que pase */
+
+@media (prefers-color-scheme: dark) {
+
+    html[data-theme="light"],
+    html[data-theme="light"] body {
+        color-scheme: only light !important;
+        background-color: #F5F6FA !important;
+        color: #1A1F35 !important;
+    }
+
+    html[data-theme="light"] .wrapper,
+    html[data-theme="light"] .content-wrapper,
+    html[data-theme="light"] .main,
+    html[data-theme="light"] section.content,
+    html[data-theme="light"] .content {
+        background-color: #F5F6FA !important;
+        color: #1A1F35 !important;
+    }
+
+    html[data-theme="light"] .card,
+    html[data-theme="light"] .card-body,
+    html[data-theme="light"] table.module,
+    html[data-theme="light"] .table {
+        background-color: #FFFFFF !important;
+        color: #1A1F35 !important;
+    }
+
+    html[data-theme="light"] .card-header {
+        background-color: #FAFBFD !important;
+        color: #1A1F35 !important;
+    }
+
+    html[data-theme="light"] .form-control,
+    html[data-theme="light"] input,
+    html[data-theme="light"] select,
+    html[data-theme="light"] textarea {
+        background-color: #FFFFFF !important;
+        color: #1A1F35 !important;
+        color-scheme: light !important;
+    }
+
+    html[data-theme="light"] .main-footer {
+        background-color: #FFFFFF !important;
+        color: #1A1F35 !important;
+    }
+}
+
+
+/* fuerza color-scheme en controles nativos siempre */
+input, select, textarea, button {
+    color-scheme: inherit;
+}
+
+
+
+/* =================== TEMA CLARO (default) =================== */
+
+:root,
+html[data-theme="light"],
+body[data-theme="light"] {
+    color-scheme: only light;
+
+    /* fondos */
+    --bg: #F5F6FA;
+    --surface: #FFFFFF;
+    --surface-alt: #FAFBFD;
+
+    /* texto */
+    --text: #1A1F35;
+    --text-secondary: #5B6378;
+    --text-tertiary: #8891A4;
+
+    /* bordes */
+    --border: #E2E5EC;
+    --border-subtle: #EEF0F4;
+
+    /* paleta UDES (azules + oro) */
+    --udes-primary: #004899;
+    --udes-primary-dark: #003270;
+    --udes-primary-light: #2E6FD9;
+    --udes-gold: #C99F81;
+    --udes-gold-light: #E8C6A8;
+
+    /* sidebar */
+    --sidebar-bg: #004899;
+    --sidebar-text: #FFFFFF;
+    --sidebar-active-bg: #C99F81;
+    --sidebar-active-text: #003270;
+    --sidebar-hover-bg: #2E6FD9;
+}
+
+
+/* =================== TEMA OSCURO =================== */
+
+html[data-theme="dark"],
+body[data-theme="dark"] {
+    color-scheme: only dark;
+
+    /* fondos oscuros */
+    --bg: #0F1729;
+    --surface: #1A2540;
+    --surface-alt: #243153;
+
+    /* texto */
+    --text: #FFFFFF;
+    --text-secondary: #B8C9E8;
+    --text-tertiary: #7A8CAD;
+
+    /* bordes mas visibles */
+    --border: #2C4B85;
+    --border-subtle: #1E3A6E;
+
+    /* UDES ajustado para mejor contraste sobre oscuro */
+    --udes-primary: #2E6FD9;
+    --udes-primary-dark: #004899;
+    --udes-primary-light: #4A8AE5;
+    --udes-gold: #E8C6A8;
+    --udes-gold-light: #F5D9BC;
+
+    /* sidebar mas oscuro en dark mode */
+    --sidebar-bg: #003270;
+    --sidebar-text: #FFFFFF;
+    --sidebar-active-bg: #E8C6A8;
+    --sidebar-active-text: #003270;
+    --sidebar-hover-bg: #2E6FD9;
+}
+
+
+/* =================== BASE =================== */
+
+html, body {
+    background-color: var(--bg) !important;
+    color: var(--text) !important;
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.wrapper,
+.content-wrapper,
+.main,
+section.content,
+.content {
+    background-color: var(--bg) !important;
+    color: var(--text) !important;
+}
+
+
+/* =================== TEXTOS DEL CONTENIDO =================== */
+
+.content-wrapper h1,
+.content-wrapper h2,
+.content-wrapper h3,
+.content-wrapper h4,
+.content-wrapper h5,
+.content-wrapper h6,
+.content-header h1,
+.content-header h1 small {
+    color: var(--text) !important;
+}
+
+.content-wrapper p,
+.content-wrapper span,
+.content-wrapper label,
+.content-wrapper li {
+    color: var(--text) !important;
+}
+
+.content-wrapper .text-muted,
+.content-wrapper small {
+    color: var(--text-secondary) !important;
+}
+
+
+/* =================== LOGO =================== */
+
+/* logo en la sidebar - rectangular, sin caja, ya que el logo UDES es horizontal */
+.brand-image,
+.main-sidebar .brand-image,
+.brand-link .brand-image,
+img.brand-image {
+    max-height: 38px !important;
+    max-width: 130px !important;
+    width: auto !important;
+    height: auto !important;
+    object-fit: contain !important;
+    margin-top: -3px;
+    margin-right: 10px;
+    border-radius: 4px !important;
+    background-color: rgba(255, 255, 255, 0.95) !important;
+    padding: 3px 5px !important;
+    box-shadow: none !important;
+}
+
+.login-logo img,
+.login-page .login-logo img,
+body.login-page .login-logo img {
+    max-height: 100px !important;
+    max-width: 220px !important;
+    width: auto !important;
+    height: auto !important;
+    object-fit: contain !important;
+}
+
+
+/* =================== LOGIN =================== */
+
+body.login-page,
+.login-page {
+    background: linear-gradient(135deg, var(--udes-primary) 0%, var(--udes-primary-dark) 100%) !important;
+    min-height: 100vh;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    flex-direction: column;
+}
+
+.login-logo {
+    text-align: center;
+    margin-bottom: 24px;
+    padding: 16px 20px;
+    background-color: #fff !important;
+    border-radius: 12px;
+    display: inline-block;
+}
+
+.login-logo a {
+    color: var(--udes-primary) !important;
+    font-weight: 700;
+    text-decoration: none;
+}
+
+.login-box {
+    background-color: var(--surface) !important;
+    border-radius: 12px !important;
+    padding: 28px !important;
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.25) !important;
+    max-width: 420px !important;
+    width: 90% !important;
+    border-top: 4px solid var(--udes-gold) !important;
+    margin: 0 auto !important;
+    color: var(--text);
+}
+
+.login-box, .login-box * {
+    color: var(--text);
+}
+
+.login-box-msg {
+    color: var(--udes-primary) !important;
+    font-weight: 600;
+    text-align: center;
+}
+
+.login-box .form-control,
+.login-box input {
+    background-color: var(--surface-alt) !important;
+    color: var(--text) !important;
+    border: 1px solid var(--border) !important;
+}
+
+.login-box .input-group-text {
+    background-color: var(--surface-alt) !important;
+    color: var(--udes-primary) !important;
+    border: 1px solid var(--border) !important;
+}
+
+
+/* =================== NAVBAR SUPERIOR =================== */
+
+.main-header,
+.main-header.navbar,
+nav.main-header,
+.navbar-primary {
+    background-color: var(--udes-primary) !important;
+    border-bottom: 2px solid var(--udes-gold) !important;
+}
+
+.main-header .nav-link,
+.main-header .navbar-nav .nav-link,
+.main-header a {
+    color: #fff !important;
+}
+
+.main-header .form-control {
+    background-color: rgba(255, 255, 255, 0.15) !important;
+    color: #fff !important;
+    border-color: rgba(255, 255, 255, 0.3) !important;
+}
+
+.main-header .form-control::placeholder {
+    color: rgba(255, 255, 255, 0.7) !important;
+}
+
+
+/* boton del toggle de tema */
+#udes-theme-toggle {
+    color: #fff !important;
+    transition: transform 0.2s ease;
+}
+
+#udes-theme-toggle:hover {
+    transform: scale(1.15);
+}
+
+#udes-theme-toggle i {
+    font-size: 16px;
+}
+
+
+/* =================== SIDEBAR =================== */
+
+/* selectores agresivos para vencer cualquier estilo de jazzmin/adminLTE */
+html body .main-sidebar,
+html body aside.main-sidebar,
+.main-sidebar,
+aside.main-sidebar,
+.main-sidebar.sidebar-dark-primary,
+.main-sidebar.sidebar-light-primary,
+.main-sidebar.bg-dark,
+.main-sidebar.bg-primary,
+.main-sidebar.elevation-4,
+[class*="sidebar"][class*="dark"],
+.layout-fixed .main-sidebar,
+body.sidebar-mini .main-sidebar,
+body.sidebar-collapse .main-sidebar {
+    background-color: var(--sidebar-bg) !important;
+    background: var(--sidebar-bg) !important;
+}
+
+/* el contenedor interno del sidebar (sidebar-content) */
+.main-sidebar .sidebar,
+.main-sidebar > .sidebar,
+.os-host,
+.main-sidebar .os-content {
+    background-color: var(--sidebar-bg) !important;
+}
+
+.brand-link,
+.main-sidebar .brand-link {
+    background-color: var(--udes-primary-dark) !important;
+    border-bottom: 2px solid var(--udes-gold) !important;
+    color: var(--sidebar-text) !important;
+}
+
+.brand-link .brand-text,
+.brand-text {
+    color: var(--sidebar-text) !important;
+    font-weight: 700;
+}
+
+.nav-sidebar .nav-item .nav-link {
+    color: rgba(255, 255, 255, 0.92) !important;
+}
+
+.nav-sidebar .nav-item .nav-link.active,
+.nav-sidebar .nav-item .nav-link.active:hover {
+    background-color: var(--sidebar-active-bg) !important;
+    color: var(--sidebar-active-text) !important;
+    font-weight: 600;
+}
+
+.nav-sidebar .nav-item .nav-link:hover:not(.active) {
+    background-color: var(--sidebar-hover-bg) !important;
+    color: #fff !important;
+}
+
+.nav-sidebar .nav-item .nav-link i,
+.nav-sidebar .nav-item .nav-link p {
+    color: inherit !important;
+}
+
+.user-panel {
+    border-bottom: 1px solid var(--udes-gold) !important;
+}
+
+.user-panel .info a {
+    color: var(--sidebar-text) !important;
+}
+
+
+/* =================== CARDS =================== */
+
+.card,
+body .card,
+.card.card-outline {
+    background-color: var(--surface) !important;
+    color: var(--text) !important;
+    border: 1px solid var(--border) !important;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+}
+
+.card .card-header {
+    background-color: var(--surface-alt) !important;
+    color: var(--text) !important;
+    border-bottom: 1px solid var(--border) !important;
+}
+
+.card .card-body,
+.card .card-title {
+    color: var(--text) !important;
+}
+
+.card-primary,
+.card.card-primary {
+    border-top: 3px solid var(--udes-gold) !important;
+}
+
+.card-primary > .card-header,
+.card.card-primary > .card-header {
+    background-color: var(--udes-primary) !important;
+    color: #fff !important;
+}
+
+.card-primary > .card-header .card-title {
+    color: #fff !important;
+}
+
+
+/* =================== TABLAS DEL DASHBOARD =================== */
+
+table.module {
+    background-color: var(--surface) !important;
+}
+
+table.module thead,
+table.module thead th {
+    background-color: var(--udes-primary) !important;
+    color: #fff !important;
+}
+
+table.module td,
+table.module tr {
+    color: var(--text) !important;
+    background-color: var(--surface) !important;
+    border-color: var(--border) !important;
+}
+
+table.module td a {
+    color: var(--udes-primary) !important;
+    font-weight: 500;
+}
+
+
+/* =================== TABLAS GENERALES =================== */
+
+.table,
+table.table {
+    background-color: var(--surface) !important;
+    color: var(--text) !important;
+}
+
+.table thead th,
+table.table thead th {
+    background-color: var(--udes-primary) !important;
+    color: #fff !important;
+    border-color: var(--udes-primary-dark) !important;
+}
+
+.table tbody tr,
+.table tbody td {
+    color: var(--text) !important;
+    background-color: var(--surface) !important;
+    border-color: var(--border) !important;
+}
+
+
+/* =================== BOTONES =================== */
+
+.btn-primary,
+.btn.btn-primary {
+    background-color: var(--udes-primary) !important;
+    border-color: var(--udes-primary) !important;
+    color: #fff !important;
+}
+
+.btn-primary:hover,
+.btn.btn-primary:hover {
+    background-color: var(--udes-primary-dark) !important;
+    border-color: var(--udes-primary-dark) !important;
+}
+
+/* añadir y modificar (tabla del dashboard) */
+.btn-success,
+a.addlink {
+    background-color: var(--udes-primary) !important;
+    border-color: var(--udes-primary) !important;
+    color: #fff !important;
+}
+
+.btn-info,
+a.changelink {
+    background-color: var(--udes-gold) !important;
+    border-color: var(--udes-gold) !important;
+    color: var(--udes-primary-dark) !important;
+}
+
+
+/* =================== ENLACES =================== */
+
+.content-wrapper a:not(.btn):not(.nav-link):not(.dropdown-item) {
+    color: var(--udes-primary);
+}
+
+.content-wrapper a:not(.btn):not(.nav-link):not(.dropdown-item):hover {
+    color: var(--udes-primary-dark);
+}
+
+
+/* =================== BREADCRUMBS =================== */
+
+.breadcrumb {
+    background-color: transparent !important;
+}
+
+.breadcrumb-item a {
+    color: var(--udes-primary) !important;
+}
+
+.breadcrumb-item.active {
+    color: var(--text-secondary) !important;
+    font-weight: 600;
+}
+
+
+/* =================== "ACCIONES RECIENTES" Y SIDEBAR DERECHA =================== */
+
+.recent-actions h2,
+.recent-actions h3,
+#recent-actions-module h2 {
+    color: var(--text) !important;
+}
+
+.recent-actions p,
+.recent-actions ul li {
+    color: var(--text-secondary) !important;
+}
+
+
+/* =================== FOOTER =================== */
+
+.main-footer,
+footer.main-footer {
+    border-top: 3px solid var(--udes-gold) !important;
+    background-color: var(--surface) !important;
+    color: var(--text) !important;
+}
+
+.main-footer a {
+    color: var(--udes-primary) !important;
+}
+
+
+/* =================== FORMULARIOS =================== */
+
+.form-control {
+    background-color: var(--surface) !important;
+    color: var(--text) !important;
+    border: 1px solid var(--border) !important;
+}
+
+.form-control:focus {
+    border-color: var(--udes-primary) !important;
+    box-shadow: 0 0 0 3px rgba(46, 111, 217, 0.15);
+}
+
+label,
+.form-label {
+    color: var(--text) !important;
+}
+
+
+/* =================== DROPDOWN =================== */
+
+.dropdown-menu {
+    background-color: var(--surface) !important;
+    border: 1px solid var(--border) !important;
+}
+
+.dropdown-item {
+    color: var(--text) !important;
+}
+
+.dropdown-item:hover {
+    background-color: var(--surface-alt) !important;
+    color: var(--udes-primary) !important;
+}

@@ -39,3 +39,6 @@ yarn-error.*
 # generated native folders
 /ios
 /android
+
+#Archivo combinado para Expo y Django
+*.bat

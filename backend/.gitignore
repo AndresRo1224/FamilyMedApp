@@ -2,6 +2,10 @@
 .env
 .env.local
 .env.*.local
+.env.production
+.env.development
+*.pem
+*.key
 
 # python
 __pycache__/
@@ -15,6 +19,7 @@ venv/
 env/
 .venv/
 ENV/
+.python-version
 
 # distribuciones / builds
 build/
@@ -29,6 +34,8 @@ dist/
 local_settings.py
 db.sqlite3
 db.sqlite3-journal
+db.sqlite3-shm
+db.sqlite3-wal
 staticfiles/
 media/
 
@@ -38,9 +45,50 @@ media/
 htmlcov/
 .pytest_cache/
 .tox/
+.nox/
 
-# IDE
+# linters y type checkers
+.mypy_cache/
+.ruff_cache/
+.pyre/
+.pytype/
+
+# IDE / editores
 .vscode/
 .idea/
+.history/
+.cursor/
+.fleet/
 *.swp
 *.swo
+*.swn
+
+# archivos del sistema operativo
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# backups y temporales
+*.bak
+*.tmp
+*.temp
+*~
+~$*
+
+# secretos / credenciales adicionales
+secrets.json
+credentials.json
+*.crt
+*.cert
+*.p12
+service-account*.json
+#Archivo combinado para Expo y Django
+*.bat
