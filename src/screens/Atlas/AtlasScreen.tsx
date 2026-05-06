@@ -1,7 +1,8 @@
-// galeria visual con filtros
+// galeria visual con filtros - lee desde el backend
 
 import React, { useCallback, useMemo, useRef, useState } from 'react';
 import {
+  ActivityIndicator,
   Animated,
   FlatList,
   StatusBar,
@@ -14,27 +15,37 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useFocusEffect } from '@react-navigation/native';
 
 import { Colors } from '../../constants/colors';
-import {
-  AtlasCategories,
-  AtlasCategory,
-  AtlasItem,
-  AtlasItems,
-} from '../../data/mockData';
+import { useAtlas } from '../../hooks/useAtlas';
+import type { AtlasCategoria, AtlasImagen } from '../../services/types';
 import { atlasStyles as s } from './AtlasScreen.styles';
 
-type FilterValue = AtlasCategory | 'all';
+type FilterValue = AtlasCategoria | 'all';
 type IconName = keyof typeof Ionicons.glyphMap;
 
-// icono y color de fondo segun la categoria
-const CATEGORY_VISUAL: Record<
-  AtlasCategory,
-  { icon: IconName; bg: string }
-> = {
+// labels legibles para cada categoria
+const CATEGORY_LABELS: Record<string, string> = {
+  fondo_ojo: 'Fondo de Ojo',
+  ecg: 'Electrocardiograma',
+  radiologia: 'Radiología',
+  tecnica_clinica: 'Técnica Clínica',
+};
+
+// icono y color de fondo por categoria
+const CATEGORY_VISUAL: Record<string, { icon: IconName; bg: string }> = {
   fondo_ojo: { icon: 'eye', bg: '#1A3472' },
   ecg: { icon: 'pulse', bg: '#0D4D8C' },
   radiologia: { icon: 'scan', bg: '#2E6FD9' },
   tecnica_clinica: { icon: 'medkit', bg: '#004899' },
 };
+
+// opciones del filtro
+const FILTER_OPTIONS: { value: FilterValue; label: string }[] = [
+  { value: 'all', label: 'Todas' },
+  { value: 'fondo_ojo', label: 'Fondo de Ojo' },
+  { value: 'ecg', label: 'Electrocardiograma' },
+  { value: 'radiologia', label: 'Radiología' },
+  { value: 'tecnica_clinica', label: 'Técnica Clínica' },
+];
 
 // chip de filtro
 interface FilterChipProps {
@@ -67,13 +78,17 @@ const FilterChip: React.FC<FilterChipProps> = ({
 
 // card del grid con animacion
 interface AtlasCardProps {
-  item: AtlasItem;
+  item: AtlasImagen;
   animValue: Animated.Value;
 }
 
 const AtlasCard: React.FC<AtlasCardProps> = ({ item, animValue }) => {
   const scale = useRef(new Animated.Value(1)).current;
-  const visual = CATEGORY_VISUAL[item.category];
+  const visual = CATEGORY_VISUAL[item.categoria] ?? {
+    icon: 'image' as IconName,
+    bg: Colors.primary,
+  };
+  const categoryLabel = CATEGORY_LABELS[item.categoria] ?? item.categoria;
 
   const pressIn = () => {
     Animated.spring(scale, {
@@ -112,7 +127,7 @@ const AtlasCard: React.FC<AtlasCardProps> = ({ item, animValue }) => {
         onPressOut={pressOut}
         style={s.card}
       >
-        {/* placeholder de imagen con icono por categoria */}
+        {/* placeholder con icono por categoria */}
         <View style={[s.imageBox, { backgroundColor: visual.bg }]}>
           <Ionicons
             name={visual.icon}
@@ -120,16 +135,16 @@ const AtlasCard: React.FC<AtlasCardProps> = ({ item, animValue }) => {
             color="rgba(255, 255, 255, 0.9)"
           />
           <View style={s.categoryBadge}>
-            <Text style={s.categoryBadgeText}>{item.categoryLabel}</Text>
+            <Text style={s.categoryBadgeText}>{categoryLabel}</Text>
           </View>
         </View>
 
         <View style={s.cardFooter}>
           <Text style={s.cardTitle} numberOfLines={2}>
-            {item.title}
+            {item.titulo}
           </Text>
           <Text style={s.cardDescription} numberOfLines={2}>
-            {item.description}
+            {item.descripcion}
           </Text>
         </View>
       </TouchableOpacity>
@@ -141,10 +156,13 @@ const AtlasScreen: React.FC = () => {
   const insets = useSafeAreaInsets();
   const [activeFilter, setActiveFilter] = useState<FilterValue>('all');
 
+  const { data: imagenes, loading, error, refetch } = useAtlas();
+
   const headerAnim = useRef(new Animated.Value(0)).current;
-  const cardAnims = useRef(
-    AtlasItems.map(() => new Animated.Value(0)),
-  ).current;
+  const cardAnims = useMemo(
+    () => imagenes.map(() => new Animated.Value(0)),
+    [imagenes],
+  );
 
   useFocusEffect(
     useCallback(() => {
@@ -157,25 +175,28 @@ const AtlasScreen: React.FC = () => {
         useNativeDriver: true,
       }).start();
 
-      Animated.stagger(
-        70,
-        cardAnims.map((a) =>
-          Animated.timing(a, {
-            toValue: 1,
-            duration: 380,
-            useNativeDriver: true,
-          }),
-        ),
-      ).start();
+      if (cardAnims.length > 0) {
+        Animated.stagger(
+          70,
+          cardAnims.map((a) =>
+            Animated.timing(a, {
+              toValue: 1,
+              duration: 380,
+              useNativeDriver: true,
+            }),
+          ),
+        ).start();
+      }
     }, [headerAnim, cardAnims]),
   );
 
+  // filtro en cliente por categoria
   const filteredItems = useMemo(() => {
     if (activeFilter === 'all') {
-      return AtlasItems;
+      return imagenes;
     }
-    return AtlasItems.filter((item) => item.category === activeFilter);
-  }, [activeFilter]);
+    return imagenes.filter((item) => item.categoria === activeFilter);
+  }, [imagenes, activeFilter]);
 
   const headerTranslate = headerAnim.interpolate({
     inputRange: [0, 1],
@@ -206,44 +227,66 @@ const AtlasScreen: React.FC = () => {
       {/* filtros */}
       <View style={s.filtersWrapper}>
         <FlatList
-          data={AtlasCategories}
-          keyExtractor={(item) => item.id}
+          data={FILTER_OPTIONS}
+          keyExtractor={(item) => item.value}
           horizontal
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={s.filtersList}
           renderItem={({ item }) => (
             <FilterChip
               label={item.label}
-              value={item.id}
-              active={activeFilter === item.id}
+              value={item.value}
+              active={activeFilter === item.value}
               onPress={setActiveFilter}
             />
           )}
         />
       </View>
 
-      {/* grid */}
-      <FlatList
-        data={filteredItems}
-        keyExtractor={(item) => item.id}
-        numColumns={2}
-        columnWrapperStyle={s.gridRow}
-        contentContainerStyle={s.gridContent}
-        showsVerticalScrollIndicator={false}
-        renderItem={({ item, index }) => (
-          <AtlasCard
-            item={item}
-            animValue={cardAnims[index] ?? new Animated.Value(1)}
-          />
-        )}
-        ListEmptyComponent={
-          <View style={s.emptyState}>
-            <Text style={s.emptyText}>
-              No hay imágenes para este filtro.
-            </Text>
-          </View>
-        }
-      />
+      {/* loading o error o grid */}
+      {loading && imagenes.length === 0 ? (
+        <View style={s.emptyState}>
+          <ActivityIndicator size="large" color={Colors.primary} />
+          <Text style={[s.emptyText, { marginTop: 12 }]}>
+            Cargando galería…
+          </Text>
+        </View>
+      ) : error ? (
+        <View style={s.emptyState}>
+          <Text style={[s.emptyText, { marginBottom: 12, textAlign: 'center' }]}>
+            {error}
+          </Text>
+          <TouchableOpacity
+            style={[s.chip, s.chipActive]}
+            onPress={refetch}
+            activeOpacity={0.85}
+          >
+            <Text style={[s.chipText, s.chipTextActive]}>Reintentar</Text>
+          </TouchableOpacity>
+        </View>
+      ) : (
+        <FlatList
+          data={filteredItems}
+          keyExtractor={(item) => item.id}
+          numColumns={2}
+          columnWrapperStyle={s.gridRow}
+          contentContainerStyle={s.gridContent}
+          showsVerticalScrollIndicator={false}
+          renderItem={({ item, index }) => (
+            <AtlasCard
+              item={item}
+              animValue={cardAnims[index] ?? new Animated.Value(1)}
+            />
+          )}
+          ListEmptyComponent={
+            <View style={s.emptyState}>
+              <Text style={s.emptyText}>
+                No hay imágenes para este filtro.
+              </Text>
+            </View>
+          }
+        />
+      )}
     </View>
   );
 };

@@ -168,4 +168,16 @@ export const calculadorasStyles = StyleSheet.create({
     color: Colors.textTertiary,
     fontStyle: 'italic',
   },
+
+  // estados loading / error / empty
+  content: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  placeholderText: {
+    ...Typography.body,
+    color: Colors.textSecondary,
+    textAlign: 'center',
+  },
 });

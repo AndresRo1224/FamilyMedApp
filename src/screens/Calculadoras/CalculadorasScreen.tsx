@@ -1,7 +1,8 @@
-// pantalla de calculadoras (solo exhibicion)
+// pantalla de calculadoras - lee desde el backend
 
-import React, { useCallback, useRef } from 'react';
+import React, { useCallback, useMemo, useRef } from 'react';
 import {
+  ActivityIndicator,
   Animated,
   FlatList,
   StatusBar,
@@ -13,17 +14,18 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useFocusEffect } from '@react-navigation/native';
 
 import { Colors } from '../../constants/colors';
-import { ClinicalCalculator, Calculators } from '../../data/mockData';
+import { useCalculadoras } from '../../hooks/useCalculadoras';
+import type { Calculadora } from '../../services/types';
 import { calculadorasStyles as s } from './CalculadorasScreen.styles';
 
 // card de calculadora con animacion
 interface CalculatorCardProps {
-  calculator: ClinicalCalculator;
+  calculadora: Calculadora;
   animValue: Animated.Value;
 }
 
 const CalculatorCard: React.FC<CalculatorCardProps> = ({
-  calculator,
+  calculadora,
   animValue,
 }) => {
   const scale = useRef(new Animated.Value(1)).current;
@@ -66,26 +68,26 @@ const CalculatorCard: React.FC<CalculatorCardProps> = ({
       >
         <View style={s.cardHeader}>
           <View style={s.shortNameBadge}>
-            <Text style={s.shortNameText}>{calculator.shortName}</Text>
+            <Text style={s.shortNameText}>{calculadora.nombre_corto}</Text>
           </View>
           <Text style={s.outputBadge} numberOfLines={1}>
-            {calculator.outputUnit}
+            {calculadora.unidad_salida}
           </Text>
         </View>
 
-        <Text style={s.cardTitle}>{calculator.name}</Text>
-        <Text style={s.cardDescription}>{calculator.description}</Text>
+        <Text style={s.cardTitle}>{calculadora.nombre}</Text>
+        <Text style={s.cardDescription}>{calculadora.descripcion}</Text>
 
         {/* formula */}
         <View style={s.formulaBox}>
           <Text style={s.formulaLabel}>Fórmula</Text>
-          <Text style={s.formulaText}>{calculator.formula}</Text>
+          <Text style={s.formulaText}>{calculadora.formula}</Text>
         </View>
 
-        {/* inputs */}
+        {/* parametros */}
         <Text style={s.sectionLabel}>Parámetros</Text>
         <View style={s.inputsList}>
-          {calculator.inputs.slice(0, 4).map((input, idx) => (
+          {calculadora.parametros.slice(0, 4).map((input, idx) => (
             <View key={idx} style={s.inputRow}>
               <View style={s.inputDot} />
               <Text style={s.inputText} numberOfLines={1}>
@@ -93,20 +95,20 @@ const CalculatorCard: React.FC<CalculatorCardProps> = ({
               </Text>
             </View>
           ))}
-          {calculator.inputs.length > 4 && (
+          {calculadora.parametros.length > 4 && (
             <Text style={s.inputText}>
-              + {calculator.inputs.length - 4} más
+              + {calculadora.parametros.length - 4} más
             </Text>
           )}
         </View>
 
         {/* uso clinico */}
         <View style={s.clinicalUseBox}>
-          <Text style={s.clinicalUseText}>{calculator.clinicalUse}</Text>
+          <Text style={s.clinicalUseText}>{calculadora.uso_clinico}</Text>
         </View>
 
         <Text style={s.reference} numberOfLines={1}>
-          {calculator.reference}
+          {calculadora.referencia}
         </Text>
       </TouchableOpacity>
     </Animated.View>
@@ -116,11 +118,13 @@ const CalculatorCard: React.FC<CalculatorCardProps> = ({
 const CalculadorasScreen: React.FC = () => {
   const insets = useSafeAreaInsets();
 
-  // animaciones de entrada
+  const { data: calculadoras, loading, error, refetch } = useCalculadoras();
+
   const headerAnim = useRef(new Animated.Value(0)).current;
-  const cardAnims = useRef(
-    Calculators.map(() => new Animated.Value(0)),
-  ).current;
+  const cardAnims = useMemo(
+    () => calculadoras.map(() => new Animated.Value(0)),
+    [calculadoras],
+  );
 
   useFocusEffect(
     useCallback(() => {
@@ -133,16 +137,18 @@ const CalculadorasScreen: React.FC = () => {
         useNativeDriver: true,
       }).start();
 
-      Animated.stagger(
-        80,
-        cardAnims.map((a) =>
-          Animated.timing(a, {
-            toValue: 1,
-            duration: 380,
-            useNativeDriver: true,
-          }),
-        ),
-      ).start();
+      if (cardAnims.length > 0) {
+        Animated.stagger(
+          80,
+          cardAnims.map((a) =>
+            Animated.timing(a, {
+              toValue: 1,
+              duration: 380,
+              useNativeDriver: true,
+            }),
+          ),
+        ).start();
+      }
     }, [headerAnim, cardAnims]),
   );
 
@@ -165,23 +171,54 @@ const CalculadorasScreen: React.FC = () => {
           <View style={s.headerAccent} />
           <Text style={s.title}>Calculadoras</Text>
           <Text style={s.subtitle}>
-            {Calculators.length} herramientas clínicas
+            {calculadoras.length} herramientas clínicas
           </Text>
         </View>
       </Animated.View>
 
-      <FlatList
-        data={Calculators}
-        keyExtractor={(item) => item.id}
-        contentContainerStyle={s.listContent}
-        showsVerticalScrollIndicator={false}
-        renderItem={({ item, index }) => (
-          <CalculatorCard
-            calculator={item}
-            animValue={cardAnims[index] ?? new Animated.Value(1)}
-          />
-        )}
-      />
+      {/* loading inicial */}
+      {loading && calculadoras.length === 0 ? (
+        <View style={[s.content, { padding: 40 }]}>
+          <ActivityIndicator size="large" color={Colors.primary} />
+          <Text style={[s.placeholderText, { marginTop: 12 }]}>
+            Cargando calculadoras…
+          </Text>
+        </View>
+      ) : error ? (
+        // estado de error con retry
+        <View style={[s.content, { padding: 40 }]}>
+          <Text
+            style={[s.placeholderText, { marginBottom: 12, textAlign: 'center' }]}
+          >
+            {error}
+          </Text>
+          <TouchableOpacity
+            style={{
+              backgroundColor: Colors.primary,
+              paddingHorizontal: 18,
+              paddingVertical: 10,
+              borderRadius: 20,
+            }}
+            onPress={refetch}
+            activeOpacity={0.85}
+          >
+            <Text style={{ color: '#fff', fontWeight: '700' }}>Reintentar</Text>
+          </TouchableOpacity>
+        </View>
+      ) : (
+        <FlatList
+          data={calculadoras}
+          keyExtractor={(item) => item.id}
+          contentContainerStyle={s.listContent}
+          showsVerticalScrollIndicator={false}
+          renderItem={({ item, index }) => (
+            <CalculatorCard
+              calculadora={item}
+              animValue={cardAnims[index] ?? new Animated.Value(1)}
+            />
+          )}
+        />
+      )}
     </View>
   );
 };

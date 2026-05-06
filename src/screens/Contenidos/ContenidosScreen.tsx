@@ -1,7 +1,8 @@
-// pantalla de contenidos con filtros
+// pantalla de contenidos con filtros - lee desde el backend
 
 import React, { useCallback, useMemo, useRef, useState } from 'react';
 import {
+  ActivityIndicator,
   Animated,
   FlatList,
   StatusBar,
@@ -13,14 +14,11 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useFocusEffect } from '@react-navigation/native';
 
 import { Colors } from '../../constants/colors';
-import {
-  ContentLevel,
-  HypertensionContent,
-  HypertensionSection,
-} from '../../data/mockData';
+import { useContenidos } from '../../hooks/useContenidos';
+import type { Contenido, ContenidoNivel } from '../../services/types';
 import { contenidosStyles as s } from './ContenidosScreen.styles';
 
-type FilterValue = ContentLevel | 'all';
+type FilterValue = ContenidoNivel | 'all';
 
 interface FilterOption {
   value: FilterValue;
@@ -34,7 +32,7 @@ const FILTER_OPTIONS: FilterOption[] = [
   { value: 'avanzado', label: 'Avanzado' },
 ];
 
-const LEVEL_LABELS: Record<ContentLevel, string> = {
+const LEVEL_LABELS: Record<string, string> = {
   basico: 'Básico',
   intermedio: 'Intermedio',
   avanzado: 'Avanzado',
@@ -65,11 +63,11 @@ const FilterChip: React.FC<FilterChipProps> = ({ option, active, onPress }) => {
 
 // card de seccion con animacion de stagger
 interface ContentCardProps {
-  section: HypertensionSection;
+  contenido: Contenido;
   animValue: Animated.Value;
 }
 
-const ContentCard: React.FC<ContentCardProps> = ({ section, animValue }) => {
+const ContentCard: React.FC<ContentCardProps> = ({ contenido, animValue }) => {
   const scale = useRef(new Animated.Value(1)).current;
 
   const pressIn = () => {
@@ -111,21 +109,21 @@ const ContentCard: React.FC<ContentCardProps> = ({ section, animValue }) => {
         <View style={s.cardHeader}>
           <View style={s.levelBadge}>
             <Text style={s.levelBadgeText}>
-              {LEVEL_LABELS[section.level]}
+              {LEVEL_LABELS[contenido.nivel] ?? contenido.nivel}
             </Text>
           </View>
           <Text style={s.readingTime}>
-            {section.readingTimeMinutes} min
+            {contenido.tiempo_lectura_min} min
           </Text>
         </View>
 
-        <Text style={s.cardTitle}>{section.title}</Text>
+        <Text style={s.cardTitle}>{contenido.titulo}</Text>
         <Text style={s.cardSubtitle} numberOfLines={2}>
-          {section.subtitle}
+          {contenido.subtitulo}
         </Text>
 
         <View style={s.keyPointsContainer}>
-          {section.keyPoints.slice(0, 2).map((point, idx) => (
+          {contenido.puntos_clave.slice(0, 2).map((point, idx) => (
             <View key={idx} style={s.keyPointRow}>
               <View style={s.keyPointDot} />
               <Text style={s.keyPointText} numberOfLines={1}>
@@ -143,10 +141,16 @@ const ContenidosScreen: React.FC = () => {
   const insets = useSafeAreaInsets();
   const [activeFilter, setActiveFilter] = useState<FilterValue>('all');
 
+  // datos del backend
+  const { data: contenidos, loading, error, refetch } = useContenidos();
+
   const headerAnim = useRef(new Animated.Value(0)).current;
-  const cardAnims = useRef(
-    HypertensionContent.map(() => new Animated.Value(0)),
-  ).current;
+
+  // un animated value por cada item; se recalcula si la cantidad de datos cambia
+  const cardAnims = useMemo(
+    () => contenidos.map(() => new Animated.Value(0)),
+    [contenidos],
+  );
 
   useFocusEffect(
     useCallback(() => {
@@ -159,27 +163,28 @@ const ContenidosScreen: React.FC = () => {
         useNativeDriver: true,
       }).start();
 
-      Animated.stagger(
-        80,
-        cardAnims.map((a) =>
-          Animated.timing(a, {
-            toValue: 1,
-            duration: 380,
-            useNativeDriver: true,
-          }),
-        ),
-      ).start();
+      if (cardAnims.length > 0) {
+        Animated.stagger(
+          80,
+          cardAnims.map((a) =>
+            Animated.timing(a, {
+              toValue: 1,
+              duration: 380,
+              useNativeDriver: true,
+            }),
+          ),
+        ).start();
+      }
     }, [headerAnim, cardAnims]),
   );
 
+  // filtra en el cliente segun el chip activo
   const filteredContent = useMemo(() => {
     if (activeFilter === 'all') {
-      return HypertensionContent;
+      return contenidos;
     }
-    return HypertensionContent.filter(
-      (section) => section.level === activeFilter,
-    );
-  }, [activeFilter]);
+    return contenidos.filter((c) => c.nivel === activeFilter);
+  }, [contenidos, activeFilter]);
 
   const headerTranslate = headerAnim.interpolate({
     inputRange: [0, 1],
@@ -225,26 +230,50 @@ const ContenidosScreen: React.FC = () => {
         />
       </View>
 
-      {/* listado */}
-      <FlatList
-        data={filteredContent}
-        keyExtractor={(item) => item.id}
-        contentContainerStyle={s.listContent}
-        showsVerticalScrollIndicator={false}
-        renderItem={({ item, index }) => (
-          <ContentCard
-            section={item}
-            animValue={cardAnims[index] ?? new Animated.Value(1)}
-          />
-        )}
-        ListEmptyComponent={
-          <View style={s.emptyState}>
-            <Text style={s.emptyText}>
-              No hay contenido para este filtro.
-            </Text>
-          </View>
-        }
-      />
+      {/* loading inicial */}
+      {loading && contenidos.length === 0 ? (
+        <View style={s.emptyState}>
+          <ActivityIndicator size="large" color={Colors.primary} />
+          <Text style={[s.emptyText, { marginTop: 12 }]}>
+            Cargando contenidos…
+          </Text>
+        </View>
+      ) : error ? (
+        // estado de error con boton para reintentar
+        <View style={s.emptyState}>
+          <Text style={[s.emptyText, { marginBottom: 12, textAlign: 'center' }]}>
+            {error}
+          </Text>
+          <TouchableOpacity
+            style={[s.chip, s.chipActive]}
+            onPress={refetch}
+            activeOpacity={0.85}
+          >
+            <Text style={[s.chipText, s.chipTextActive]}>Reintentar</Text>
+          </TouchableOpacity>
+        </View>
+      ) : (
+        // listado normal
+        <FlatList
+          data={filteredContent}
+          keyExtractor={(item) => item.id}
+          contentContainerStyle={s.listContent}
+          showsVerticalScrollIndicator={false}
+          renderItem={({ item, index }) => (
+            <ContentCard
+              contenido={item}
+              animValue={cardAnims[index] ?? new Animated.Value(1)}
+            />
+          )}
+          ListEmptyComponent={
+            <View style={s.emptyState}>
+              <Text style={s.emptyText}>
+                No hay contenido para este filtro.
+              </Text>
+            </View>
+          }
+        />
+      )}
     </View>
   );
 };

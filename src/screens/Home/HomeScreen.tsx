@@ -1,6 +1,6 @@
-// pantalla principal
+// pantalla principal - los counts de cada modulo vienen del backend
 
-import React, { useCallback, useRef } from 'react';
+import React, { useCallback, useMemo, useRef } from 'react';
 import {
   Animated,
   FlatList,
@@ -18,12 +18,14 @@ import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 import { Colors } from '../../constants/colors';
 import {
-  AppModule,
-  AppModules,
   MockCurrentUser,
   RecentItem,
   RecentItems,
 } from '../../data/mockData';
+import { useContenidos } from '../../hooks/useContenidos';
+import { useCalculadoras } from '../../hooks/useCalculadoras';
+import { useAtlas } from '../../hooks/useAtlas';
+import { useGuias } from '../../hooks/useGuias';
 import type { TabParamList } from '../../navigation/TabNavigator';
 import type { RootStackParamList } from '../../navigation/RootNavigator';
 import { homeStyles as s } from './HomeScreen.styles';
@@ -32,11 +34,20 @@ import { homeStyles as s } from './HomeScreen.styles';
 type HomeNavigationProp = BottomTabNavigationProp<TabParamList> &
   NativeStackNavigationProp<RootStackParamList>;
 
+// modulo del grid del home
+interface HomeModule {
+  id: string;
+  title: string;
+  description: string;
+  itemCount: number;
+  route: keyof TabParamList;
+}
+
 // card de modulo con animacion de stagger y scale al presionar
 interface ModuleCardProps {
-  module: AppModule;
+  module: HomeModule;
   animValue: Animated.Value;
-  onPress: (module: AppModule) => void;
+  onPress: (module: HomeModule) => void;
 }
 
 const ModuleCard: React.FC<ModuleCardProps> = ({
@@ -129,11 +140,52 @@ const HomeScreen: React.FC = () => {
   const navigation = useNavigation<HomeNavigationProp>();
   const insets = useSafeAreaInsets();
 
+  // counts en vivo desde el backend
+  const { data: contenidos } = useContenidos();
+  const { data: calculadoras } = useCalculadoras();
+  const { data: atlas } = useAtlas();
+  const { data: guias } = useGuias();
+
+  // arma el grid con los counts dinamicos
+  const modules: HomeModule[] = useMemo(
+    () => [
+      {
+        id: 'hipertension',
+        title: 'Hipertensión',
+        description: 'Contenido teórico y clínico',
+        itemCount: contenidos.length,
+        route: 'Contenidos',
+      },
+      {
+        id: 'calculadoras',
+        title: 'Calculadoras',
+        description: 'Herramientas clínicas',
+        itemCount: calculadoras.length,
+        route: 'Calculadoras',
+      },
+      {
+        id: 'atlas',
+        title: 'Atlas',
+        description: 'Galería visual con filtros',
+        itemCount: atlas.length,
+        route: 'Atlas',
+      },
+      {
+        id: 'guias',
+        title: 'Guías',
+        description: 'Algoritmos y protocolos',
+        itemCount: guias.length,
+        route: 'Guias',
+      },
+    ],
+    [contenidos.length, calculadoras.length, atlas.length, guias.length],
+  );
+
   // animaciones del header y las cards
   const headerAnim = useRef(new Animated.Value(0)).current;
   const sectionTitleAnim = useRef(new Animated.Value(0)).current;
   const moduleAnims = useRef(
-    AppModules.map(() => new Animated.Value(0)),
+    modules.map(() => new Animated.Value(0)),
   ).current;
   const recentAnims = useRef(
     RecentItems.map(() => new Animated.Value(0)),
@@ -184,9 +236,8 @@ const HomeScreen: React.FC = () => {
     }, [headerAnim, sectionTitleAnim, moduleAnims, recentAnims]),
   );
 
-  const handleModulePress = (module: AppModule) => {
-    const target = module.route as keyof TabParamList;
-    navigation.navigate(target);
+  const handleModulePress = (module: HomeModule) => {
+    navigation.navigate(module.route);
   };
 
   const firstName = MockCurrentUser.fullName.split(' ')[0];
@@ -232,7 +283,7 @@ const HomeScreen: React.FC = () => {
           Módulos
         </Animated.Text>
         <View style={s.modulesGrid}>
-          {AppModules.map((module, index) => (
+          {modules.map((module, index) => (
             <ModuleCard
               key={module.id}
               module={module}

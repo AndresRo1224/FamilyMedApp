@@ -1,7 +1,8 @@
-// pantalla de guias clinicas
+// pantalla de guias clinicas - lee desde el backend
 
 import React, { useCallback, useMemo, useRef, useState } from 'react';
 import {
+  ActivityIndicator,
   Animated,
   FlatList,
   StatusBar,
@@ -13,14 +14,11 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useFocusEffect } from '@react-navigation/native';
 
 import { Colors } from '../../constants/colors';
-import {
-  ClinicalGuide,
-  ClinicalGuides,
-  GuideType,
-} from '../../data/mockData';
+import { useGuias } from '../../hooks/useGuias';
+import type { Guia, GuiaTipo } from '../../services/types';
 import { guiasStyles as s } from './GuiasScreen.styles';
 
-type FilterValue = GuideType | 'all';
+type FilterValue = GuiaTipo | 'all';
 
 interface FilterOption {
   value: FilterValue;
@@ -34,6 +32,14 @@ const FILTER_OPTIONS: FilterOption[] = [
   { value: 'tecnica', label: 'Técnicas' },
   { value: 'situacion_especial', label: 'Situaciones' },
 ];
+
+// labels legibles del tipo
+const TYPE_LABELS: Record<string, string> = {
+  algoritmo: 'Algoritmo',
+  protocolo: 'Protocolo',
+  tecnica: 'Técnica',
+  situacion_especial: 'Situación Especial',
+};
 
 // chip de filtro
 interface FilterChipProps {
@@ -60,11 +66,11 @@ const FilterChip: React.FC<FilterChipProps> = ({ option, active, onPress }) => {
 
 // card con animacion (stagger + press scale)
 interface GuideCardProps {
-  guide: ClinicalGuide;
+  guia: Guia;
   animValue: Animated.Value;
 }
 
-const GuideCard: React.FC<GuideCardProps> = ({ guide, animValue }) => {
+const GuideCard: React.FC<GuideCardProps> = ({ guia, animValue }) => {
   const scale = useRef(new Animated.Value(1)).current;
 
   const pressIn = () => {
@@ -105,18 +111,20 @@ const GuideCard: React.FC<GuideCardProps> = ({ guide, animValue }) => {
       >
         <View style={s.cardHeader}>
           <View style={s.typeBadge}>
-            <Text style={s.typeBadgeText}>{guide.typeLabel}</Text>
+            <Text style={s.typeBadgeText}>
+              {TYPE_LABELS[guia.tipo] ?? guia.tipo}
+            </Text>
           </View>
-          <Text style={s.lastUpdated}>{guide.lastUpdated}</Text>
+          <Text style={s.lastUpdated}>{guia.ultima_actualizacion}</Text>
         </View>
 
-        <Text style={s.cardTitle}>{guide.title}</Text>
+        <Text style={s.cardTitle}>{guia.titulo}</Text>
         <Text style={s.cardSummary} numberOfLines={3}>
-          {guide.summary}
+          {guia.resumen}
         </Text>
 
         <View style={s.stepsContainer}>
-          {guide.steps.slice(0, 3).map((step, idx) => (
+          {guia.pasos.slice(0, 3).map((step, idx) => (
             <View key={idx} style={s.stepRow}>
               <Text style={s.stepNumber}>{idx + 1}.</Text>
               <Text style={s.stepText} numberOfLines={2}>
@@ -127,7 +135,7 @@ const GuideCard: React.FC<GuideCardProps> = ({ guide, animValue }) => {
         </View>
 
         <Text style={s.sourceText} numberOfLines={1}>
-          Fuente: {guide.source}
+          Fuente: {guia.fuente}
         </Text>
       </TouchableOpacity>
     </Animated.View>
@@ -138,13 +146,14 @@ const GuiasScreen: React.FC = () => {
   const insets = useSafeAreaInsets();
   const [activeFilter, setActiveFilter] = useState<FilterValue>('all');
 
-  // animaciones de entrada
-  const headerAnim = useRef(new Animated.Value(0)).current;
-  const cardAnims = useRef(
-    ClinicalGuides.map(() => new Animated.Value(0)),
-  ).current;
+  const { data: guias, loading, error, refetch } = useGuias();
 
-  // se dispara cada vez que la pantalla recibe focus
+  const headerAnim = useRef(new Animated.Value(0)).current;
+  const cardAnims = useMemo(
+    () => guias.map(() => new Animated.Value(0)),
+    [guias],
+  );
+
   useFocusEffect(
     useCallback(() => {
       headerAnim.setValue(0);
@@ -156,25 +165,27 @@ const GuiasScreen: React.FC = () => {
         useNativeDriver: true,
       }).start();
 
-      Animated.stagger(
-        80,
-        cardAnims.map((a) =>
-          Animated.timing(a, {
-            toValue: 1,
-            duration: 380,
-            useNativeDriver: true,
-          }),
-        ),
-      ).start();
+      if (cardAnims.length > 0) {
+        Animated.stagger(
+          80,
+          cardAnims.map((a) =>
+            Animated.timing(a, {
+              toValue: 1,
+              duration: 380,
+              useNativeDriver: true,
+            }),
+          ),
+        ).start();
+      }
     }, [headerAnim, cardAnims]),
   );
 
   const filteredGuides = useMemo(() => {
     if (activeFilter === 'all') {
-      return ClinicalGuides;
+      return guias;
     }
-    return ClinicalGuides.filter((g) => g.type === activeFilter);
-  }, [activeFilter]);
+    return guias.filter((g) => g.tipo === activeFilter);
+  }, [guias, activeFilter]);
 
   const headerTranslate = headerAnim.interpolate({
     inputRange: [0, 1],
@@ -187,7 +198,10 @@ const GuiasScreen: React.FC = () => {
 
       {/* banner azul */}
       <Animated.View
-        style={{ opacity: headerAnim, transform: [{ translateY: headerTranslate }] }}
+        style={{
+          opacity: headerAnim,
+          transform: [{ translateY: headerTranslate }],
+        }}
       >
         <View style={[s.headerBanner, { paddingTop: insets.top + 16 }]}>
           <View style={s.headerAccent} />
@@ -217,24 +231,46 @@ const GuiasScreen: React.FC = () => {
         />
       </View>
 
-      {/* lista */}
-      <FlatList
-        data={filteredGuides}
-        keyExtractor={(item) => item.id}
-        contentContainerStyle={s.listContent}
-        showsVerticalScrollIndicator={false}
-        renderItem={({ item, index }) => (
-          <GuideCard
-            guide={item}
-            animValue={cardAnims[index] ?? new Animated.Value(1)}
-          />
-        )}
-        ListEmptyComponent={
-          <View style={s.emptyState}>
-            <Text style={s.emptyText}>No hay guías para este filtro.</Text>
-          </View>
-        }
-      />
+      {/* loading / error / lista */}
+      {loading && guias.length === 0 ? (
+        <View style={s.emptyState}>
+          <ActivityIndicator size="large" color={Colors.primary} />
+          <Text style={[s.emptyText, { marginTop: 12 }]}>
+            Cargando guías…
+          </Text>
+        </View>
+      ) : error ? (
+        <View style={s.emptyState}>
+          <Text style={[s.emptyText, { marginBottom: 12, textAlign: 'center' }]}>
+            {error}
+          </Text>
+          <TouchableOpacity
+            style={[s.chip, s.chipActive]}
+            onPress={refetch}
+            activeOpacity={0.85}
+          >
+            <Text style={[s.chipText, s.chipTextActive]}>Reintentar</Text>
+          </TouchableOpacity>
+        </View>
+      ) : (
+        <FlatList
+          data={filteredGuides}
+          keyExtractor={(item) => item.id}
+          contentContainerStyle={s.listContent}
+          showsVerticalScrollIndicator={false}
+          renderItem={({ item, index }) => (
+            <GuideCard
+              guia={item}
+              animValue={cardAnims[index] ?? new Animated.Value(1)}
+            />
+          )}
+          ListEmptyComponent={
+            <View style={s.emptyState}>
+              <Text style={s.emptyText}>No hay guías para este filtro.</Text>
+            </View>
+          }
+        />
+      )}
     </View>
   );
 };

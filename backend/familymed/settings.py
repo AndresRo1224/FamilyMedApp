@@ -48,6 +48,10 @@ INSTALLED_APPS = [
 
     # apps del proyecto
     'apps.contenidos',
+    'apps.calculadoras',
+    'apps.atlas',
+    'apps.guias',
+    'apps.bibliografia',
 ]
 
 
@@ -119,6 +123,10 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATICFILES_DIRS = [
     BASE_DIR / 'static',
 ]
+
+# archivos subidos por usuarios (imagenes del atlas, etc.)
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
 
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
