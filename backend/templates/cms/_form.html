@@ -1,0 +1,70 @@
+{% extends "cms/base.html" %}
+
+{% block cms_content %}
+<div class="card" style="background-color: var(--surface, #fff); padding: 24px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); max-width: 900px;">
+  <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+
+    {% if form.errors %}
+    <div style="background:#fee2e2; border:1px solid #fca5a5; padding:12px; border-radius:8px; margin-bottom:16px;">
+      <strong>Hay errores en el formulario:</strong>
+      {{ form.errors }}
+    </div>
+    {% endif %}
+
+    {% for field in form %}
+    <div style="margin-bottom: 16px;">
+      <label for="{{ field.id_for_label }}" style="display:block; font-weight:600; margin-bottom:6px;">
+        {{ field.label }}{% if field.field.required %} *{% endif %}
+      </label>
+      {{ field }}
+      {% if field.help_text %}
+      <small style="display:block; margin-top:4px; color:#6b7280;">{{ field.help_text }}</small>
+      {% endif %}
+      {% if field.errors %}
+      <small style="display:block; margin-top:4px; color:#dc2626;">{{ field.errors|join:", " }}</small>
+      {% endif %}
+    </div>
+    {% endfor %}
+
+    <div style="display:flex; gap:10px; margin-top:24px;">
+      <button type="submit" class="btn btn-primary" style="padding:10px 20px;">
+        Guardar
+      </button>
+      <a href="{{ cancel_url }}" class="btn btn-default" style="padding:10px 20px;">
+        Cancelar
+      </a>
+    </div>
+  </form>
+</div>
+
+<style>
+  .cms-content input[type="text"],
+  .cms-content input[type="number"],
+  .cms-content input[type="email"],
+  .cms-content input[type="file"],
+  .cms-content textarea,
+  .cms-content select {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid var(--border, #d1d5db);
+    border-radius: 6px;
+    background-color: var(--surface, #fff);
+    color: var(--text, #1a1f35);
+    font-size: 14px;
+  }
+  .cms-content input[type="text"]:focus,
+  .cms-content input[type="number"]:focus,
+  .cms-content textarea:focus,
+  .cms-content select:focus {
+    outline: none;
+    border-color: var(--udes-primary, #004899);
+    box-shadow: 0 0 0 3px rgba(46, 111, 217, 0.15);
+  }
+  .cms-content textarea {
+    resize: vertical;
+    min-height: 80px;
+    font-family: inherit;
+  }
+</style>
+{% endblock %}

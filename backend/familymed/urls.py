@@ -6,7 +6,14 @@ from django.contrib import admin
 from django.urls import include, path
 
 urlpatterns = [
-    # panel admin para gestionar contenido
+    # CMS embebido en el admin (urls antes que admin/ para evitar conflictos)
+    path('admin/contenidos/', include('apps.contenidos.admin_urls')),
+    path('admin/calculadoras/', include('apps.calculadoras.admin_urls')),
+    path('admin/atlas/', include('apps.atlas.admin_urls')),
+    path('admin/guias/', include('apps.guias.admin_urls')),
+    path('admin/bibliografia/', include('apps.bibliografia.admin_urls')),
+
+    # panel admin
     path('admin/', admin.site.urls),
 
     # api rest

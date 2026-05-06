@@ -72,7 +72,7 @@ ROOT_URLCONF = 'familymed.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -155,9 +155,14 @@ JAZZMIN_SETTINGS = {
     # buscador
     'search_model': ['auth.User'],
 
-    # menu superior
+    # menu superior con accesos directos al CMS
     'topmenu_links': [
         {'name': 'Inicio', 'url': 'admin:index', 'permissions': ['auth.view_user']},
+        {'name': 'Contenidos', 'url': 'cms_contenidos_list', 'permissions': ['auth.view_user']},
+        {'name': 'Calculadoras', 'url': 'cms_calculadoras_list', 'permissions': ['auth.view_user']},
+        {'name': 'Atlas', 'url': 'cms_atlas_list', 'permissions': ['auth.view_user']},
+        {'name': 'Guías', 'url': 'cms_guias_list', 'permissions': ['auth.view_user']},
+        {'name': 'Bibliografía', 'url': 'cms_bibliografia_list', 'permissions': ['auth.view_user']},
     ],
 
     # iconos por modelo (font awesome 5)

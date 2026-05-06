@@ -5,6 +5,7 @@ import {
   ActivityIndicator,
   Animated,
   FlatList,
+  Image,
   StatusBar,
   Text,
   TouchableOpacity,
@@ -16,6 +17,7 @@ import { useFocusEffect } from '@react-navigation/native';
 
 import { Colors } from '../../constants/colors';
 import { useAtlas } from '../../hooks/useAtlas';
+import { buildMediaUrl } from '../../services/api';
 import type { AtlasCategoria, AtlasImagen } from '../../services/types';
 import { atlasStyles as s } from './AtlasScreen.styles';
 
@@ -84,11 +86,16 @@ interface AtlasCardProps {
 
 const AtlasCard: React.FC<AtlasCardProps> = ({ item, animValue }) => {
   const scale = useRef(new Animated.Value(1)).current;
+  const [imageError, setImageError] = useState(false);
   const visual = CATEGORY_VISUAL[item.categoria] ?? {
     icon: 'image' as IconName,
     bg: Colors.primary,
   };
   const categoryLabel = CATEGORY_LABELS[item.categoria] ?? item.categoria;
+
+  // si imagen_url tiene algo y no fallo la carga, mostramos la imagen real
+  const imageUri = !imageError ? buildMediaUrl(item.imagen_url) : null;
+  const hasImage = imageUri !== null;
 
   const pressIn = () => {
     Animated.spring(scale, {
@@ -127,13 +134,22 @@ const AtlasCard: React.FC<AtlasCardProps> = ({ item, animValue }) => {
         onPressOut={pressOut}
         style={s.card}
       >
-        {/* placeholder con icono por categoria */}
+        {/* imagen real si existe; si no, placeholder con icono por categoria */}
         <View style={[s.imageBox, { backgroundColor: visual.bg }]}>
-          <Ionicons
-            name={visual.icon}
-            size={54}
-            color="rgba(255, 255, 255, 0.9)"
-          />
+          {hasImage ? (
+            <Image
+              source={{ uri: imageUri as string }}
+              style={{ width: '100%', height: '100%' }}
+              resizeMode="cover"
+              onError={() => setImageError(true)}
+            />
+          ) : (
+            <Ionicons
+              name={visual.icon}
+              size={54}
+              color="rgba(255, 255, 255, 0.9)"
+            />
+          )}
           <View style={s.categoryBadge}>
             <Text style={s.categoryBadgeText}>{categoryLabel}</Text>
           </View>

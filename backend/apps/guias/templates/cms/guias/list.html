@@ -1,0 +1,52 @@
+{% extends "cms/base.html" %}
+
+{% block cms_content %}
+<div style="margin-bottom: 16px; display:flex; justify-content:space-between; align-items:center;">
+  <p style="margin:0; color: var(--text-secondary, #5b6378);">
+    {{ items|length }} {% if items|length == 1 %}guía{% else %}guías{% endif %} en total.
+  </p>
+  <a href="{{ add_url }}" class="btn btn-primary" style="padding:10px 18px;">
+    <i class="fas fa-plus"></i> Nueva guía
+  </a>
+</div>
+
+<div style="background:var(--surface,#fff); border-radius:12px; box-shadow:0 2px 8px rgba(0,0,0,0.06); overflow:hidden;">
+  <table class="table" style="margin:0; width:100%;">
+    <thead>
+      <tr>
+        <th>Título</th>
+        <th>Tipo</th>
+        <th>Pasos</th>
+        <th>Última actualización</th>
+        <th style="text-align:right;">Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for item in items %}
+      <tr>
+        <td>
+          <strong>{{ item.titulo }}</strong>
+          {% if item.resumen %}
+          <br><small style="color: var(--text-tertiary, #8891a4);">{{ item.resumen|truncatechars:80 }}</small>
+          {% endif %}
+        </td>
+        <td><span class="badge" style="background:#dbeafe; color:#1e40af; padding:3px 10px; border-radius:10px; font-size:11px;">{{ item.tipo }}</span></td>
+        <td>{{ item.pasos|length }}</td>
+        <td>{{ item.ultima_actualizacion|default:"—" }}</td>
+        <td style="text-align:right;">
+          <a href="{% url change_url_name item.id_str %}" class="btn btn-info" style="padding:6px 12px; margin-right:4px;">Editar</a>
+          <a href="{% url delete_url_name item.id_str %}" class="btn btn-danger" style="padding:6px 12px;">Eliminar</a>
+        </td>
+      </tr>
+      {% empty %}
+      <tr>
+        <td colspan="5" style="text-align:center; padding:40px;">
+          <p style="color:var(--text-tertiary, #8891a4); margin-bottom:12px;">No hay guías registradas.</p>
+          <a href="{{ add_url }}" class="btn btn-primary">Crear la primera</a>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}
