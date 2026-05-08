@@ -42,12 +42,22 @@ export function buildMediaUrl(path: string | undefined | null): string | null {
 }
 
 // helper generico para hacer GET
+// agrega el header Authorization si hay JWT guardado
 // lanza un Error con mensaje descriptivo si la respuesta no es 2xx
 export async function apiGet<T>(path: string): Promise<T> {
   const url = `${API_BASE_URL}${path}`;
 
+  // import dinamico para evitar dependencia circular con auth.ts
+  const AsyncStorage = (await import('@react-native-async-storage/async-storage')).default;
+  const token = await AsyncStorage.getItem('familymed-jwt');
+
+  const headers: Record<string, string> = {};
+  if (token) {
+    headers.Authorization = `Bearer ${token}`;
+  }
+
   try {
-    const response = await fetch(url);
+    const response = await fetch(url, { headers });
 
     if (!response.ok) {
       throw new Error(
@@ -58,7 +68,6 @@ export async function apiGet<T>(path: string): Promise<T> {
     return (await response.json()) as T;
   } catch (e) {
     if (e instanceof TypeError) {
-      // suele ser network error (server caido, sin wifi, ip mal)
       throw new Error(
         `No se pudo conectar al servidor en ${API_BASE_URL}. ` +
           'Verifica que el backend este corriendo y la IP sea correcta.',

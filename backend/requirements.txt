@@ -13,3 +13,8 @@ certifi>=2024.0
 
 # variables de entorno desde .env
 python-dotenv>=1.0
+
+# autenticacion: hash de passwords + JWT propio + validacion OAuth Microsoft
+bcrypt>=4.0
+PyJWT>=2.8
+requests>=2.31

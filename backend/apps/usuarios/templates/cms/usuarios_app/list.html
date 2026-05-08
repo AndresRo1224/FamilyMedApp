@@ -1,0 +1,61 @@
+{% extends "cms/base.html" %}
+
+{% block cms_content %}
+<div style="margin-bottom: 16px;">
+  <p style="margin:0; color: var(--text-secondary, #5b6378);">
+    {{ items|length }} {% if items|length == 1 %}usuario{% else %}usuarios{% endif %} registrados en la app móvil.
+  </p>
+</div>
+
+<div style="background:var(--surface,#fff); border-radius:12px; box-shadow:0 2px 8px rgba(0,0,0,0.06); overflow:hidden;">
+  <table class="table" style="margin:0; width:100%;">
+    <thead>
+      <tr>
+        <th>Correo</th>
+        <th>Nombre</th>
+        <th>Rol</th>
+        <th>Estado</th>
+        <th>Registrado</th>
+        <th style="text-align:right;">Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for item in items %}
+      <tr>
+        <td><strong>{{ item.correo }}</strong></td>
+        <td>{{ item.nombre_completo|default:"—" }}</td>
+        <td>
+          <span class="badge" style="background:#dbeafe; color:#1e40af; padding:3px 10px; border-radius:10px; font-size:11px; text-transform:uppercase;">
+            {{ item.rol|default:"estudiante" }}
+          </span>
+        </td>
+        <td>
+          {% if item.activo %}
+            <span style="color:#059669; font-weight:600;">● Activo</span>
+          {% else %}
+            <span style="color:#dc2626; font-weight:600;">● Inactivo</span>
+          {% endif %}
+        </td>
+        <td>
+          {% if item.creado_en %}
+            {{ item.creado_en|date:"d/m/Y H:i" }}
+          {% else %}
+            —
+          {% endif %}
+        </td>
+        <td style="text-align:right;">
+          <a href="{% url change_url_name item.id_str %}" class="btn btn-info" style="padding:6px 12px; margin-right:4px;">Editar</a>
+          <a href="{% url delete_url_name item.id_str %}" class="btn btn-danger" style="padding:6px 12px;">Eliminar</a>
+        </td>
+      </tr>
+      {% empty %}
+      <tr>
+        <td colspan="6" style="text-align:center; padding:40px;">
+          <p style="color:var(--text-tertiary, #8891a4); margin:0;">Aún no hay usuarios registrados en la app.</p>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

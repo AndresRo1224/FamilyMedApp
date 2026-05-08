@@ -12,11 +12,13 @@ urlpatterns = [
     path('admin/atlas/', include('apps.atlas.admin_urls')),
     path('admin/guias/', include('apps.guias.admin_urls')),
     path('admin/bibliografia/', include('apps.bibliografia.admin_urls')),
+    path('admin/usuarios-app/', include('apps.usuarios.admin_urls')),
 
     # panel admin
     path('admin/', admin.site.urls),
 
     # api rest
+    path('api/auth/', include('apps.usuarios.urls')),
     path('api/contenidos/', include('apps.contenidos.urls')),
     path('api/calculadoras/', include('apps.calculadoras.urls')),
     path('api/atlas/', include('apps.atlas.urls')),

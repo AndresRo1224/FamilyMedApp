@@ -31,6 +31,10 @@ ALLOWED_HOSTS = os.getenv(
 ).split(',')
 
 
+# duracion del JWT propio que emitimos
+JWT_LIFETIME_DAYS = 7
+
+
 # apps instaladas
 INSTALLED_APPS = [
     # tema del admin (debe ir antes de django.contrib.admin)
@@ -52,6 +56,10 @@ INSTALLED_APPS = [
     'apps.atlas',
     'apps.guias',
     'apps.bibliografia',
+    'apps.usuarios',
+
+    # app dummy para mostrar el CMS en la sidebar de jazzmin
+    'apps.cms',
 ]
 
 
@@ -155,21 +163,78 @@ JAZZMIN_SETTINGS = {
     # buscador
     'search_model': ['auth.User'],
 
+    # apps que solo ve el superusuario admin
+    # (los docentes con is_staff=True no veran el modulo de usuarios)
+    'hide_apps': [],
+    'hide_models': [],
+
     # menu superior con accesos directos al CMS
+    # usamos cms.view_panelcms para que docentes vean el CMS sin necesitar
+    # auth.view_user (que mostraria la seccion de Usuarios Django)
+    # auth.delete_user lo usamos como heuristica para "es admin"
     'topmenu_links': [
-        {'name': 'Inicio', 'url': 'admin:index', 'permissions': ['auth.view_user']},
-        {'name': 'Contenidos', 'url': 'cms_contenidos_list', 'permissions': ['auth.view_user']},
-        {'name': 'Calculadoras', 'url': 'cms_calculadoras_list', 'permissions': ['auth.view_user']},
-        {'name': 'Atlas', 'url': 'cms_atlas_list', 'permissions': ['auth.view_user']},
-        {'name': 'Guías', 'url': 'cms_guias_list', 'permissions': ['auth.view_user']},
-        {'name': 'Bibliografía', 'url': 'cms_bibliografia_list', 'permissions': ['auth.view_user']},
+        {'name': 'Inicio', 'url': 'admin:index', 'permissions': ['cms.view_panelcms']},
+        {'name': 'Contenidos', 'url': 'cms_contenidos_list', 'permissions': ['cms.view_panelcms']},
+        {'name': 'Calculadoras', 'url': 'cms_calculadoras_list', 'permissions': ['cms.view_panelcms']},
+        {'name': 'Atlas', 'url': 'cms_atlas_list', 'permissions': ['cms.view_panelcms']},
+        {'name': 'Guías', 'url': 'cms_guias_list', 'permissions': ['cms.view_panelcms']},
+        {'name': 'Bibliografía', 'url': 'cms_bibliografia_list', 'permissions': ['cms.view_panelcms']},
+        {'name': 'Usuarios app', 'url': 'cms_usuarios_app_list', 'permissions': ['auth.delete_user']},
     ],
+
+    # links extra en la sidebar izquierda, todos bajo la app virtual "cms"
+    # asi en movil tambien se ven, no solo en el topmenu
+    'custom_links': {
+        'cms': [
+            {
+                'name': 'Contenidos',
+                'url': 'cms_contenidos_list',
+                'icon': 'fas fa-book-open',
+                'permissions': ['cms.view_panelcms'],
+            },
+            {
+                'name': 'Calculadoras',
+                'url': 'cms_calculadoras_list',
+                'icon': 'fas fa-calculator',
+                'permissions': ['cms.view_panelcms'],
+            },
+            {
+                'name': 'Atlas',
+                'url': 'cms_atlas_list',
+                'icon': 'fas fa-images',
+                'permissions': ['cms.view_panelcms'],
+            },
+            {
+                'name': 'Guías',
+                'url': 'cms_guias_list',
+                'icon': 'fas fa-clipboard-list',
+                'permissions': ['cms.view_panelcms'],
+            },
+            {
+                'name': 'Bibliografía',
+                'url': 'cms_bibliografia_list',
+                'icon': 'fas fa-bookmark',
+                'permissions': ['cms.view_panelcms'],
+            },
+            {
+                'name': 'Usuarios de la app',
+                'url': 'cms_usuarios_app_list',
+                'icon': 'fas fa-user-friends',
+                'permissions': ['auth.delete_user'],
+            },
+        ],
+    },
+
+    # orden de las secciones en la sidebar (CMS arriba, auth abajo)
+    'order_with_respect_to': ['cms', 'auth'],
 
     # iconos por modelo (font awesome 5)
     'icons': {
         'auth': 'fas fa-users-cog',
         'auth.user': 'fas fa-user-md',
         'auth.Group': 'fas fa-users',
+        'cms': 'fas fa-th-large',
+        'cms.panelcms': 'fas fa-th-large',
     },
     'default_icon_parents': 'fas fa-chevron-circle-right',
     'default_icon_children': 'fas fa-circle',
