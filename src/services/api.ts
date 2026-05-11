@@ -5,8 +5,10 @@
 import Constants from 'expo-constants';
 
 // url completa del backend en produccion (sin slash final, sin /api)
-// ej: 'https://familymed-backend.onrender.com'
-const PROD_API_URL = process.env.EXPO_PUBLIC_API_URL || '';
+// 1ro intenta la env var EXPO_PUBLIC_API_URL (definida en eas.json / .env)
+// 2do cae al hardcoded como red de seguridad para builds donde la env falte
+const PROD_API_URL =
+  process.env.EXPO_PUBLIC_API_URL || 'https://familymedapp.onrender.com';
 
 // si quieres forzar una IP en dev, ponla aqui (ej: '192.168.1.50')
 const MANUAL_API_HOST = '';
