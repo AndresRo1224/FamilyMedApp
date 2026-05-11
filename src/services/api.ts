@@ -1,10 +1,14 @@
 // servicio http que habla con el backend django
-// detecta automaticamente la ip del PC cuando corre en celular fisico
+// en produccion usa EXPO_PUBLIC_API_URL (set en .env del proyecto)
+// en dev detecta automaticamente la ip del PC para que el celular fisico llegue
 
 import Constants from 'expo-constants';
 
-// si quieres forzar una IP, ponla aqui (ej: '192.168.1.50')
-// si la dejas vacia, intenta detectar la del Metro Bundler
+// url completa del backend en produccion (sin slash final, sin /api)
+// ej: 'https://familymed-backend.onrender.com'
+const PROD_API_URL = process.env.EXPO_PUBLIC_API_URL || '';
+
+// si quieres forzar una IP en dev, ponla aqui (ej: '192.168.1.50')
 const MANUAL_API_HOST = '';
 
 function getApiHost(): string {
@@ -18,12 +22,15 @@ function getApiHost(): string {
   return 'localhost';
 }
 
-const API_HOST = getApiHost();
 const API_PORT = 8000;
-export const API_BASE_URL = `http://${API_HOST}:${API_PORT}/api`;
 
-// raiz del servidor (sin /api) para construir urls de media
-export const SERVER_BASE_URL = `http://${API_HOST}:${API_PORT}`;
+// SERVER_BASE_URL = raiz del servidor (sin /api) para construir urls de media
+// API_BASE_URL    = raiz de la api con /api al final
+export const SERVER_BASE_URL = PROD_API_URL
+  ? PROD_API_URL.replace(/\/$/, '')
+  : `http://${getApiHost()}:${API_PORT}`;
+
+export const API_BASE_URL = `${SERVER_BASE_URL}/api`;
 
 // arma una URL completa para archivos en /media/
 // si recibe una url absoluta (http...) la devuelve tal cual

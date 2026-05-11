@@ -49,6 +49,7 @@ INSTALLED_APPS = [
 
     # api rest
     'rest_framework',
+    'corsheaders',
 
     # apps del proyecto
     'apps.contenidos',
@@ -65,6 +66,10 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    # whitenoise sirve los static en produccion sin nginx
+    'whitenoise.middleware.WhiteNoiseMiddleware',
+    # cors antes de CommonMiddleware
+    'corsheaders.middleware.CorsMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -72,6 +77,9 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
+# permite que la app movil (otro origen) llame al backend
+CORS_ALLOW_ALL_ORIGINS = True
 
 
 ROOT_URLCONF = 'familymed.urls'
@@ -131,6 +139,16 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATICFILES_DIRS = [
     BASE_DIR / 'static',
 ]
+
+# whitenoise comprime y cachea los estaticos en produccion
+STORAGES = {
+    'default': {
+        'BACKEND': 'django.core.files.storage.FileSystemStorage',
+    },
+    'staticfiles': {
+        'BACKEND': 'whitenoise.storage.CompressedManifestStaticFilesStorage',
+    },
+}
 
 # archivos subidos por usuarios (imagenes del atlas, etc.)
 MEDIA_URL = '/media/'
