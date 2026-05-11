@@ -5,18 +5,25 @@ import {
   ActivityIndicator,
   Animated,
   FlatList,
+  RefreshControl,
   StatusBar,
   Text,
+  TextInput,
   TouchableOpacity,
   View,
 } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useFocusEffect } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 import { Colors } from '../../constants/colors';
 import { useContenidos } from '../../hooks/useContenidos';
+import type { RootStackParamList } from '../../navigation/RootNavigator';
 import type { Contenido, ContenidoNivel } from '../../services/types';
 import { contenidosStyles as s } from './ContenidosScreen.styles';
+
+type ContenidosNav = NativeStackNavigationProp<RootStackParamList>;
 
 type FilterValue = ContenidoNivel | 'all';
 
@@ -65,9 +72,14 @@ const FilterChip: React.FC<FilterChipProps> = ({ option, active, onPress }) => {
 interface ContentCardProps {
   contenido: Contenido;
   animValue: Animated.Value;
+  onPress: (id: string) => void;
 }
 
-const ContentCard: React.FC<ContentCardProps> = ({ contenido, animValue }) => {
+const ContentCard: React.FC<ContentCardProps> = ({
+  contenido,
+  animValue,
+  onPress,
+}) => {
   const scale = useRef(new Animated.Value(1)).current;
 
   const pressIn = () => {
@@ -104,6 +116,7 @@ const ContentCard: React.FC<ContentCardProps> = ({ contenido, animValue }) => {
         activeOpacity={0.9}
         onPressIn={pressIn}
         onPressOut={pressOut}
+        onPress={() => onPress(contenido.id)}
         style={s.card}
       >
         <View style={s.cardHeader}>
@@ -139,10 +152,17 @@ const ContentCard: React.FC<ContentCardProps> = ({ contenido, animValue }) => {
 
 const ContenidosScreen: React.FC = () => {
   const insets = useSafeAreaInsets();
+  const navigation = useNavigation<ContenidosNav>();
   const [activeFilter, setActiveFilter] = useState<FilterValue>('all');
+  const [search, setSearch] = useState('');
 
   // datos del backend
   const { data: contenidos, loading, error, refetch } = useContenidos();
+
+  const goToDetail = useCallback(
+    (id: string) => navigation.navigate('ContenidoDetail', { id }),
+    [navigation],
+  );
 
   const headerAnim = useRef(new Animated.Value(0)).current;
 
@@ -178,13 +198,25 @@ const ContenidosScreen: React.FC = () => {
     }, [headerAnim, cardAnims]),
   );
 
-  // filtra en el cliente segun el chip activo
+  // filtra en el cliente: primero por nivel, luego por texto de busqueda
   const filteredContent = useMemo(() => {
-    if (activeFilter === 'all') {
-      return contenidos;
+    let result = contenidos;
+    if (activeFilter !== 'all') {
+      result = result.filter((c) => c.nivel === activeFilter);
     }
-    return contenidos.filter((c) => c.nivel === activeFilter);
-  }, [contenidos, activeFilter]);
+    const q = search.trim().toLowerCase();
+    if (q.length > 0) {
+      result = result.filter((c) => {
+        const inTitulo = c.titulo.toLowerCase().includes(q);
+        const inSubtitulo = (c.subtitulo || '').toLowerCase().includes(q);
+        const inTags = (c.etiquetas || []).some((t) =>
+          t.toLowerCase().includes(q),
+        );
+        return inTitulo || inSubtitulo || inTags;
+      });
+    }
+    return result;
+  }, [contenidos, activeFilter, search]);
 
   const headerTranslate = headerAnim.interpolate({
     inputRange: [0, 1],
@@ -211,6 +243,52 @@ const ContenidosScreen: React.FC = () => {
           </Text>
         </View>
       </Animated.View>
+
+      {/* buscador */}
+      <View
+        style={{
+          paddingHorizontal: 20,
+          paddingTop: 12,
+        }}
+      >
+        <View
+          style={{
+            flexDirection: 'row',
+            alignItems: 'center',
+            backgroundColor: Colors.surface,
+            borderRadius: 12,
+            borderWidth: 1,
+            borderColor: Colors.border,
+            paddingHorizontal: 12,
+            height: 44,
+          }}
+        >
+          <Ionicons
+            name="search-outline"
+            size={18}
+            color={Colors.textTertiary}
+            style={{ marginRight: 8 }}
+          />
+          <TextInput
+            style={{ flex: 1, color: Colors.text, paddingVertical: 0 }}
+            placeholder="Buscar por título, subtítulo o etiqueta…"
+            placeholderTextColor={Colors.textTertiary}
+            value={search}
+            onChangeText={setSearch}
+            autoCapitalize="none"
+            autoCorrect={false}
+          />
+          {search.length > 0 && (
+            <TouchableOpacity onPress={() => setSearch('')}>
+              <Ionicons
+                name="close-circle"
+                size={18}
+                color={Colors.textTertiary}
+              />
+            </TouchableOpacity>
+          )}
+        </View>
+      </View>
 
       {/* filtros */}
       <View style={s.filtersWrapper}>
@@ -259,10 +337,19 @@ const ContenidosScreen: React.FC = () => {
           keyExtractor={(item) => item.id}
           contentContainerStyle={s.listContent}
           showsVerticalScrollIndicator={false}
+          refreshControl={
+            <RefreshControl
+              refreshing={loading && contenidos.length > 0}
+              onRefresh={refetch}
+              colors={[Colors.primary]}
+              tintColor={Colors.primary}
+            />
+          }
           renderItem={({ item, index }) => (
             <ContentCard
               contenido={item}
               animValue={cardAnims[index] ?? new Animated.Value(1)}
+              onPress={goToDetail}
             />
           )}
           ListEmptyComponent={

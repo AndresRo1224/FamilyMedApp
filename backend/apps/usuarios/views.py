@@ -13,7 +13,6 @@ from .auth_helpers import (
     generar_jwt,
     hashear_password,
     jwt_required,
-    validar_token_microsoft,
     verificar_password,
 )
 from .serializers import UsuarioSerializer
@@ -121,78 +120,6 @@ def login(request):
             {'error': 'Correo o password incorrectos.'},
             status=status.HTTP_401_UNAUTHORIZED,
         )
-
-    if not usuario.get('activo', True):
-        return Response(
-            {'error': 'Tu cuenta está inactiva. Contacta al administrador.'},
-            status=status.HTTP_403_FORBIDDEN,
-        )
-
-    token = generar_jwt(
-        user_id=usuario['_id'],
-        correo=usuario['correo'],
-        rol=usuario.get('rol', 'estudiante'),
-        nombre=usuario.get('nombre_completo', ''),
-    )
-
-    return Response({
-        'jwt': token,
-        'usuario': UsuarioSerializer(usuario).data,
-    })
-
-
-@api_view(['POST'])
-def microsoft_login(request):
-    """
-    POST /api/auth/microsoft/
-    Body: { "access_token": "<token de Microsoft>" }
-    Si el correo no existe, lo crea como estudiante (sin password).
-    Si ya existe, simplemente lo loguea.
-    """
-    access_token = request.data.get('access_token')
-    if not access_token:
-        return Response(
-            {'error': 'Falta access_token'},
-            status=status.HTTP_400_BAD_REQUEST,
-        )
-
-    ms_user = validar_token_microsoft(access_token)
-    if not ms_user:
-        return Response(
-            {'error': 'Token de Microsoft inválido'},
-            status=status.HTTP_401_UNAUTHORIZED,
-        )
-
-    correo = (
-        ms_user.get('mail')
-        or ms_user.get('userPrincipalName')
-        or ''
-    ).lower()
-    nombre = ms_user.get('displayName') or correo
-
-    if not correo:
-        return Response(
-            {'error': 'Microsoft no devolvió correo'},
-            status=status.HTTP_400_BAD_REQUEST,
-        )
-
-    db = get_db()
-    usuario = db.usuarios.find_one({'correo': correo})
-    if usuario is None:
-        nuevo = {
-            'correo': correo,
-            'clave_hash': '',  # vacio porque entra via Microsoft, no con password
-            'nombre_completo': nombre,
-            'cedula': '',
-            'rol': 'estudiante',
-            'institucion': '',
-            'codigo_programa': '',
-            'activo': True,
-            'creado_en': datetime.utcnow(),
-        }
-        result = db.usuarios.insert_one(nuevo)
-        nuevo['_id'] = result.inserted_id
-        usuario = nuevo
 
     if not usuario.get('activo', True):
         return Response(

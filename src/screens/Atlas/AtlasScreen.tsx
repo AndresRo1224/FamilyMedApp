@@ -6,6 +6,7 @@ import {
   Animated,
   FlatList,
   Image,
+  RefreshControl,
   StatusBar,
   Text,
   TouchableOpacity,
@@ -13,13 +14,17 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useFocusEffect } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 import { Colors } from '../../constants/colors';
 import { useAtlas } from '../../hooks/useAtlas';
 import { buildMediaUrl } from '../../services/api';
+import type { RootStackParamList } from '../../navigation/RootNavigator';
 import type { AtlasCategoria, AtlasImagen } from '../../services/types';
 import { atlasStyles as s } from './AtlasScreen.styles';
+
+type AtlasNav = NativeStackNavigationProp<RootStackParamList>;
 
 type FilterValue = AtlasCategoria | 'all';
 type IconName = keyof typeof Ionicons.glyphMap;
@@ -82,9 +87,10 @@ const FilterChip: React.FC<FilterChipProps> = ({
 interface AtlasCardProps {
   item: AtlasImagen;
   animValue: Animated.Value;
+  onPress: (id: string) => void;
 }
 
-const AtlasCard: React.FC<AtlasCardProps> = ({ item, animValue }) => {
+const AtlasCard: React.FC<AtlasCardProps> = ({ item, animValue, onPress }) => {
   const scale = useRef(new Animated.Value(1)).current;
   const [imageError, setImageError] = useState(false);
   const visual = CATEGORY_VISUAL[item.categoria] ?? {
@@ -132,6 +138,7 @@ const AtlasCard: React.FC<AtlasCardProps> = ({ item, animValue }) => {
         activeOpacity={0.9}
         onPressIn={pressIn}
         onPressOut={pressOut}
+        onPress={() => onPress(item.id)}
         style={s.card}
       >
         {/* imagen real si existe; si no, placeholder con icono por categoria */}
@@ -170,9 +177,15 @@ const AtlasCard: React.FC<AtlasCardProps> = ({ item, animValue }) => {
 
 const AtlasScreen: React.FC = () => {
   const insets = useSafeAreaInsets();
+  const navigation = useNavigation<AtlasNav>();
   const [activeFilter, setActiveFilter] = useState<FilterValue>('all');
 
   const { data: imagenes, loading, error, refetch } = useAtlas();
+
+  const goToDetail = useCallback(
+    (id: string) => navigation.navigate('AtlasDetail', { id }),
+    [navigation],
+  );
 
   const headerAnim = useRef(new Animated.Value(0)).current;
   const cardAnims = useMemo(
@@ -288,10 +301,19 @@ const AtlasScreen: React.FC = () => {
           columnWrapperStyle={s.gridRow}
           contentContainerStyle={s.gridContent}
           showsVerticalScrollIndicator={false}
+          refreshControl={
+            <RefreshControl
+              refreshing={loading && imagenes.length > 0}
+              onRefresh={refetch}
+              colors={[Colors.primary]}
+              tintColor={Colors.primary}
+            />
+          }
           renderItem={({ item, index }) => (
             <AtlasCard
               item={item}
               animValue={cardAnims[index] ?? new Animated.Value(1)}
+              onPress={goToDetail}
             />
           )}
           ListEmptyComponent={

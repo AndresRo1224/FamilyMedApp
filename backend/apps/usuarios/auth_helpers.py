@@ -1,11 +1,10 @@
-# helpers para hash de passwords (bcrypt) + JWT propio + validacion Microsoft OAuth
+# helpers para hash de passwords (bcrypt) + JWT propio
 
 from datetime import datetime, timedelta, timezone
 from functools import wraps
 
 import bcrypt
 import jwt
-import requests
 from django.conf import settings
 from rest_framework import status
 from rest_framework.response import Response
@@ -68,21 +67,6 @@ def decodificar_jwt(token):
     except jwt.ExpiredSignatureError:
         return None
     except jwt.InvalidTokenError:
-        return None
-
-
-def validar_token_microsoft(access_token):
-    # llama a Microsoft Graph para verificar el token y traer datos del usuario
-    try:
-        r = requests.get(
-            'https://graph.microsoft.com/v1.0/me',
-            headers={'Authorization': f'Bearer {access_token}'},
-            timeout=10,
-        )
-        if r.status_code == 200:
-            return r.json()
-        return None
-    except requests.RequestException:
         return None
 
 

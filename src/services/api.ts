@@ -41,9 +41,13 @@ export function buildMediaUrl(path: string | undefined | null): string | null {
   return `${SERVER_BASE_URL}/media/${clean}`;
 }
 
+// timeout en ms para todos los fetch, asi la app no se queda colgada
+const FETCH_TIMEOUT_MS = 10000;
+
 // helper generico para hacer GET
 // agrega el header Authorization si hay JWT guardado
-// lanza un Error con mensaje descriptivo si la respuesta no es 2xx
+// lanza un Error con mensaje descriptivo si la respuesta no es 2xx, hay timeout
+// o no se puede conectar
 export async function apiGet<T>(path: string): Promise<T> {
   const url = `${API_BASE_URL}${path}`;
 
@@ -56,8 +60,12 @@ export async function apiGet<T>(path: string): Promise<T> {
     headers.Authorization = `Bearer ${token}`;
   }
 
+  // AbortController para cortar la request si pasa el timeout
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
+
   try {
-    const response = await fetch(url, { headers });
+    const response = await fetch(url, { headers, signal: controller.signal });
 
     if (!response.ok) {
       throw new Error(
@@ -67,6 +75,12 @@ export async function apiGet<T>(path: string): Promise<T> {
 
     return (await response.json()) as T;
   } catch (e) {
+    // si fue por timeout, mensaje especifico
+    if (e instanceof Error && e.name === 'AbortError') {
+      throw new Error(
+        'La conexión tardó demasiado. Verifica tu internet e intenta de nuevo.',
+      );
+    }
     if (e instanceof TypeError) {
       throw new Error(
         `No se pudo conectar al servidor en ${API_BASE_URL}. ` +
@@ -74,5 +88,7 @@ export async function apiGet<T>(path: string): Promise<T> {
       );
     }
     throw e;
+  } finally {
+    clearTimeout(timeoutId);
   }
 }

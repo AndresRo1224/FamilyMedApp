@@ -165,7 +165,7 @@ const LoginScreen: React.FC = () => {
                 />
                 <TextInput
                   style={s.input}
-                  placeholder="Andrés Felipe Rangel"
+                  placeholder="Tu nombre completo"
                   placeholderTextColor={Colors.textTertiary}
                   value={nombre}
                   onChangeText={setNombre}

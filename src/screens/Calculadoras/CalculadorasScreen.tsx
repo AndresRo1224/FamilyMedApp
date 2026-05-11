@@ -5,28 +5,35 @@ import {
   ActivityIndicator,
   Animated,
   FlatList,
+  RefreshControl,
   StatusBar,
   Text,
   TouchableOpacity,
   View,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useFocusEffect } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 import { Colors } from '../../constants/colors';
 import { useCalculadoras } from '../../hooks/useCalculadoras';
+import type { RootStackParamList } from '../../navigation/RootNavigator';
 import type { Calculadora } from '../../services/types';
 import { calculadorasStyles as s } from './CalculadorasScreen.styles';
+
+type CalcNav = NativeStackNavigationProp<RootStackParamList>;
 
 // card de calculadora con animacion
 interface CalculatorCardProps {
   calculadora: Calculadora;
   animValue: Animated.Value;
+  onPress: (id: string) => void;
 }
 
 const CalculatorCard: React.FC<CalculatorCardProps> = ({
   calculadora,
   animValue,
+  onPress,
 }) => {
   const scale = useRef(new Animated.Value(1)).current;
 
@@ -64,6 +71,7 @@ const CalculatorCard: React.FC<CalculatorCardProps> = ({
         activeOpacity={0.9}
         onPressIn={pressIn}
         onPressOut={pressOut}
+        onPress={() => onPress(calculadora.id)}
         style={s.card}
       >
         <View style={s.cardHeader}>
@@ -117,8 +125,14 @@ const CalculatorCard: React.FC<CalculatorCardProps> = ({
 
 const CalculadorasScreen: React.FC = () => {
   const insets = useSafeAreaInsets();
+  const navigation = useNavigation<CalcNav>();
 
   const { data: calculadoras, loading, error, refetch } = useCalculadoras();
+
+  const goToDetail = useCallback(
+    (id: string) => navigation.navigate('CalculadoraDetail', { id }),
+    [navigation],
+  );
 
   const headerAnim = useRef(new Animated.Value(0)).current;
   const cardAnims = useMemo(
@@ -211,10 +225,19 @@ const CalculadorasScreen: React.FC = () => {
           keyExtractor={(item) => item.id}
           contentContainerStyle={s.listContent}
           showsVerticalScrollIndicator={false}
+          refreshControl={
+            <RefreshControl
+              refreshing={loading && calculadoras.length > 0}
+              onRefresh={refetch}
+              colors={[Colors.primary]}
+              tintColor={Colors.primary}
+            />
+          }
           renderItem={({ item, index }) => (
             <CalculatorCard
               calculadora={item}
               animValue={cardAnims[index] ?? new Animated.Value(1)}
+              onPress={goToDetail}
             />
           )}
         />

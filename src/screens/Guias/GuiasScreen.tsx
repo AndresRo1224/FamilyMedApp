@@ -5,18 +5,23 @@ import {
   ActivityIndicator,
   Animated,
   FlatList,
+  RefreshControl,
   StatusBar,
   Text,
   TouchableOpacity,
   View,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useFocusEffect } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 import { Colors } from '../../constants/colors';
 import { useGuias } from '../../hooks/useGuias';
+import type { RootStackParamList } from '../../navigation/RootNavigator';
 import type { Guia, GuiaTipo } from '../../services/types';
 import { guiasStyles as s } from './GuiasScreen.styles';
+
+type GuiasNav = NativeStackNavigationProp<RootStackParamList>;
 
 type FilterValue = GuiaTipo | 'all';
 
@@ -68,9 +73,10 @@ const FilterChip: React.FC<FilterChipProps> = ({ option, active, onPress }) => {
 interface GuideCardProps {
   guia: Guia;
   animValue: Animated.Value;
+  onPress: (id: string) => void;
 }
 
-const GuideCard: React.FC<GuideCardProps> = ({ guia, animValue }) => {
+const GuideCard: React.FC<GuideCardProps> = ({ guia, animValue, onPress }) => {
   const scale = useRef(new Animated.Value(1)).current;
 
   const pressIn = () => {
@@ -107,6 +113,7 @@ const GuideCard: React.FC<GuideCardProps> = ({ guia, animValue }) => {
         activeOpacity={0.9}
         onPressIn={pressIn}
         onPressOut={pressOut}
+        onPress={() => onPress(guia.id)}
         style={s.card}
       >
         <View style={s.cardHeader}>
@@ -144,9 +151,15 @@ const GuideCard: React.FC<GuideCardProps> = ({ guia, animValue }) => {
 
 const GuiasScreen: React.FC = () => {
   const insets = useSafeAreaInsets();
+  const navigation = useNavigation<GuiasNav>();
   const [activeFilter, setActiveFilter] = useState<FilterValue>('all');
 
   const { data: guias, loading, error, refetch } = useGuias();
+
+  const goToDetail = useCallback(
+    (id: string) => navigation.navigate('GuiaDetail', { id }),
+    [navigation],
+  );
 
   const headerAnim = useRef(new Animated.Value(0)).current;
   const cardAnims = useMemo(
@@ -258,10 +271,19 @@ const GuiasScreen: React.FC = () => {
           keyExtractor={(item) => item.id}
           contentContainerStyle={s.listContent}
           showsVerticalScrollIndicator={false}
+          refreshControl={
+            <RefreshControl
+              refreshing={loading && guias.length > 0}
+              onRefresh={refetch}
+              colors={[Colors.primary]}
+              tintColor={Colors.primary}
+            />
+          }
           renderItem={({ item, index }) => (
             <GuideCard
               guia={item}
               animValue={cardAnims[index] ?? new Animated.Value(1)}
+              onPress={goToDetail}
             />
           )}
           ListEmptyComponent={

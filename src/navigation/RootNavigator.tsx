@@ -6,6 +6,10 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 import LoginScreen from '../screens/Login/LoginScreen';
 import SettingsScreen from '../screens/Settings/SettingsScreen';
+import ContenidoDetailScreen from '../screens/ContenidoDetail/ContenidoDetailScreen';
+import CalculadoraDetailScreen from '../screens/CalculadoraDetail/CalculadoraDetailScreen';
+import AtlasDetailScreen from '../screens/AtlasDetail/AtlasDetailScreen';
+import GuiaDetailScreen from '../screens/GuiaDetail/GuiaDetailScreen';
 import TabNavigator from './TabNavigator';
 import { useAuth } from '../contexts/AuthContext';
 import { Colors } from '../constants/colors';
@@ -14,6 +18,10 @@ export type RootStackParamList = {
   Login: undefined;
   Main: undefined;
   Settings: undefined;
+  ContenidoDetail: { id: string };
+  CalculadoraDetail: { id: string };
+  AtlasDetail: { id: string };
+  GuiaDetail: { id: string };
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -54,6 +62,25 @@ const RootNavigator: React.FC = () => {
             component={SettingsScreen}
             options={{ animation: 'slide_from_bottom' }}
           />
+          {/* las pantallas de detalle son modales: suben desde abajo */}
+          <Stack.Group screenOptions={{ presentation: 'modal' }}>
+            <Stack.Screen
+              name="ContenidoDetail"
+              component={ContenidoDetailScreen}
+            />
+            <Stack.Screen
+              name="CalculadoraDetail"
+              component={CalculadoraDetailScreen}
+            />
+            <Stack.Screen
+              name="AtlasDetail"
+              component={AtlasDetailScreen}
+            />
+            <Stack.Screen
+              name="GuiaDetail"
+              component={GuiaDetailScreen}
+            />
+          </Stack.Group>
         </>
       )}
     </Stack.Navigator>

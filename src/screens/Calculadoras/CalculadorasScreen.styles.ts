@@ -72,6 +72,7 @@ export const calculadorasStyles = StyleSheet.create({
     paddingHorizontal: 10,
     paddingVertical: 4,
     borderRadius: 10,
+    flexShrink: 0,
   },
   shortNameText: {
     ...Typography.caption,
@@ -86,6 +87,10 @@ export const calculadorasStyles = StyleSheet.create({
     fontWeight: '700',
     textTransform: 'uppercase',
     letterSpacing: 0.5,
+    flex: 1,
+    flexShrink: 1,
+    marginLeft: 10,
+    textAlign: 'right',
   },
 
   cardTitle: {

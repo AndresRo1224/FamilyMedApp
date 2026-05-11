@@ -17,11 +17,7 @@ import type { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 import { Colors } from '../../constants/colors';
-import {
-  MockCurrentUser,
-  RecentItem,
-  RecentItems,
-} from '../../data/mockData';
+import { useAuth } from '../../contexts/AuthContext';
 import { useContenidos } from '../../hooks/useContenidos';
 import { useCalculadoras } from '../../hooks/useCalculadoras';
 import { useAtlas } from '../../hooks/useAtlas';
@@ -29,6 +25,27 @@ import { useGuias } from '../../hooks/useGuias';
 import type { TabParamList } from '../../navigation/TabNavigator';
 import type { RootStackParamList } from '../../navigation/RootNavigator';
 import { homeStyles as s } from './HomeScreen.styles';
+
+// items recientes que mostramos en el carrusel del home
+// los armamos a partir de los contenidos/guias/atlas mas recientes del backend
+type RecentModule = 'contenido' | 'calculadora' | 'atlas' | 'guia';
+
+interface RecentItem {
+  id: string;
+  originalId: string;
+  module: RecentModule;
+  title: string;
+  moduleLabel: string;
+  accessedAt: string;
+}
+
+// devuelve "Buenos dias", "Buenas tardes" o "Buenas noches" segun la hora
+function saludoPorHora(): string {
+  const h = new Date().getHours();
+  if (h < 12) return 'Buenos días';
+  if (h < 19) return 'Buenas tardes';
+  return 'Buenas noches';
+}
 
 // navegacion combinada: tabs + stack (para ir a Settings)
 type HomeNavigationProp = BottomTabNavigationProp<TabParamList> &
@@ -109,13 +126,14 @@ const ModuleCard: React.FC<ModuleCardProps> = ({
   );
 };
 
-// card de item reciente con animacion
+// card de item reciente con animacion + tap navegacional
 interface RecentCardProps {
   item: RecentItem;
   animValue: Animated.Value;
+  onPress: (item: RecentItem) => void;
 }
 
-const RecentCard: React.FC<RecentCardProps> = ({ item, animValue }) => {
+const RecentCard: React.FC<RecentCardProps> = ({ item, animValue, onPress }) => {
   const translateX = animValue.interpolate({
     inputRange: [0, 1],
     outputRange: [30, 0],
@@ -125,13 +143,17 @@ const RecentCard: React.FC<RecentCardProps> = ({ item, animValue }) => {
     <Animated.View
       style={{ opacity: animValue, transform: [{ translateX }] }}
     >
-      <View style={s.recentCard}>
+      <TouchableOpacity
+        activeOpacity={0.85}
+        onPress={() => onPress(item)}
+        style={s.recentCard}
+      >
         <Text style={s.recentModule}>{item.moduleLabel}</Text>
         <Text style={s.recentTitle} numberOfLines={2}>
           {item.title}
         </Text>
         <Text style={s.recentDate}>{item.accessedAt}</Text>
-      </View>
+      </TouchableOpacity>
     </Animated.View>
   );
 };
@@ -139,12 +161,93 @@ const RecentCard: React.FC<RecentCardProps> = ({ item, animValue }) => {
 const HomeScreen: React.FC = () => {
   const navigation = useNavigation<HomeNavigationProp>();
   const insets = useSafeAreaInsets();
+  const { user } = useAuth();
 
   // counts en vivo desde el backend
   const { data: contenidos } = useContenidos();
   const { data: calculadoras } = useCalculadoras();
   const { data: atlas } = useAtlas();
   const { data: guias } = useGuias();
+
+  // armamos los "recientes" a partir de los datos reales del backend
+  // tomamos lo mas reciente de cada modulo para que se vea movido
+  const recentItems: RecentItem[] = useMemo(() => {
+    const formatear = (iso: string | undefined): string => {
+      if (!iso) return '';
+      try {
+        return new Date(iso).toLocaleDateString('es-CO', {
+          day: '2-digit',
+          month: 'short',
+        });
+      } catch {
+        return '';
+      }
+    };
+
+    const items: RecentItem[] = [];
+    if (contenidos[0]) {
+      items.push({
+        id: `c-${contenidos[0].id}`,
+        originalId: contenidos[0].id,
+        module: 'contenido',
+        title: contenidos[0].titulo,
+        moduleLabel: 'Contenidos',
+        accessedAt: formatear(contenidos[0].creado_en),
+      });
+    }
+    if (guias[0]) {
+      items.push({
+        id: `g-${guias[0].id}`,
+        originalId: guias[0].id,
+        module: 'guia',
+        title: guias[0].titulo,
+        moduleLabel: 'Guías',
+        accessedAt: formatear(guias[0].creado_en),
+      });
+    }
+    if (atlas[0]) {
+      items.push({
+        id: `a-${atlas[0].id}`,
+        originalId: atlas[0].id,
+        module: 'atlas',
+        title: atlas[0].titulo,
+        moduleLabel: 'Atlas',
+        accessedAt: formatear(atlas[0].creado_en),
+      });
+    }
+    if (calculadoras[0]) {
+      items.push({
+        id: `k-${calculadoras[0].id}`,
+        originalId: calculadoras[0].id,
+        module: 'calculadora',
+        title: calculadoras[0].nombre,
+        moduleLabel: 'Calculadoras',
+        accessedAt: formatear(calculadoras[0].creado_en),
+      });
+    }
+    return items;
+  }, [contenidos, guias, atlas, calculadoras]);
+
+  // tap en un reciente: abre directamente el modal de detalle correspondiente
+  const handleRecentPress = useCallback(
+    (item: RecentItem) => {
+      switch (item.module) {
+        case 'contenido':
+          navigation.navigate('ContenidoDetail', { id: item.originalId });
+          return;
+        case 'calculadora':
+          navigation.navigate('CalculadoraDetail', { id: item.originalId });
+          return;
+        case 'atlas':
+          navigation.navigate('AtlasDetail', { id: item.originalId });
+          return;
+        case 'guia':
+          navigation.navigate('GuiaDetail', { id: item.originalId });
+          return;
+      }
+    },
+    [navigation],
+  );
 
   // arma el grid con los counts dinamicos
   const modules: HomeModule[] = useMemo(
@@ -187,9 +290,11 @@ const HomeScreen: React.FC = () => {
   const moduleAnims = useRef(
     modules.map(() => new Animated.Value(0)),
   ).current;
-  const recentAnims = useRef(
-    RecentItems.map(() => new Animated.Value(0)),
-  ).current;
+  // animaciones reescaladas si la cantidad de recientes cambia
+  const recentAnims = useMemo(
+    () => recentItems.map(() => new Animated.Value(0)),
+    [recentItems],
+  );
 
   // se dispara cada vez que la pantalla recibe focus
   useFocusEffect(
@@ -240,7 +345,9 @@ const HomeScreen: React.FC = () => {
     navigation.navigate(module.route);
   };
 
-  const firstName = MockCurrentUser.fullName.split(' ')[0];
+  // tomamos el primer nombre del usuario logueado, si no hay usamos algo neutro
+  const firstName = (user?.nombre_completo || '').split(' ')[0] || 'estudiante';
+  const greeting = `${saludoPorHora()}, ${firstName}`;
 
   const headerTranslate = headerAnim.interpolate({
     inputRange: [0, 1],
@@ -269,7 +376,7 @@ const HomeScreen: React.FC = () => {
           </TouchableOpacity>
 
           <View style={s.headerAccent} />
-          <Text style={s.greeting}>Hola, {firstName}</Text>
+          <Text style={s.greeting}>{greeting}</Text>
           <Text style={s.subtitle}>Bienvenido a FamilyMed App · UDES</Text>
         </View>
       </Animated.View>
@@ -298,7 +405,7 @@ const HomeScreen: React.FC = () => {
           Recientes
         </Animated.Text>
         <FlatList
-          data={RecentItems}
+          data={recentItems}
           keyExtractor={(item) => item.id}
           horizontal
           showsHorizontalScrollIndicator={false}
@@ -307,6 +414,7 @@ const HomeScreen: React.FC = () => {
             <RecentCard
               item={item}
               animValue={recentAnims[index] ?? new Animated.Value(1)}
+              onPress={handleRecentPress}
             />
           )}
         />
