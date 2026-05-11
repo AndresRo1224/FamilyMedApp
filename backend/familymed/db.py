@@ -23,13 +23,15 @@ DB_NAME = 'familymed'
 
 
 def get_client():
-    # crea el cliente de mongo leyendo la URI desde el .env
+    # crea el cliente de mongo leyendo la URI desde env
+    # acepta MONGO_URI o MONGODB_URI (los dos nombres en el ecosistema)
     # tlsCAFile usa los certificados raiz de certifi (arregla el SSL en Windows)
-    uri = os.getenv('MONGODB_URI')
+    uri = os.getenv('MONGO_URI') or os.getenv('MONGODB_URI')
     if not uri:
         raise RuntimeError(
-            'No se encontro MONGODB_URI. '
-            'Crea backend/.env con esa variable apuntando al cluster de Atlas.'
+            'No se encontro MONGO_URI ni MONGODB_URI en las variables de entorno. '
+            'En local: crea backend/.env con esa variable. '
+            'En produccion: agregala en el panel del hosting.'
         )
     return MongoClient(
         uri,

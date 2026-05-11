@@ -82,6 +82,25 @@ MIDDLEWARE = [
 CORS_ALLOW_ALL_ORIGINS = True
 
 
+# logging: imprime tracebacks de errores 500 en los logs del hosting
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+        },
+    },
+    'loggers': {
+        'django.request': {
+            'handlers': ['console'],
+            'level': 'ERROR',
+            'propagate': False,
+        },
+    },
+}
+
+
 ROOT_URLCONF = 'familymed.urls'
 
 
