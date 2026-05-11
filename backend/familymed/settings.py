@@ -140,13 +140,16 @@ STATICFILES_DIRS = [
     BASE_DIR / 'static',
 ]
 
-# whitenoise comprime y cachea los estaticos en produccion
+# whitenoise comprime los estaticos en produccion
+# usamos CompressedStaticFilesStorage (sin Manifest) porque el bootstrap
+# que trae django-jazzmin referencia un .map.js que no esta empaquetado
+# y el modo Manifest falla si hay referencias rotas
 STORAGES = {
     'default': {
         'BACKEND': 'django.core.files.storage.FileSystemStorage',
     },
     'staticfiles': {
-        'BACKEND': 'whitenoise.storage.CompressedManifestStaticFilesStorage',
+        'BACKEND': 'whitenoise.storage.CompressedStaticFilesStorage',
     },
 }
 
