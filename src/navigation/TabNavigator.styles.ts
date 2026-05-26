@@ -43,6 +43,13 @@ export const makeTabNavigatorStyles = (c: UdesColorPalette) => StyleSheet.create
     alignItems: 'center',
     justifyContent: 'center',
     paddingTop: 6,
+    paddingHorizontal: 10,
+    paddingBottom: 4,
+    borderRadius: 14,
+  },
+  // mismo tabContent pero con fondo sombreado cuando esta activo
+  tabContentActive: {
+    backgroundColor: c.primary + '14', // azul translucido (~8% opacity)
   },
   iconBox: {
     marginBottom: 3,

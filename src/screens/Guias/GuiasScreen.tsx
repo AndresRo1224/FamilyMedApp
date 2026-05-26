@@ -2,7 +2,6 @@
 
 import React, { useCallback, useMemo, useRef, useState } from 'react';
 import {
-  ActivityIndicator,
   Animated,
   FlatList,
   RefreshControl,
@@ -15,6 +14,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
+import { SkeletonList } from '../../components/Skeleton';
 import { useTheme } from '../../contexts/ThemeContext';
 import { useGuias } from '../../hooks/useGuias';
 import type { RootStackParamList } from '../../navigation/RootNavigator';
@@ -252,12 +252,7 @@ const GuiasScreen: React.FC = () => {
 
       {/* loading / error / lista */}
       {loading && guias.length === 0 ? (
-        <View style={s.emptyState}>
-          <ActivityIndicator size="large" color={colors.primary} />
-          <Text style={[s.emptyText, { marginTop: 12 }]}>
-            Cargando guías…
-          </Text>
-        </View>
+        <SkeletonList count={4} variant="content" />
       ) : error ? (
         <View style={s.emptyState}>
           <Text style={[s.emptyText, { marginBottom: 12, textAlign: 'center' }]}>

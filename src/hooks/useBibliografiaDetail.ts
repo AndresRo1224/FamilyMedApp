@@ -1,6 +1,7 @@
-// hook que consume /api/bibliografia/<id>/
+// hook que consume /api/bibliografia/<id>/ con react-query
+// usa el item cacheado del listado como initialData
 
-import { useCallback, useEffect, useState } from 'react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { apiGet } from '../services/api';
 import type { BibliografiaItem } from '../services/types';
@@ -13,27 +14,25 @@ interface UseBibliografiaDetailResult {
 }
 
 export function useBibliografiaDetail(id: string): UseBibliografiaDetailResult {
-  const [data, setData] = useState<BibliografiaItem | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const qc = useQueryClient();
 
-  const fetchData = useCallback(async () => {
-    try {
-      setLoading(true);
-      setError(null);
-      const result = await apiGet<BibliografiaItem>(`/bibliografia/${id}/`);
-      setData(result);
-    } catch (e) {
-      const msg = e instanceof Error ? e.message : 'Error desconocido';
-      setError(msg);
-    } finally {
-      setLoading(false);
-    }
-  }, [id]);
+  const query = useQuery<BibliografiaItem, Error>({
+    queryKey: ['bibliografia', id],
+    queryFn: () => apiGet<BibliografiaItem>(`/bibliografia/${id}/`),
+    enabled: !!id,
+    staleTime: 0,
+    initialData: () => {
+      const list = qc.getQueryData<BibliografiaItem[]>(['bibliografia']);
+      return list?.find((b) => b.id === id);
+    },
+  });
 
-  useEffect(() => {
-    fetchData();
-  }, [fetchData]);
-
-  return { data, loading, error, refetch: fetchData };
+  return {
+    data: query.data ?? null,
+    loading: query.isLoading,
+    error: query.error?.message ?? null,
+    refetch: () => {
+      query.refetch();
+    },
+  };
 }

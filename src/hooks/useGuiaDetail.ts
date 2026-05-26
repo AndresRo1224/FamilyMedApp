@@ -1,6 +1,7 @@
 // hook que consume /api/guias/<id>/ (incrementa vistas en el backend)
+// usa el item cacheado del listado como initialData
 
-import { useCallback, useEffect, useState } from 'react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { apiGet } from '../services/api';
 import type { Guia } from '../services/types';
@@ -13,27 +14,25 @@ interface UseGuiaDetailResult {
 }
 
 export function useGuiaDetail(id: string): UseGuiaDetailResult {
-  const [data, setData] = useState<Guia | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const qc = useQueryClient();
 
-  const fetchData = useCallback(async () => {
-    try {
-      setLoading(true);
-      setError(null);
-      const result = await apiGet<Guia>(`/guias/${id}/`);
-      setData(result);
-    } catch (e) {
-      const msg = e instanceof Error ? e.message : 'Error desconocido';
-      setError(msg);
-    } finally {
-      setLoading(false);
-    }
-  }, [id]);
+  const query = useQuery<Guia, Error>({
+    queryKey: ['guia', id],
+    queryFn: () => apiGet<Guia>(`/guias/${id}/`),
+    enabled: !!id,
+    staleTime: 0,
+    initialData: () => {
+      const list = qc.getQueryData<Guia[]>(['guias']);
+      return list?.find((g) => g.id === id);
+    },
+  });
 
-  useEffect(() => {
-    fetchData();
-  }, [fetchData]);
-
-  return { data, loading, error, refetch: fetchData };
+  return {
+    data: query.data ?? null,
+    loading: query.isLoading,
+    error: query.error?.message ?? null,
+    refetch: () => {
+      query.refetch();
+    },
+  };
 }

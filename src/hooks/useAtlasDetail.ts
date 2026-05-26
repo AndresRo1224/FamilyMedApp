@@ -1,6 +1,7 @@
 // hook que consume /api/atlas/<id>/ (incrementa vistas en el backend)
+// usa el item cacheado del listado como initialData
 
-import { useCallback, useEffect, useState } from 'react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { apiGet } from '../services/api';
 import type { AtlasImagen } from '../services/types';
@@ -13,27 +14,25 @@ interface UseAtlasDetailResult {
 }
 
 export function useAtlasDetail(id: string): UseAtlasDetailResult {
-  const [data, setData] = useState<AtlasImagen | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const qc = useQueryClient();
 
-  const fetchData = useCallback(async () => {
-    try {
-      setLoading(true);
-      setError(null);
-      const result = await apiGet<AtlasImagen>(`/atlas/${id}/`);
-      setData(result);
-    } catch (e) {
-      const msg = e instanceof Error ? e.message : 'Error desconocido';
-      setError(msg);
-    } finally {
-      setLoading(false);
-    }
-  }, [id]);
+  const query = useQuery<AtlasImagen, Error>({
+    queryKey: ['atlas', id],
+    queryFn: () => apiGet<AtlasImagen>(`/atlas/${id}/`),
+    enabled: !!id,
+    staleTime: 0,
+    initialData: () => {
+      const list = qc.getQueryData<AtlasImagen[]>(['atlas']);
+      return list?.find((a) => a.id === id);
+    },
+  });
 
-  useEffect(() => {
-    fetchData();
-  }, [fetchData]);
-
-  return { data, loading, error, refetch: fetchData };
+  return {
+    data: query.data ?? null,
+    loading: query.isLoading,
+    error: query.error?.message ?? null,
+    refetch: () => {
+      query.refetch();
+    },
+  };
 }

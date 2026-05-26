@@ -73,7 +73,7 @@ const CustomTabButton: React.FC<CustomTabButtonProps> = ({
       accessibilityState={accessibilityState}
     >
       {focused && <View style={s.indicator} />}
-      <View style={s.tabContent}>
+      <View style={[s.tabContent, focused && s.tabContentActive]}>
         <View style={s.iconBox}>
           <Ionicons name={iconName} size={22} color={color} />
         </View>

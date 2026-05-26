@@ -1,6 +1,6 @@
-// hook que consume /api/calculadoras/
+// hook que consume /api/calculadoras/ con react-query
 
-import { useCallback, useEffect, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 
 import { apiGet } from '../services/api';
 import type { Calculadora } from '../services/types';
@@ -13,27 +13,17 @@ interface UseCalculadorasResult {
 }
 
 export function useCalculadoras(): UseCalculadorasResult {
-  const [data, setData] = useState<Calculadora[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const query = useQuery<Calculadora[], Error>({
+    queryKey: ['calculadoras'],
+    queryFn: () => apiGet<Calculadora[]>('/calculadoras/'),
+  });
 
-  const fetchData = useCallback(async () => {
-    try {
-      setLoading(true);
-      setError(null);
-      const result = await apiGet<Calculadora[]>('/calculadoras/');
-      setData(result);
-    } catch (e) {
-      const msg = e instanceof Error ? e.message : 'Error desconocido';
-      setError(msg);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    fetchData();
-  }, [fetchData]);
-
-  return { data, loading, error, refetch: fetchData };
+  return {
+    data: query.data ?? [],
+    loading: query.isLoading,
+    error: query.error?.message ?? null,
+    refetch: () => {
+      query.refetch();
+    },
+  };
 }

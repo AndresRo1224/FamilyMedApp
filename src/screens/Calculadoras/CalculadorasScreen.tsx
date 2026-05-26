@@ -2,7 +2,6 @@
 
 import React, { useCallback, useMemo, useRef } from 'react';
 import {
-  ActivityIndicator,
   Animated,
   FlatList,
   RefreshControl,
@@ -15,6 +14,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
+import { SkeletonList } from '../../components/Skeleton';
 import { useTheme } from '../../contexts/ThemeContext';
 import { useCalculadoras } from '../../hooks/useCalculadoras';
 import type { RootStackParamList } from '../../navigation/RootNavigator';
@@ -194,14 +194,9 @@ const CalculadorasScreen: React.FC = () => {
         </View>
       </Animated.View>
 
-      {/* loading inicial */}
+      {/* loading inicial - skeleton placeholders */}
       {loading && calculadoras.length === 0 ? (
-        <View style={[s.content, { padding: 40 }]}>
-          <ActivityIndicator size="large" color={colors.primary} />
-          <Text style={[s.placeholderText, { marginTop: 12 }]}>
-            Cargando calculadoras…
-          </Text>
-        </View>
+        <SkeletonList count={4} variant="content" />
       ) : error ? (
         // estado de error con retry
         <View style={[s.content, { padding: 40 }]}>

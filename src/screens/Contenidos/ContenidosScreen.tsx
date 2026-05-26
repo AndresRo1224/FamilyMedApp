@@ -2,7 +2,6 @@
 
 import React, { useCallback, useMemo, useRef, useState } from 'react';
 import {
-  ActivityIndicator,
   Animated,
   FlatList,
   RefreshControl,
@@ -17,6 +16,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
+import { SkeletonList } from '../../components/Skeleton';
 import { useTheme } from '../../contexts/ThemeContext';
 import { useContenidos } from '../../hooks/useContenidos';
 import type { RootStackParamList } from '../../navigation/RootNavigator';
@@ -314,14 +314,9 @@ const ContenidosScreen: React.FC = () => {
         />
       </View>
 
-      {/* loading inicial */}
+      {/* loading inicial - skeleton placeholders */}
       {loading && contenidos.length === 0 ? (
-        <View style={s.emptyState}>
-          <ActivityIndicator size="large" color={colors.primary} />
-          <Text style={[s.emptyText, { marginTop: 12 }]}>
-            Cargando contenidos…
-          </Text>
-        </View>
+        <SkeletonList count={4} variant="content" />
       ) : error ? (
         // estado de error con boton para reintentar
         <View style={s.emptyState}>

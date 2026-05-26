@@ -1,6 +1,7 @@
 // hook que consume /api/contenidos/<id>/ (incrementa vistas en el backend)
+// usa el item cacheado del listado como initialData para apertura instantanea
 
-import { useCallback, useEffect, useState } from 'react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { apiGet } from '../services/api';
 import type { Contenido } from '../services/types';
@@ -13,27 +14,27 @@ interface UseContenidoDetailResult {
 }
 
 export function useContenidoDetail(id: string): UseContenidoDetailResult {
-  const [data, setData] = useState<Contenido | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const qc = useQueryClient();
 
-  const fetchData = useCallback(async () => {
-    try {
-      setLoading(true);
-      setError(null);
-      const result = await apiGet<Contenido>(`/contenidos/${id}/`);
-      setData(result);
-    } catch (e) {
-      const msg = e instanceof Error ? e.message : 'Error desconocido';
-      setError(msg);
-    } finally {
-      setLoading(false);
-    }
-  }, [id]);
+  const query = useQuery<Contenido, Error>({
+    queryKey: ['contenido', id],
+    queryFn: () => apiGet<Contenido>(`/contenidos/${id}/`),
+    enabled: !!id,
+    // forzar refetch en cada apertura para que suba el contador de vistas
+    staleTime: 0,
+    // si ya tenemos el item en el cache del listado, mostrarlo de una
+    initialData: () => {
+      const list = qc.getQueryData<Contenido[]>(['contenidos']);
+      return list?.find((c) => c.id === id);
+    },
+  });
 
-  useEffect(() => {
-    fetchData();
-  }, [fetchData]);
-
-  return { data, loading, error, refetch: fetchData };
+  return {
+    data: query.data ?? null,
+    loading: query.isLoading,
+    error: query.error?.message ?? null,
+    refetch: () => {
+      query.refetch();
+    },
+  };
 }

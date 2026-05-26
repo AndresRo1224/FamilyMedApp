@@ -2,7 +2,6 @@
 
 import React, { useCallback, useMemo, useRef, useState } from 'react';
 import {
-  ActivityIndicator,
   Animated,
   FlatList,
   RefreshControl,
@@ -17,6 +16,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
+import { SkeletonList } from '../../components/Skeleton';
 import { useTheme } from '../../contexts/ThemeContext';
 import { useBibliografia } from '../../hooks/useBibliografia';
 import type { RootStackParamList } from '../../navigation/RootNavigator';
@@ -213,12 +213,7 @@ const BibliografiaScreen: React.FC = () => {
       </View>
 
       {loading && items.length === 0 ? (
-        <View style={s.emptyState}>
-          <ActivityIndicator size="large" color={colors.primary} />
-          <Text style={[s.emptyText, { marginTop: 12 }]}>
-            Cargando referencias…
-          </Text>
-        </View>
+        <SkeletonList count={5} variant="compact" />
       ) : error ? (
         <View style={s.emptyState}>
           <Text style={[s.emptyText, { marginBottom: 12, textAlign: 'center' }]}>

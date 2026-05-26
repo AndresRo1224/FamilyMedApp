@@ -1,6 +1,6 @@
-// hook que consume /api/bibliografia/
+// hook que consume /api/bibliografia/ con react-query
 
-import { useCallback, useEffect, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 
 import { apiGet } from '../services/api';
 import type { BibliografiaItem } from '../services/types';
@@ -13,27 +13,17 @@ interface UseBibliografiaResult {
 }
 
 export function useBibliografia(): UseBibliografiaResult {
-  const [data, setData] = useState<BibliografiaItem[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const query = useQuery<BibliografiaItem[], Error>({
+    queryKey: ['bibliografia'],
+    queryFn: () => apiGet<BibliografiaItem[]>('/bibliografia/'),
+  });
 
-  const fetchData = useCallback(async () => {
-    try {
-      setLoading(true);
-      setError(null);
-      const result = await apiGet<BibliografiaItem[]>('/bibliografia/');
-      setData(result);
-    } catch (e) {
-      const msg = e instanceof Error ? e.message : 'Error desconocido';
-      setError(msg);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    fetchData();
-  }, [fetchData]);
-
-  return { data, loading, error, refetch: fetchData };
+  return {
+    data: query.data ?? [],
+    loading: query.isLoading,
+    error: query.error?.message ?? null,
+    refetch: () => {
+      query.refetch();
+    },
+  };
 }

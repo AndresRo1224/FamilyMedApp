@@ -306,16 +306,18 @@ const HomeScreen: React.FC = () => {
   );
 
   // animaciones del header y las cards
+  // todas son refs estables (no se recrean en cada render) para evitar
+  // que useFocusEffect se reinicie cada vez que llega un fetch del backend
   const headerAnim = useRef(new Animated.Value(0)).current;
   const sectionTitleAnim = useRef(new Animated.Value(0)).current;
+  // 5 modulos fijos (contenidos, calc, atlas, guias, biblio)
   const moduleAnims = useRef(
-    modules.map(() => new Animated.Value(0)),
+    Array.from({ length: 5 }, () => new Animated.Value(0)),
   ).current;
-  // animaciones reescaladas si la cantidad de recientes cambia
-  const recentAnims = useMemo(
-    () => recentItems.map(() => new Animated.Value(0)),
-    [recentItems],
-  );
+  // maximo 4 recientes (uno por modulo de contenido)
+  const recentAnims = useRef(
+    Array.from({ length: 4 }, () => new Animated.Value(0)),
+  ).current;
 
   // se dispara cada vez que la pantalla recibe focus
   useFocusEffect(

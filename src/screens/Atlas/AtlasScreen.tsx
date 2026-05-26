@@ -2,7 +2,6 @@
 
 import React, { useCallback, useMemo, useRef, useState } from 'react';
 import {
-  ActivityIndicator,
   Animated,
   FlatList,
   Image,
@@ -17,6 +16,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
+import { Skeleton } from '../../components/Skeleton';
 import { useTheme } from '../../contexts/ThemeContext';
 import { useAtlas } from '../../hooks/useAtlas';
 import { buildMediaUrl } from '../../services/api';
@@ -280,11 +280,25 @@ const AtlasScreen: React.FC = () => {
 
       {/* loading o error o grid */}
       {loading && imagenes.length === 0 ? (
-        <View style={s.emptyState}>
-          <ActivityIndicator size="large" color={colors.primary} />
-          <Text style={[s.emptyText, { marginTop: 12 }]}>
-            Cargando galería…
-          </Text>
+        <View style={s.gridContent}>
+          <View style={s.gridRow}>
+            {[0, 1].map((i) => (
+              <View key={i} style={{ width: '48%' }}>
+                <Skeleton width="100%" height={140} borderRadius={12} />
+                <Skeleton width="85%" height={14} style={{ marginTop: 10 }} />
+                <Skeleton width="65%" height={12} style={{ marginTop: 6 }} />
+              </View>
+            ))}
+          </View>
+          <View style={[s.gridRow, { marginTop: 16 }]}>
+            {[0, 1].map((i) => (
+              <View key={i} style={{ width: '48%' }}>
+                <Skeleton width="100%" height={140} borderRadius={12} />
+                <Skeleton width="85%" height={14} style={{ marginTop: 10 }} />
+                <Skeleton width="65%" height={12} style={{ marginTop: 6 }} />
+              </View>
+            ))}
+          </View>
         </View>
       ) : error ? (
         <View style={s.emptyState}>
