@@ -44,6 +44,38 @@ export const makeHomeStyles = (c: UdesColorPalette) => StyleSheet.create({
     justifyContent: 'center',
     zIndex: 2,
   },
+  // accesos rapidos (busqueda global + favoritos) debajo del banner
+  quickActions: {
+    flexDirection: 'row',
+    paddingHorizontal: 20,
+    marginTop: 16,
+    gap: 10,
+  },
+  quickAction: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    backgroundColor: c.surface,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: c.border,
+    paddingVertical: 12,
+    paddingHorizontal: 14,
+  },
+  quickActionIcon: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: c.primary + '14',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  quickActionText: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: c.text,
+  },
   greeting: {
     ...Typography.h1,
     color: '#FFFFFF',

@@ -19,6 +19,8 @@ import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 import { useAuth } from '../../contexts/AuthContext';
 import { useTheme, ThemeMode } from '../../contexts/ThemeContext';
+import { useToast } from '../../contexts/ToastContext';
+import { useHaptics } from '../../hooks/useHaptics';
 import type { RootStackParamList } from '../../navigation/RootNavigator';
 import { makeSettingsStyles } from './SettingsScreen.styles';
 
@@ -154,6 +156,8 @@ const SettingsScreen: React.FC = () => {
   const navigation = useNavigation<SettingsNavigationProp>();
   const { user, signOut } = useAuth();
   const { colors, mode, setMode } = useTheme();
+  const { showToast } = useToast();
+  const haptics = useHaptics();
   const s = useMemo(() => makeSettingsStyles(colors), [colors]);
 
   // toggles locales (preferencias visuales, no persistentes por ahora)
@@ -165,12 +169,28 @@ const SettingsScreen: React.FC = () => {
 
   // abre un selector de tema (claro / oscuro / automatico)
   const handleThemePress = () => {
+    haptics.tap();
     Alert.alert('Tema de la app', 'Elige cómo se ve la aplicación', [
-      { text: 'Claro', onPress: () => setMode('light' as ThemeMode) },
-      { text: 'Oscuro', onPress: () => setMode('dark' as ThemeMode) },
+      {
+        text: 'Claro',
+        onPress: () => {
+          setMode('light' as ThemeMode);
+          showToast('Tema claro activado', 'info');
+        },
+      },
+      {
+        text: 'Oscuro',
+        onPress: () => {
+          setMode('dark' as ThemeMode);
+          showToast('Tema oscuro activado', 'info');
+        },
+      },
       {
         text: 'Automático (sistema)',
-        onPress: () => setMode('system' as ThemeMode),
+        onPress: () => {
+          setMode('system' as ThemeMode);
+          showToast('Tema automático activado', 'info');
+        },
       },
       { text: 'Cancelar', style: 'cancel' },
     ]);
@@ -200,6 +220,7 @@ const SettingsScreen: React.FC = () => {
 
   // confirmacion antes de cerrar sesion
   const handleLogout = () => {
+    haptics.warning();
     Alert.alert(
       'Cerrar sesión',
       '¿Seguro que quieres cerrar sesión?',
@@ -209,6 +230,7 @@ const SettingsScreen: React.FC = () => {
           text: 'Cerrar sesión',
           style: 'destructive',
           onPress: async () => {
+            haptics.medium();
             await signOut();
             // RootNavigator detecta que ya no hay user y muestra Login
           },

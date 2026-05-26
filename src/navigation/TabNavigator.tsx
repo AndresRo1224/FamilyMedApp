@@ -17,6 +17,7 @@ import GuiasScreen from '../screens/Guias/GuiasScreen';
 import BibliografiaScreen from '../screens/Bibliografia/BibliografiaScreen';
 
 import { useTheme } from '../contexts/ThemeContext';
+import { useHaptics } from '../hooks/useHaptics';
 import { makeTabNavigatorStyles } from './TabNavigator.styles';
 
 export type TabParamList = {
@@ -59,16 +60,24 @@ const CustomTabButton: React.FC<CustomTabButtonProps> = ({
   onPress,
 }) => {
   const { colors } = useTheme();
+  const haptics = useHaptics();
   const s = useMemo(() => makeTabNavigatorStyles(colors), [colors]);
   const focused = accessibilityState?.selected ?? false;
   const iconName = focused ? TAB_ICONS[name].active : TAB_ICONS[name].inactive;
   const color = focused ? colors.primary : colors.textSecondary;
 
+  const handlePress = (e: Parameters<NonNullable<typeof onPress>>[0]) => {
+    if (!focused) {
+      haptics.tap();
+    }
+    onPress?.(e);
+  };
+
   return (
     <TouchableOpacity
       activeOpacity={0.75}
       style={s.tabButton}
-      onPress={onPress ?? undefined}
+      onPress={handlePress}
       accessibilityRole="button"
       accessibilityState={accessibilityState}
     >
@@ -77,7 +86,12 @@ const CustomTabButton: React.FC<CustomTabButtonProps> = ({
         <View style={s.iconBox}>
           <Ionicons name={iconName} size={22} color={color} />
         </View>
-        <Text style={[s.label, focused ? s.labelActive : s.labelInactive]}>
+        <Text
+          style={[s.label, focused ? s.labelActive : s.labelInactive]}
+          numberOfLines={1}
+          adjustsFontSizeToFit
+          minimumFontScale={0.85}
+        >
           {label}
         </Text>
       </View>

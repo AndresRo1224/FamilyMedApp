@@ -32,6 +32,18 @@ export const makeGuiaDetailStyles = (c: UdesColorPalette) => StyleSheet.create({
     alignItems: 'center', justifyContent: 'center',
     marginBottom: 12, alignSelf: 'flex-end',
   },
+  topRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  actionsRow: { flexDirection: 'row', gap: 8 },
+  actionBtn: {
+    width: 36, height: 36, borderRadius: 18,
+    backgroundColor: 'rgba(255,255,255,0.18)',
+    alignItems: 'center', justifyContent: 'center',
+  },
   headerAccent: {
     width: 40, height: 3, backgroundColor: '#FFFFFF',
     borderRadius: 2, marginBottom: 10, opacity: 0.7,

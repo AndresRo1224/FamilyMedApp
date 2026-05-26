@@ -14,8 +14,10 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
+import EmptyState from '../../components/EmptyState';
 import { SkeletonList } from '../../components/Skeleton';
 import { useTheme } from '../../contexts/ThemeContext';
+import { useHaptics } from '../../hooks/useHaptics';
 import { useGuias } from '../../hooks/useGuias';
 import type { RootStackParamList } from '../../navigation/RootNavigator';
 import type { Guia, GuiaTipo } from '../../services/types';
@@ -157,14 +159,18 @@ const GuiasScreen: React.FC = () => {
   const insets = useSafeAreaInsets();
   const navigation = useNavigation<GuiasNav>();
   const { colors } = useTheme();
+  const haptics = useHaptics();
   const s = useMemo(() => makeGuiasStyles(colors), [colors]);
   const [activeFilter, setActiveFilter] = useState<FilterValue>('all');
 
   const { data: guias, loading, error, refetch } = useGuias();
 
   const goToDetail = useCallback(
-    (id: string) => navigation.navigate('GuiaDetail', { id }),
-    [navigation],
+    (id: string) => {
+      haptics.tap();
+      navigation.navigate('GuiaDetail', { id });
+    },
+    [haptics, navigation],
   );
 
   const headerAnim = useRef(new Animated.Value(0)).current;
@@ -288,9 +294,11 @@ const GuiasScreen: React.FC = () => {
             />
           )}
           ListEmptyComponent={
-            <View style={s.emptyState}>
-              <Text style={s.emptyText}>No hay guías para este filtro.</Text>
-            </View>
+            <EmptyState
+              icon="clipboard-outline"
+              title="Sin guías"
+              description="No hay guías en este filtro. Prueba con otro tipo."
+            />
           }
         />
       )}

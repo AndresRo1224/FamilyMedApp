@@ -16,8 +16,10 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
+import EmptyState from '../../components/EmptyState';
 import { Skeleton } from '../../components/Skeleton';
 import { useTheme } from '../../contexts/ThemeContext';
+import { useHaptics } from '../../hooks/useHaptics';
 import { useAtlas } from '../../hooks/useAtlas';
 import { buildMediaUrl } from '../../services/api';
 import type { RootStackParamList } from '../../navigation/RootNavigator';
@@ -183,14 +185,18 @@ const AtlasScreen: React.FC = () => {
   const insets = useSafeAreaInsets();
   const navigation = useNavigation<AtlasNav>();
   const { colors } = useTheme();
+  const haptics = useHaptics();
   const s = useMemo(() => makeAtlasStyles(colors), [colors]);
   const [activeFilter, setActiveFilter] = useState<FilterValue>('all');
 
   const { data: imagenes, loading, error, refetch } = useAtlas();
 
   const goToDetail = useCallback(
-    (id: string) => navigation.navigate('AtlasDetail', { id }),
-    [navigation],
+    (id: string) => {
+      haptics.tap();
+      navigation.navigate('AtlasDetail', { id });
+    },
+    [haptics, navigation],
   );
 
   const headerAnim = useRef(new Animated.Value(0)).current;
@@ -337,11 +343,11 @@ const AtlasScreen: React.FC = () => {
             />
           )}
           ListEmptyComponent={
-            <View style={s.emptyState}>
-              <Text style={s.emptyText}>
-                No hay imágenes para este filtro.
-              </Text>
-            </View>
+            <EmptyState
+              icon="images-outline"
+              title="Sin imágenes"
+              description="No hay imágenes en esta categoría todavía."
+            />
           }
         />
       )}

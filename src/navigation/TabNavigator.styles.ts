@@ -25,27 +25,29 @@ export const makeTabNavigatorStyles = (c: UdesColorPalette) => StyleSheet.create
     alignItems: 'center',
     justifyContent: 'center',
     paddingVertical: 4,
-    paddingHorizontal: 2,
+    paddingHorizontal: 0,
   },
 
   // indicador superior del tab activo
   indicator: {
     position: 'absolute',
     top: 0,
-    width: 28,
+    width: 24,
     height: 3,
     borderRadius: 2,
     backgroundColor: c.primary,
   },
 
   // contenido interno (icono + label)
+  // padding lateral reducido para que labels como "Cálculos" quepan en 6 tabs
   tabContent: {
+    width: '100%',
     alignItems: 'center',
     justifyContent: 'center',
     paddingTop: 6,
-    paddingHorizontal: 10,
+    paddingHorizontal: 2,
     paddingBottom: 4,
-    borderRadius: 14,
+    borderRadius: 12,
   },
   // mismo tabContent pero con fondo sombreado cuando esta activo
   tabContentActive: {
@@ -56,7 +58,8 @@ export const makeTabNavigatorStyles = (c: UdesColorPalette) => StyleSheet.create
   },
   label: {
     ...Typography.label,
-    fontSize: 10.5,
+    fontSize: 9.5,
+    textAlign: 'center',
   },
   labelActive: {
     color: c.primary,

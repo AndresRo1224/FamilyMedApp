@@ -16,8 +16,10 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
+import EmptyState from '../../components/EmptyState';
 import { SkeletonList } from '../../components/Skeleton';
 import { useTheme } from '../../contexts/ThemeContext';
+import { useHaptics } from '../../hooks/useHaptics';
 import { useBibliografia } from '../../hooks/useBibliografia';
 import type { RootStackParamList } from '../../navigation/RootNavigator';
 import type { BibliografiaItem } from '../../services/types';
@@ -100,14 +102,18 @@ const BibliografiaScreen: React.FC = () => {
   const insets = useSafeAreaInsets();
   const navigation = useNavigation<BiblioNav>();
   const { colors } = useTheme();
+  const haptics = useHaptics();
   const s = useMemo(() => makeBibliografiaStyles(colors), [colors]);
   const [search, setSearch] = useState('');
 
   const { data: items, loading, error, refetch } = useBibliografia();
 
   const goToDetail = useCallback(
-    (id: string) => navigation.navigate('BibliografiaDetail', { id }),
-    [navigation],
+    (id: string) => {
+      haptics.tap();
+      navigation.navigate('BibliografiaDetail', { id });
+    },
+    [haptics, navigation],
   );
 
   const headerAnim = useRef(new Animated.Value(0)).current;
@@ -254,9 +260,15 @@ const BibliografiaScreen: React.FC = () => {
             />
           )}
           ListEmptyComponent={
-            <View style={s.emptyState}>
-              <Text style={s.emptyText}>No hay referencias para esta búsqueda.</Text>
-            </View>
+            <EmptyState
+              icon="bookmark-outline"
+              title="Sin referencias"
+              description={
+                search.trim().length > 0
+                  ? `Nada coincide con "${search.trim()}".`
+                  : 'Aún no hay referencias publicadas.'
+              }
+            />
           }
         />
       )}

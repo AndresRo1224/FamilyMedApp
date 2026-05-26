@@ -3,7 +3,6 @@
 import React, { useMemo, useState } from 'react';
 import {
   ActivityIndicator,
-  Alert,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
@@ -20,6 +19,8 @@ import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../contexts/ThemeContext';
+import { useToast } from '../../contexts/ToastContext';
+import { useHaptics } from '../../hooks/useHaptics';
 import type { RootStackParamList } from '../../navigation/RootNavigator';
 import { makeCambiarPasswordStyles } from './CambiarPasswordScreen.styles';
 
@@ -33,6 +34,8 @@ const CambiarPasswordScreen: React.FC = () => {
   const navigation = useNavigation<CambiarPasswordNav>();
   const { changePassword } = useAuth();
   const { colors } = useTheme();
+  const haptics = useHaptics();
+  const { showToast } = useToast();
   const s = useMemo(() => makeCambiarPasswordStyles(colors), [colors]);
 
   const [actual, setActual] = useState('');
@@ -44,26 +47,28 @@ const CambiarPasswordScreen: React.FC = () => {
 
   const handleGuardar = async () => {
     if (!actual || !nueva || !confirmar) {
-      Alert.alert('Faltan datos', 'Llena los 3 campos.');
+      haptics.warning();
+      showToast('Llena los 3 campos', 'error');
       return;
     }
     if (nueva.length < 8) {
-      Alert.alert('Contraseña corta', 'Mínimo 8 caracteres.');
+      haptics.warning();
+      showToast('La nueva contraseña debe tener mínimo 8 caracteres', 'error');
       return;
     }
     if (nueva.length > 128) {
-      Alert.alert('Contraseña larga', 'Máximo 128 caracteres.');
+      haptics.warning();
+      showToast('La contraseña es muy larga (máximo 128)', 'error');
       return;
     }
     if (nueva !== confirmar) {
-      Alert.alert('No coinciden', 'La nueva contraseña y la confirmación deben ser iguales.');
+      haptics.warning();
+      showToast('La nueva contraseña no coincide con la confirmación', 'error');
       return;
     }
     if (nueva === actual) {
-      Alert.alert(
-        'Contraseña igual',
-        'La nueva contraseña debe ser diferente a la actual.',
-      );
+      haptics.warning();
+      showToast('La nueva debe ser diferente a la actual', 'error');
       return;
     }
     setLoading(true);
@@ -72,12 +77,13 @@ const CambiarPasswordScreen: React.FC = () => {
         password_actual: actual,
         password_nueva: nueva,
       });
-      Alert.alert('Listo', 'Tu contraseña fue actualizada.', [
-        { text: 'OK', onPress: () => navigation.goBack() },
-      ]);
+      haptics.success();
+      showToast('Contraseña actualizada', 'success');
+      navigation.goBack();
     } catch (e) {
       const msg = e instanceof Error ? e.message : 'Error desconocido';
-      Alert.alert('No se pudo cambiar', msg);
+      haptics.error();
+      showToast(`No se pudo cambiar: ${msg}`, 'error');
     } finally {
       setLoading(false);
     }

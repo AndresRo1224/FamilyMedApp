@@ -3,7 +3,6 @@
 import React, { useMemo, useState } from 'react';
 import {
   ActivityIndicator,
-  Alert,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
@@ -20,6 +19,8 @@ import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../contexts/ThemeContext';
+import { useToast } from '../../contexts/ToastContext';
+import { useHaptics } from '../../hooks/useHaptics';
 import type { RootStackParamList } from '../../navigation/RootNavigator';
 import { makeEditarPerfilStyles } from './EditarPerfilScreen.styles';
 
@@ -33,6 +34,8 @@ const EditarPerfilScreen: React.FC = () => {
   const navigation = useNavigation<EditarPerfilNav>();
   const { user, updateProfile } = useAuth();
   const { colors } = useTheme();
+  const haptics = useHaptics();
+  const { showToast } = useToast();
   const s = useMemo(() => makeEditarPerfilStyles(colors), [colors]);
 
   const [nombre, setNombre] = useState(user?.nombre_completo || '');
@@ -46,11 +49,13 @@ const EditarPerfilScreen: React.FC = () => {
   const handleGuardar = async () => {
     const n = nombre.trim();
     if (!n) {
-      Alert.alert('Falta el nombre', 'El nombre completo es obligatorio.');
+      haptics.warning();
+      showToast('El nombre completo es obligatorio', 'error');
       return;
     }
     if (n.length > 120) {
-      Alert.alert('Nombre largo', 'Máximo 120 caracteres.');
+      haptics.warning();
+      showToast('Nombre muy largo (máximo 120 caracteres)', 'error');
       return;
     }
     setLoading(true);
@@ -61,12 +66,13 @@ const EditarPerfilScreen: React.FC = () => {
         institucion: institucion.trim(),
         codigo_programa: codigo.trim(),
       });
-      Alert.alert('Perfil actualizado', 'Los cambios se guardaron.', [
-        { text: 'OK', onPress: () => navigation.goBack() },
-      ]);
+      haptics.success();
+      showToast('Perfil actualizado', 'success');
+      navigation.goBack();
     } catch (e) {
       const msg = e instanceof Error ? e.message : 'Error desconocido';
-      Alert.alert('No se pudo guardar', msg);
+      haptics.error();
+      showToast(`No se pudo guardar: ${msg}`, 'error');
     } finally {
       setLoading(false);
     }

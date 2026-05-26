@@ -15,9 +15,13 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
+import { useFavorites } from '../../contexts/FavoritesContext';
 import { useTheme } from '../../contexts/ThemeContext';
+import { useToast } from '../../contexts/ToastContext';
+import { useHaptics } from '../../hooks/useHaptics';
 import { useAtlasDetail } from '../../hooks/useAtlasDetail';
 import { buildMediaUrl } from '../../services/api';
+import { shareText } from '../../services/share';
 import type { RootStackParamList } from '../../navigation/RootNavigator';
 import { makeAtlasDetailStyles } from './AtlasDetailScreen.styles';
 
@@ -36,11 +40,33 @@ const AtlasDetailScreen: React.FC = () => {
   const route = useRoute<DetailRoute>();
   const navigation = useNavigation<DetailNav>();
   const { colors } = useTheme();
+  const haptics = useHaptics();
+  const { showToast } = useToast();
+  const { isFavorite, toggleFavorite } = useFavorites();
   const s = useMemo(() => makeAtlasDetailStyles(colors), [colors]);
   const { id } = route.params;
 
   const { data, loading, error, refetch } = useAtlasDetail(id);
   const [imageError, setImageError] = useState(false);
+
+  const favorited = isFavorite('atlas', id);
+  const handleToggleFavorite = () => {
+    if (!data) return;
+    haptics.tap();
+    toggleFavorite({ kind: 'atlas', id: data.id, title: data.titulo });
+    showToast(
+      favorited ? 'Quitado de favoritos' : 'Guardado en favoritos',
+      favorited ? 'info' : 'success',
+    );
+  };
+  const handleShare = async () => {
+    if (!data) return;
+    haptics.tap();
+    await shareText({
+      title: data.titulo,
+      message: `${data.titulo}\n\n${data.descripcion}\n\nVisto en FamilyMed App · UDES`,
+    });
+  };
 
   if (loading && !data) {
     return (
@@ -80,13 +106,35 @@ const AtlasDetailScreen: React.FC = () => {
       <StatusBar barStyle="light-content" backgroundColor={colors.primary} />
 
       <View style={[s.banner, { paddingTop: insets.top + 12 }]}>
-        <TouchableOpacity
-          style={s.closeButton}
-          onPress={() => navigation.goBack()}
-          activeOpacity={0.8}
-        >
-          <Ionicons name="close" size={22} color="#FFFFFF" />
-        </TouchableOpacity>
+        <View style={s.topRow}>
+          <TouchableOpacity
+            style={s.actionBtn}
+            onPress={() => navigation.goBack()}
+            activeOpacity={0.8}
+          >
+            <Ionicons name="close" size={22} color="#FFFFFF" />
+          </TouchableOpacity>
+          <View style={s.actionsRow}>
+            <TouchableOpacity
+              style={s.actionBtn}
+              onPress={handleShare}
+              activeOpacity={0.8}
+            >
+              <Ionicons name="share-social-outline" size={20} color="#FFFFFF" />
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={s.actionBtn}
+              onPress={handleToggleFavorite}
+              activeOpacity={0.8}
+            >
+              <Ionicons
+                name={favorited ? 'heart' : 'heart-outline'}
+                size={22}
+                color="#FFFFFF"
+              />
+            </TouchableOpacity>
+          </View>
+        </View>
         <View style={s.headerAccent} />
         <View style={s.categoryBadge}>
           <Text style={s.categoryBadgeText}>{categoria}</Text>

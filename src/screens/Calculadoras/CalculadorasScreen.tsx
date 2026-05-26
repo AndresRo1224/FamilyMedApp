@@ -14,8 +14,10 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
+import EmptyState from '../../components/EmptyState';
 import { SkeletonList } from '../../components/Skeleton';
 import { useTheme } from '../../contexts/ThemeContext';
+import { useHaptics } from '../../hooks/useHaptics';
 import { useCalculadoras } from '../../hooks/useCalculadoras';
 import type { RootStackParamList } from '../../navigation/RootNavigator';
 import type { Calculadora } from '../../services/types';
@@ -129,13 +131,17 @@ const CalculadorasScreen: React.FC = () => {
   const insets = useSafeAreaInsets();
   const navigation = useNavigation<CalcNav>();
   const { colors } = useTheme();
+  const haptics = useHaptics();
   const s = useMemo(() => makeCalculadorasStyles(colors), [colors]);
 
   const { data: calculadoras, loading, error, refetch } = useCalculadoras();
 
   const goToDetail = useCallback(
-    (id: string) => navigation.navigate('CalculadoraDetail', { id }),
-    [navigation],
+    (id: string) => {
+      haptics.tap();
+      navigation.navigate('CalculadoraDetail', { id });
+    },
+    [haptics, navigation],
   );
 
   const headerAnim = useRef(new Animated.Value(0)).current;
@@ -239,6 +245,13 @@ const CalculadorasScreen: React.FC = () => {
               onPress={goToDetail}
             />
           )}
+          ListEmptyComponent={
+            <EmptyState
+              icon="calculator-outline"
+              title="Sin calculadoras"
+              description="Aún no hay calculadoras publicadas. Vuelve más tarde."
+            />
+          }
         />
       )}
     </View>

@@ -54,6 +54,25 @@ export const makeContenidoDetailStyles = (c: UdesColorPalette) => StyleSheet.cre
     marginBottom: 12,
     alignSelf: 'flex-end',
   },
+  // fila con close a la izq y acciones (share + favorito) a la derecha
+  topRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  actionsRow: {
+    flexDirection: 'row',
+    gap: 8,
+  },
+  actionBtn: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: 'rgba(255,255,255,0.18)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   headerAccent: {
     width: 40,
     height: 3,

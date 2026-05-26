@@ -1,7 +1,6 @@
 // navegador raiz: si no hay sesion muestra Login, si hay muestra Main + Settings
 
 import React from 'react';
-import { ActivityIndicator, View } from 'react-native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 import LoginScreen from '../screens/Login/LoginScreen';
@@ -13,9 +12,11 @@ import CalculadoraDetailScreen from '../screens/CalculadoraDetail/CalculadoraDet
 import AtlasDetailScreen from '../screens/AtlasDetail/AtlasDetailScreen';
 import GuiaDetailScreen from '../screens/GuiaDetail/GuiaDetailScreen';
 import BibliografiaDetailScreen from '../screens/BibliografiaDetail/BibliografiaDetailScreen';
+import FavoritosScreen from '../screens/Favoritos/FavoritosScreen';
+import BusquedaScreen from '../screens/Busqueda/BusquedaScreen';
 import TabNavigator from './TabNavigator';
+import SplashLogo from '../components/SplashLogo';
 import { useAuth } from '../contexts/AuthContext';
-import { useTheme } from '../contexts/ThemeContext';
 
 export type RootStackParamList = {
   Login: undefined;
@@ -23,6 +24,8 @@ export type RootStackParamList = {
   Settings: undefined;
   EditarPerfil: undefined;
   CambiarPassword: undefined;
+  Favoritos: undefined;
+  Busqueda: undefined;
   ContenidoDetail: { id: string };
   CalculadoraDetail: { id: string };
   AtlasDetail: { id: string };
@@ -32,24 +35,17 @@ export type RootStackParamList = {
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
-const RootNavigator: React.FC = () => {
-  const { user, loading } = useAuth();
-  const { colors } = useTheme();
+interface RootNavigatorProps {
+  // permite que App.tsx mantenga el splash visible un tiempo minimo
+  forceLoading?: boolean;
+}
 
-  // mientras revisa si hay sesion guardada
-  if (loading) {
-    return (
-      <View
-        style={{
-          flex: 1,
-          justifyContent: 'center',
-          alignItems: 'center',
-          backgroundColor: colors.background,
-        }}
-      >
-        <ActivityIndicator size="large" color={colors.primary} />
-      </View>
-    );
+const RootNavigator: React.FC<RootNavigatorProps> = ({ forceLoading = false }) => {
+  const { user, loading } = useAuth();
+
+  // mientras revisa si hay sesion guardada, muestra el splash con branding UDES
+  if (loading || forceLoading) {
+    return <SplashLogo />;
   }
 
   return (
@@ -76,6 +72,12 @@ const RootNavigator: React.FC = () => {
           <Stack.Screen
             name="CambiarPassword"
             component={CambiarPasswordScreen}
+          />
+          <Stack.Screen name="Favoritos" component={FavoritosScreen} />
+          <Stack.Screen
+            name="Busqueda"
+            component={BusquedaScreen}
+            options={{ animation: 'slide_from_bottom' }}
           />
           {/* las pantallas de detalle son modales: suben desde abajo */}
           <Stack.Group screenOptions={{ presentation: 'modal' }}>

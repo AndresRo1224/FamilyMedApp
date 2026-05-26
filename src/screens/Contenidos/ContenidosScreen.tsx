@@ -16,8 +16,10 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
+import EmptyState from '../../components/EmptyState';
 import { SkeletonList } from '../../components/Skeleton';
 import { useTheme } from '../../contexts/ThemeContext';
+import { useHaptics } from '../../hooks/useHaptics';
 import { useContenidos } from '../../hooks/useContenidos';
 import type { RootStackParamList } from '../../navigation/RootNavigator';
 import type { Contenido, ContenidoNivel } from '../../services/types';
@@ -158,6 +160,7 @@ const ContenidosScreen: React.FC = () => {
   const insets = useSafeAreaInsets();
   const navigation = useNavigation<ContenidosNav>();
   const { colors } = useTheme();
+  const haptics = useHaptics();
   const s = useMemo(() => makeContenidosStyles(colors), [colors]);
   const [activeFilter, setActiveFilter] = useState<FilterValue>('all');
   const [search, setSearch] = useState('');
@@ -166,8 +169,11 @@ const ContenidosScreen: React.FC = () => {
   const { data: contenidos, loading, error, refetch } = useContenidos();
 
   const goToDetail = useCallback(
-    (id: string) => navigation.navigate('ContenidoDetail', { id }),
-    [navigation],
+    (id: string) => {
+      haptics.tap();
+      navigation.navigate('ContenidoDetail', { id });
+    },
+    [haptics, navigation],
   );
 
   const headerAnim = useRef(new Animated.Value(0)).current;
@@ -354,11 +360,15 @@ const ContenidosScreen: React.FC = () => {
             />
           )}
           ListEmptyComponent={
-            <View style={s.emptyState}>
-              <Text style={s.emptyText}>
-                No hay contenido para este filtro.
-              </Text>
-            </View>
+            <EmptyState
+              icon="book-outline"
+              title="Sin resultados"
+              description={
+                search.trim().length > 0
+                  ? `Nada coincide con "${search.trim()}".`
+                  : 'No hay contenidos en este filtro. Prueba con otro nivel.'
+              }
+            />
           }
         />
       )}

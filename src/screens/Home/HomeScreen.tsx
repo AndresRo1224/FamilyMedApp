@@ -18,6 +18,7 @@ import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../contexts/ThemeContext';
+import { useHaptics } from '../../hooks/useHaptics';
 import { useContenidos } from '../../hooks/useContenidos';
 import { useCalculadoras } from '../../hooks/useCalculadoras';
 import { useAtlas } from '../../hooks/useAtlas';
@@ -168,6 +169,7 @@ const HomeScreen: React.FC = () => {
   const insets = useSafeAreaInsets();
   const { user } = useAuth();
   const { colors } = useTheme();
+  const haptics = useHaptics();
   const s = useMemo(() => makeHomeStyles(colors), [colors]);
 
   // counts en vivo desde el backend
@@ -365,7 +367,18 @@ const HomeScreen: React.FC = () => {
   );
 
   const handleModulePress = (module: HomeModule) => {
+    haptics.tap();
     navigation.navigate(module.route);
+  };
+
+  const openBusqueda = () => {
+    haptics.tap();
+    navigation.navigate('Busqueda');
+  };
+
+  const openFavoritos = () => {
+    haptics.tap();
+    navigation.navigate('Favoritos');
   };
 
   // tomamos el primer nombre del usuario logueado, si no hay usamos algo neutro
@@ -408,6 +421,32 @@ const HomeScreen: React.FC = () => {
         contentContainerStyle={s.scrollContent}
         showsVerticalScrollIndicator={false}
       >
+        {/* accesos rapidos: busqueda global y favoritos */}
+        <Animated.View
+          style={[s.quickActions, { opacity: sectionTitleAnim }]}
+        >
+          <TouchableOpacity
+            style={s.quickAction}
+            activeOpacity={0.85}
+            onPress={openBusqueda}
+          >
+            <View style={s.quickActionIcon}>
+              <Ionicons name="search" size={18} color={colors.primary} />
+            </View>
+            <Text style={s.quickActionText}>Buscar</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={s.quickAction}
+            activeOpacity={0.85}
+            onPress={openFavoritos}
+          >
+            <View style={s.quickActionIcon}>
+              <Ionicons name="heart" size={18} color={colors.primary} />
+            </View>
+            <Text style={s.quickActionText}>Favoritos</Text>
+          </TouchableOpacity>
+        </Animated.View>
+
         {/* grid 2x2 */}
         <Animated.Text style={[s.sectionTitle, { opacity: sectionTitleAnim }]}>
           Módulos
