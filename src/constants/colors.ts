@@ -1,4 +1,4 @@
-// colores de la app FamilyMed
+// colores de la app FamilyMed (tema claro y oscuro)
 
 export interface UdesColorPalette {
   primary: string;
@@ -23,7 +23,8 @@ export interface UdesColorPalette {
   transparent: string;
 }
 
-export const Colors: UdesColorPalette = {
+// tema claro (el original)
+export const lightColors: UdesColorPalette = {
   // azules UDES como acento
   primary: '#004899',
   primaryLight: '#2E6FD9',
@@ -58,6 +59,47 @@ export const Colors: UdesColorPalette = {
   overlay: 'rgba(26, 31, 53, 0.55)',
   transparent: 'transparent',
 };
+
+// tema oscuro
+export const darkColors: UdesColorPalette = {
+  // azul un poco mas brillante para que resalte sobre fondo oscuro
+  primary: '#2E6FD9',
+  primaryLight: '#5B91E8',
+  primaryDark: '#1A3A6B',
+
+  // fondos oscuros (azulados, no negro puro)
+  background: '#0F1420',
+  surface: '#1A2032',
+  surfaceAlt: '#232A3D',
+
+  // oro UDES (se mantiene)
+  gold: '#D4A988',
+  goldLight: '#E8C6A8',
+
+  // texto claro
+  text: '#F0F2F8',
+  textSecondary: '#A8B0C2',
+  textTertiary: '#6E7689',
+
+  // bordes
+  border: '#2C3447',
+  borderSubtle: '#222942',
+
+  // estados (un poco mas claros para contraste en oscuro)
+  success: '#5CC75F',
+  warning: '#FFC233',
+  danger: '#EF5350',
+  info: '#4FC3F7',
+
+  // sombras y overlays
+  shadow: '#000000',
+  overlay: 'rgba(0, 0, 0, 0.65)',
+  transparent: 'transparent',
+};
+
+// alias por defecto = tema claro
+// se mantiene para compatibilidad; las pantallas usan useTheme() para el color vivo
+export const Colors: UdesColorPalette = lightColors;
 
 // colores por modulo
 export const ModuleColors = {

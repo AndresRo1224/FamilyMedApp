@@ -1,23 +1,23 @@
 // estilos de contenidos
 
 import { StyleSheet } from 'react-native';
-import { Colors } from '../../constants/colors';
+import { UdesColorPalette } from '../../constants/colors';
 import { Typography } from '../../constants/typography';
 
-export const contenidosStyles = StyleSheet.create({
+export const makeContenidosStyles = (c: UdesColorPalette) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.background,
+    backgroundColor: c.background,
   },
 
   // banner azul
   headerBanner: {
-    backgroundColor: Colors.primary,
+    backgroundColor: c.primary,
     paddingHorizontal: 20,
     paddingBottom: 24,
     borderBottomLeftRadius: 24,
     borderBottomRightRadius: 24,
-    shadowColor: Colors.shadow,
+    shadowColor: c.shadow,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.15,
     shadowRadius: 8,
@@ -26,7 +26,7 @@ export const contenidosStyles = StyleSheet.create({
   headerAccent: {
     width: 42,
     height: 4,
-    backgroundColor: Colors.gold,
+    backgroundColor: c.gold,
     borderRadius: 2,
     marginBottom: 14,
   },
@@ -43,9 +43,9 @@ export const contenidosStyles = StyleSheet.create({
   // filtros
   filtersWrapper: {
     paddingVertical: 16,
-    backgroundColor: Colors.surface,
+    backgroundColor: c.surface,
     borderBottomWidth: 1,
-    borderBottomColor: Colors.border,
+    borderBottomColor: c.border,
   },
   filtersList: {
     paddingHorizontal: 20,
@@ -58,12 +58,12 @@ export const contenidosStyles = StyleSheet.create({
     borderWidth: 1,
   },
   chipActive: {
-    backgroundColor: Colors.primary,
-    borderColor: Colors.primary,
+    backgroundColor: c.primary,
+    borderColor: c.primary,
   },
   chipInactive: {
-    backgroundColor: Colors.surfaceAlt,
-    borderColor: Colors.border,
+    backgroundColor: c.surfaceAlt,
+    borderColor: c.border,
   },
   chipText: {
     ...Typography.label,
@@ -73,7 +73,7 @@ export const contenidosStyles = StyleSheet.create({
     fontWeight: '700',
   },
   chipTextInactive: {
-    color: Colors.textSecondary,
+    color: c.textSecondary,
   },
 
   // lista de cards
@@ -84,12 +84,12 @@ export const contenidosStyles = StyleSheet.create({
     gap: 14,
   },
   card: {
-    backgroundColor: Colors.surface,
+    backgroundColor: c.surface,
     borderRadius: 14,
     padding: 16,
     borderWidth: 1,
-    borderColor: Colors.border,
-    shadowColor: Colors.shadow,
+    borderColor: c.border,
+    shadowColor: c.shadow,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.05,
     shadowRadius: 6,
@@ -102,7 +102,7 @@ export const contenidosStyles = StyleSheet.create({
     marginBottom: 10,
   },
   levelBadge: {
-    backgroundColor: Colors.primary,
+    backgroundColor: c.primary,
     paddingHorizontal: 10,
     paddingVertical: 4,
     borderRadius: 10,
@@ -117,17 +117,17 @@ export const contenidosStyles = StyleSheet.create({
   },
   readingTime: {
     ...Typography.caption,
-    color: Colors.textTertiary,
+    color: c.textTertiary,
     letterSpacing: 0.3,
   },
   cardTitle: {
     ...Typography.h4,
-    color: Colors.text,
+    color: c.text,
     marginBottom: 4,
   },
   cardSubtitle: {
     ...Typography.bodySmall,
-    color: Colors.textSecondary,
+    color: c.textSecondary,
     marginBottom: 12,
   },
 
@@ -145,11 +145,11 @@ export const contenidosStyles = StyleSheet.create({
     width: 6,
     height: 6,
     borderRadius: 3,
-    backgroundColor: Colors.gold,
+    backgroundColor: c.gold,
   },
   keyPointText: {
     ...Typography.bodySmall,
-    color: Colors.textSecondary,
+    color: c.textSecondary,
     flex: 1,
   },
 
@@ -160,6 +160,6 @@ export const contenidosStyles = StyleSheet.create({
   },
   emptyText: {
     ...Typography.body,
-    color: Colors.textSecondary,
+    color: c.textSecondary,
   },
 });

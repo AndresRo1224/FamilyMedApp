@@ -1,23 +1,23 @@
 // estilos de calculadoras
 
 import { StyleSheet } from 'react-native';
-import { Colors } from '../../constants/colors';
+import { UdesColorPalette } from '../../constants/colors';
 import { Typography } from '../../constants/typography';
 
-export const calculadorasStyles = StyleSheet.create({
+export const makeCalculadorasStyles = (c: UdesColorPalette) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.background,
+    backgroundColor: c.background,
   },
 
   // banner azul
   headerBanner: {
-    backgroundColor: Colors.primary,
+    backgroundColor: c.primary,
     paddingHorizontal: 20,
     paddingBottom: 24,
     borderBottomLeftRadius: 24,
     borderBottomRightRadius: 24,
-    shadowColor: Colors.shadow,
+    shadowColor: c.shadow,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.15,
     shadowRadius: 8,
@@ -26,7 +26,7 @@ export const calculadorasStyles = StyleSheet.create({
   headerAccent: {
     width: 42,
     height: 4,
-    backgroundColor: Colors.gold,
+    backgroundColor: c.gold,
     borderRadius: 2,
     marginBottom: 14,
   },
@@ -48,12 +48,12 @@ export const calculadorasStyles = StyleSheet.create({
     gap: 14,
   },
   card: {
-    backgroundColor: Colors.surface,
+    backgroundColor: c.surface,
     borderRadius: 14,
     padding: 16,
     borderWidth: 1,
-    borderColor: Colors.border,
-    shadowColor: Colors.shadow,
+    borderColor: c.border,
+    shadowColor: c.shadow,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.05,
     shadowRadius: 6,
@@ -68,7 +68,7 @@ export const calculadorasStyles = StyleSheet.create({
     marginBottom: 10,
   },
   shortNameBadge: {
-    backgroundColor: Colors.primary,
+    backgroundColor: c.primary,
     paddingHorizontal: 10,
     paddingVertical: 4,
     borderRadius: 10,
@@ -83,7 +83,7 @@ export const calculadorasStyles = StyleSheet.create({
   },
   outputBadge: {
     ...Typography.caption,
-    color: Colors.gold,
+    color: c.gold,
     fontWeight: '700',
     textTransform: 'uppercase',
     letterSpacing: 0.5,
@@ -95,27 +95,27 @@ export const calculadorasStyles = StyleSheet.create({
 
   cardTitle: {
     ...Typography.h4,
-    color: Colors.text,
+    color: c.text,
     marginBottom: 4,
   },
   cardDescription: {
     ...Typography.bodySmall,
-    color: Colors.textSecondary,
+    color: c.textSecondary,
     marginBottom: 12,
   },
 
   // caja de formula
   formulaBox: {
-    backgroundColor: Colors.surfaceAlt,
+    backgroundColor: c.surfaceAlt,
     borderLeftWidth: 3,
-    borderLeftColor: Colors.primary,
+    borderLeftColor: c.primary,
     borderRadius: 6,
     padding: 10,
     marginBottom: 12,
   },
   formulaLabel: {
     ...Typography.caption,
-    color: Colors.primary,
+    color: c.primary,
     fontWeight: '700',
     textTransform: 'uppercase',
     letterSpacing: 0.5,
@@ -123,13 +123,13 @@ export const calculadorasStyles = StyleSheet.create({
   },
   formulaText: {
     ...Typography.bodySmall,
-    color: Colors.text,
+    color: c.text,
   },
 
   // seccion de inputs
   sectionLabel: {
     ...Typography.caption,
-    color: Colors.textTertiary,
+    color: c.textTertiary,
     fontWeight: '700',
     textTransform: 'uppercase',
     letterSpacing: 0.5,
@@ -148,29 +148,29 @@ export const calculadorasStyles = StyleSheet.create({
     width: 5,
     height: 5,
     borderRadius: 3,
-    backgroundColor: Colors.gold,
+    backgroundColor: c.gold,
   },
   inputText: {
     ...Typography.bodySmall,
-    color: Colors.textSecondary,
+    color: c.textSecondary,
     flex: 1,
   },
 
   // uso clinico
   clinicalUseBox: {
-    backgroundColor: Colors.surfaceAlt,
+    backgroundColor: c.surfaceAlt,
     borderRadius: 6,
     padding: 10,
     marginBottom: 10,
   },
   clinicalUseText: {
     ...Typography.bodySmall,
-    color: Colors.textSecondary,
+    color: c.textSecondary,
   },
 
   reference: {
     ...Typography.caption,
-    color: Colors.textTertiary,
+    color: c.textTertiary,
     fontStyle: 'italic',
   },
 
@@ -182,7 +182,7 @@ export const calculadorasStyles = StyleSheet.create({
   },
   placeholderText: {
     ...Typography.body,
-    color: Colors.textSecondary,
+    color: c.textSecondary,
     textAlign: 'center',
   },
 });

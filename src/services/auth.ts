@@ -98,3 +98,51 @@ export async function fetchProfile(): Promise<AuthUser | null> {
   if (!response.ok) return null;
   return (await response.json()) as AuthUser;
 }
+
+// actualiza campos del perfil (nombre, cedula, institucion, codigo_programa)
+export async function updateProfile(
+  cambios: Partial<Pick<AuthUser,
+    'nombre_completo' | 'institucion' | 'codigo_programa'
+  >> & { cedula?: string },
+): Promise<AuthUser> {
+  const token = await getToken();
+  if (!token) throw new Error('No hay sesión activa.');
+
+  const response = await fetch(`${API_BASE_URL}/auth/me/`, {
+    method: 'PATCH',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(cambios),
+  });
+
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    throw new Error(data.error || `Error ${response.status}`);
+  }
+  return data as AuthUser;
+}
+
+// cambia la contraseña (requiere la actual)
+export async function changePassword(params: {
+  password_actual: string;
+  password_nueva: string;
+}): Promise<void> {
+  const token = await getToken();
+  if (!token) throw new Error('No hay sesión activa.');
+
+  const response = await fetch(`${API_BASE_URL}/auth/cambiar-password/`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(params),
+  });
+
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    throw new Error(data.error || `Error ${response.status}`);
+  }
+}

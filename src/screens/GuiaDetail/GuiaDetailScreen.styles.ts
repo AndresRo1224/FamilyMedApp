@@ -1,28 +1,28 @@
 // estilos del detalle de guia clinica
 
 import { StyleSheet } from 'react-native';
-import { Colors } from '../../constants/colors';
+import { UdesColorPalette } from '../../constants/colors';
 import { Typography } from '../../constants/typography';
 
-export const guiaDetailStyles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: Colors.background },
+export const makeGuiaDetailStyles = (c: UdesColorPalette) => StyleSheet.create({
+  container: { flex: 1, backgroundColor: c.background },
   centered: {
     flex: 1, justifyContent: 'center', alignItems: 'center',
-    padding: 24, backgroundColor: Colors.background,
+    padding: 24, backgroundColor: c.background,
   },
-  errorText: { ...Typography.body, color: Colors.textSecondary },
+  errorText: { ...Typography.body, color: c.textSecondary },
   retryButton: {
-    backgroundColor: Colors.primary,
+    backgroundColor: c.primary,
     paddingHorizontal: 18, paddingVertical: 10, borderRadius: 20,
   },
   retryText: { ...Typography.button, color: '#FFFFFF' },
 
   banner: {
-    backgroundColor: Colors.primary,
+    backgroundColor: c.primary,
     paddingHorizontal: 20, paddingBottom: 24,
     borderBottomLeftRadius: 24, borderBottomRightRadius: 24,
     elevation: 6,
-    shadowColor: Colors.shadow,
+    shadowColor: c.shadow,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.18, shadowRadius: 8,
   },
@@ -50,27 +50,27 @@ export const guiaDetailStyles = StyleSheet.create({
 
   scrollContent: { padding: 20, paddingBottom: 40 },
   sectionTitle: {
-    ...Typography.h4, color: Colors.text,
+    ...Typography.h4, color: c.text,
     marginTop: 18, marginBottom: 10,
   },
-  body: { ...Typography.body, color: Colors.text, lineHeight: 24 },
+  body: { ...Typography.body, color: c.text, lineHeight: 24 },
 
   stepsBox: {
-    backgroundColor: Colors.surface, borderRadius: 12, padding: 14,
+    backgroundColor: c.surface, borderRadius: 12, padding: 14,
   },
   stepRow: {
     flexDirection: 'row', alignItems: 'flex-start', marginBottom: 12,
   },
   stepNumber: {
     width: 26, height: 26, borderRadius: 13,
-    backgroundColor: Colors.primary,
+    backgroundColor: c.primary,
     alignItems: 'center', justifyContent: 'center',
     marginRight: 12, marginTop: 1,
   },
   stepNumberText: {
     ...Typography.caption, color: '#FFFFFF', fontWeight: '700',
   },
-  stepText: { ...Typography.body, color: Colors.text, flex: 1, lineHeight: 22 },
+  stepText: { ...Typography.body, color: c.text, flex: 1, lineHeight: 22 },
 
   warningBox: {
     backgroundColor: '#fef2f2',
@@ -86,16 +86,16 @@ export const guiaDetailStyles = StyleSheet.create({
   },
 
   source: {
-    ...Typography.caption, color: Colors.textTertiary,
+    ...Typography.caption, color: c.textTertiary,
     fontStyle: 'italic', marginTop: 18,
   },
 
   tagsRow: { flexDirection: 'row', flexWrap: 'wrap', marginTop: 16 },
   tagChip: {
-    backgroundColor: Colors.surface,
+    backgroundColor: c.surface,
     paddingHorizontal: 10, paddingVertical: 4, borderRadius: 14,
     marginRight: 6, marginBottom: 6,
-    borderWidth: 1, borderColor: Colors.border,
+    borderWidth: 1, borderColor: c.border,
   },
-  tagText: { ...Typography.caption, color: Colors.primary, fontWeight: '600' },
+  tagText: { ...Typography.caption, color: c.primary, fontWeight: '600' },
 });

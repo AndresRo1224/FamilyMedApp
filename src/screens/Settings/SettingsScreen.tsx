@@ -1,6 +1,6 @@
 // pantalla de configuracion y perfil
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
   Alert,
   Animated,
@@ -17,10 +17,10 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
-import { Colors } from '../../constants/colors';
 import { useAuth } from '../../contexts/AuthContext';
+import { useTheme, ThemeMode } from '../../contexts/ThemeContext';
 import type { RootStackParamList } from '../../navigation/RootNavigator';
-import { settingsStyles as s } from './SettingsScreen.styles';
+import { makeSettingsStyles } from './SettingsScreen.styles';
 
 type SettingsNavigationProp = NativeStackNavigationProp<
   RootStackParamList,
@@ -47,6 +47,8 @@ const SettingItem: React.FC<SettingItemProps> = ({
   rightSlot,
   onPress,
 }) => {
+  const { colors } = useTheme();
+  const s = useMemo(() => makeSettingsStyles(colors), [colors]);
   return (
     <TouchableOpacity
       activeOpacity={onPress ? 0.7 : 1}
@@ -54,7 +56,7 @@ const SettingItem: React.FC<SettingItemProps> = ({
       onPress={onPress}
     >
       <View style={s.itemIconBox}>
-        <Ionicons name={icon} size={18} color={Colors.primary} />
+        <Ionicons name={icon} size={18} color={colors.primary} />
       </View>
       <View style={s.itemContent}>
         <Text style={s.itemLabel}>{label}</Text>
@@ -66,7 +68,7 @@ const SettingItem: React.FC<SettingItemProps> = ({
         <Ionicons
           name="chevron-forward"
           size={18}
-          color={Colors.textTertiary}
+          color={colors.textTertiary}
           style={s.itemChevron}
         />
       )}
@@ -83,6 +85,7 @@ interface InfoModalProps {
 }
 
 const InfoModal: React.FC<InfoModalProps> = ({ visible, title, body, onClose }) => {
+  const { colors } = useTheme();
   return (
     <Modal
       visible={visible}
@@ -93,7 +96,7 @@ const InfoModal: React.FC<InfoModalProps> = ({ visible, title, body, onClose }) 
       <View
         style={{
           flex: 1,
-          backgroundColor: 'rgba(0,0,0,0.5)',
+          backgroundColor: colors.overlay,
           justifyContent: 'center',
           alignItems: 'center',
           padding: 20,
@@ -101,7 +104,7 @@ const InfoModal: React.FC<InfoModalProps> = ({ visible, title, body, onClose }) 
       >
         <View
           style={{
-            backgroundColor: '#FFFFFF',
+            backgroundColor: colors.surface,
             borderRadius: 16,
             padding: 24,
             width: '100%',
@@ -112,7 +115,7 @@ const InfoModal: React.FC<InfoModalProps> = ({ visible, title, body, onClose }) 
             style={{
               fontSize: 20,
               fontWeight: '700',
-              color: Colors.text,
+              color: colors.text,
               marginBottom: 12,
             }}
           >
@@ -122,7 +125,7 @@ const InfoModal: React.FC<InfoModalProps> = ({ visible, title, body, onClose }) 
             style={{
               fontSize: 14,
               lineHeight: 22,
-              color: Colors.textSecondary,
+              color: colors.textSecondary,
               marginBottom: 20,
             }}
           >
@@ -132,7 +135,7 @@ const InfoModal: React.FC<InfoModalProps> = ({ visible, title, body, onClose }) 
             onPress={onClose}
             activeOpacity={0.85}
             style={{
-              backgroundColor: Colors.primary,
+              backgroundColor: colors.primary,
               paddingVertical: 12,
               borderRadius: 10,
               alignItems: 'center',
@@ -150,9 +153,28 @@ const SettingsScreen: React.FC = () => {
   const insets = useSafeAreaInsets();
   const navigation = useNavigation<SettingsNavigationProp>();
   const { user, signOut } = useAuth();
+  const { colors, mode, setMode } = useTheme();
+  const s = useMemo(() => makeSettingsStyles(colors), [colors]);
 
   // toggles locales (preferencias visuales, no persistentes por ahora)
   const [notificaciones, setNotificaciones] = useState(true);
+
+  // etiqueta legible del modo de tema actual
+  const themeLabel =
+    mode === 'light' ? 'Claro' : mode === 'dark' ? 'Oscuro' : 'Automático';
+
+  // abre un selector de tema (claro / oscuro / automatico)
+  const handleThemePress = () => {
+    Alert.alert('Tema de la app', 'Elige cómo se ve la aplicación', [
+      { text: 'Claro', onPress: () => setMode('light' as ThemeMode) },
+      { text: 'Oscuro', onPress: () => setMode('dark' as ThemeMode) },
+      {
+        text: 'Automático (sistema)',
+        onPress: () => setMode('system' as ThemeMode),
+      },
+      { text: 'Cancelar', style: 'cancel' },
+    ]);
+  };
 
   // modales informativos
   const [modalKey, setModalKey] = useState<null | 'acerca' | 'terminos' | 'ayuda'>(null);
@@ -243,7 +265,7 @@ const SettingsScreen: React.FC = () => {
 
   return (
     <View style={s.container}>
-      <StatusBar barStyle="light-content" backgroundColor={Colors.primary} />
+      <StatusBar barStyle="light-content" backgroundColor={colors.primary} />
 
       {/* banner */}
       <View style={[s.banner, { paddingTop: insets.top + 10 }]}>
@@ -291,8 +313,18 @@ const SettingsScreen: React.FC = () => {
               icon="mail-outline"
               label="Correo"
               value={email}
-              showDivider={false}
               onPress={() => {}}
+            />
+            <SettingItem
+              icon="person-outline"
+              label="Editar perfil"
+              onPress={() => navigation.navigate('EditarPerfil')}
+            />
+            <SettingItem
+              icon="key-outline"
+              label="Cambiar contraseña"
+              showDivider={false}
+              onPress={() => navigation.navigate('CambiarPassword')}
             />
           </View>
 
@@ -306,7 +338,7 @@ const SettingsScreen: React.FC = () => {
                 <Switch
                   value={notificaciones}
                   onValueChange={setNotificaciones}
-                  trackColor={{ false: '#cbd5e1', true: Colors.primary }}
+                  trackColor={{ false: '#cbd5e1', true: colors.primary }}
                   thumbColor="#FFFFFF"
                 />
               }
@@ -314,14 +346,9 @@ const SettingsScreen: React.FC = () => {
             <SettingItem
               icon="moon-outline"
               label="Tema"
-              value="Claro"
+              value={themeLabel}
               showDivider={false}
-              onPress={() =>
-                Alert.alert(
-                  'Tema',
-                  'El cambio de tema en la app móvil estará disponible próximamente.',
-                )
-              }
+              onPress={handleThemePress}
             />
           </View>
 
@@ -352,7 +379,7 @@ const SettingsScreen: React.FC = () => {
             activeOpacity={0.85}
             onPress={handleLogout}
           >
-            <Ionicons name="log-out-outline" size={20} color={Colors.danger} />
+            <Ionicons name="log-out-outline" size={20} color={colors.danger} />
             <Text style={s.logoutText}>Cerrar sesión</Text>
           </TouchableOpacity>
 

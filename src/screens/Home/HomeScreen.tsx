@@ -16,15 +16,16 @@ import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import type { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
-import { Colors } from '../../constants/colors';
 import { useAuth } from '../../contexts/AuthContext';
+import { useTheme } from '../../contexts/ThemeContext';
 import { useContenidos } from '../../hooks/useContenidos';
 import { useCalculadoras } from '../../hooks/useCalculadoras';
 import { useAtlas } from '../../hooks/useAtlas';
 import { useGuias } from '../../hooks/useGuias';
+import { useBibliografia } from '../../hooks/useBibliografia';
 import type { TabParamList } from '../../navigation/TabNavigator';
 import type { RootStackParamList } from '../../navigation/RootNavigator';
-import { homeStyles as s } from './HomeScreen.styles';
+import { makeHomeStyles } from './HomeScreen.styles';
 
 // items recientes que mostramos en el carrusel del home
 // los armamos a partir de los contenidos/guias/atlas mas recientes del backend
@@ -72,6 +73,8 @@ const ModuleCard: React.FC<ModuleCardProps> = ({
   animValue,
   onPress,
 }) => {
+  const { colors } = useTheme();
+  const s = useMemo(() => makeHomeStyles(colors), [colors]);
   const scale = useRef(new Animated.Value(1)).current;
 
   const pressIn = () => {
@@ -134,6 +137,8 @@ interface RecentCardProps {
 }
 
 const RecentCard: React.FC<RecentCardProps> = ({ item, animValue, onPress }) => {
+  const { colors } = useTheme();
+  const s = useMemo(() => makeHomeStyles(colors), [colors]);
   const translateX = animValue.interpolate({
     inputRange: [0, 1],
     outputRange: [30, 0],
@@ -162,12 +167,15 @@ const HomeScreen: React.FC = () => {
   const navigation = useNavigation<HomeNavigationProp>();
   const insets = useSafeAreaInsets();
   const { user } = useAuth();
+  const { colors } = useTheme();
+  const s = useMemo(() => makeHomeStyles(colors), [colors]);
 
   // counts en vivo desde el backend
   const { data: contenidos } = useContenidos();
   const { data: calculadoras } = useCalculadoras();
   const { data: atlas } = useAtlas();
   const { data: guias } = useGuias();
+  const { data: bibliografia } = useBibliografia();
 
   // armamos los "recientes" a partir de los datos reales del backend
   // tomamos lo mas reciente de cada modulo para que se vea movido
@@ -280,8 +288,21 @@ const HomeScreen: React.FC = () => {
         itemCount: guias.length,
         route: 'Guias',
       },
+      {
+        id: 'bibliografia',
+        title: 'Bibliografía',
+        description: 'Referencias y fuentes',
+        itemCount: bibliografia.length,
+        route: 'Bibliografia',
+      },
     ],
-    [contenidos.length, calculadoras.length, atlas.length, guias.length],
+    [
+      contenidos.length,
+      calculadoras.length,
+      atlas.length,
+      guias.length,
+      bibliografia.length,
+    ],
   );
 
   // animaciones del header y las cards
@@ -356,7 +377,7 @@ const HomeScreen: React.FC = () => {
 
   return (
     <View style={s.container}>
-      <StatusBar barStyle="light-content" backgroundColor={Colors.primary} />
+      <StatusBar barStyle="light-content" backgroundColor={colors.primary} />
 
       {/* banner azul con animacion */}
       <Animated.View

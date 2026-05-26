@@ -1,18 +1,18 @@
 // estilos del tab bar
 
 import { StyleSheet } from 'react-native';
-import { Colors } from '../constants/colors';
+import { UdesColorPalette } from '../constants/colors';
 import { Typography } from '../constants/typography';
 
-export const tabNavigatorStyles = StyleSheet.create({
+export const makeTabNavigatorStyles = (c: UdesColorPalette) => StyleSheet.create({
   tabBar: {
-    backgroundColor: Colors.surface,
-    borderTopColor: Colors.border,
+    backgroundColor: c.surface,
+    borderTopColor: c.border,
     borderTopWidth: 1,
     height: 76,
     paddingTop: 8,
     paddingBottom: 10,
-    shadowColor: Colors.shadow,
+    shadowColor: c.shadow,
     shadowOffset: { width: 0, height: -2 },
     shadowOpacity: 0.05,
     shadowRadius: 8,
@@ -35,7 +35,7 @@ export const tabNavigatorStyles = StyleSheet.create({
     width: 28,
     height: 3,
     borderRadius: 2,
-    backgroundColor: Colors.primary,
+    backgroundColor: c.primary,
   },
 
   // contenido interno (icono + label)
@@ -52,11 +52,11 @@ export const tabNavigatorStyles = StyleSheet.create({
     fontSize: 10.5,
   },
   labelActive: {
-    color: Colors.primary,
+    color: c.primary,
     fontWeight: '700',
   },
   labelInactive: {
-    color: Colors.textSecondary,
+    color: c.textSecondary,
     fontWeight: '500',
   },
 });

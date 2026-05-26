@@ -15,11 +15,11 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
-import { Colors } from '../../constants/colors';
+import { useTheme } from '../../contexts/ThemeContext';
 import { useCalculadoras } from '../../hooks/useCalculadoras';
 import type { RootStackParamList } from '../../navigation/RootNavigator';
 import type { Calculadora } from '../../services/types';
-import { calculadorasStyles as s } from './CalculadorasScreen.styles';
+import { makeCalculadorasStyles } from './CalculadorasScreen.styles';
 
 type CalcNav = NativeStackNavigationProp<RootStackParamList>;
 
@@ -35,6 +35,8 @@ const CalculatorCard: React.FC<CalculatorCardProps> = ({
   animValue,
   onPress,
 }) => {
+  const { colors } = useTheme();
+  const s = useMemo(() => makeCalculadorasStyles(colors), [colors]);
   const scale = useRef(new Animated.Value(1)).current;
 
   const pressIn = () => {
@@ -126,6 +128,8 @@ const CalculatorCard: React.FC<CalculatorCardProps> = ({
 const CalculadorasScreen: React.FC = () => {
   const insets = useSafeAreaInsets();
   const navigation = useNavigation<CalcNav>();
+  const { colors } = useTheme();
+  const s = useMemo(() => makeCalculadorasStyles(colors), [colors]);
 
   const { data: calculadoras, loading, error, refetch } = useCalculadoras();
 
@@ -173,7 +177,7 @@ const CalculadorasScreen: React.FC = () => {
 
   return (
     <View style={s.container}>
-      <StatusBar barStyle="light-content" backgroundColor={Colors.primary} />
+      <StatusBar barStyle="light-content" backgroundColor={colors.primary} />
 
       <Animated.View
         style={{
@@ -193,7 +197,7 @@ const CalculadorasScreen: React.FC = () => {
       {/* loading inicial */}
       {loading && calculadoras.length === 0 ? (
         <View style={[s.content, { padding: 40 }]}>
-          <ActivityIndicator size="large" color={Colors.primary} />
+          <ActivityIndicator size="large" color={colors.primary} />
           <Text style={[s.placeholderText, { marginTop: 12 }]}>
             Cargando calculadoras…
           </Text>
@@ -208,7 +212,7 @@ const CalculadorasScreen: React.FC = () => {
           </Text>
           <TouchableOpacity
             style={{
-              backgroundColor: Colors.primary,
+              backgroundColor: colors.primary,
               paddingHorizontal: 18,
               paddingVertical: 10,
               borderRadius: 20,
@@ -229,8 +233,8 @@ const CalculadorasScreen: React.FC = () => {
             <RefreshControl
               refreshing={loading && calculadoras.length > 0}
               onRefresh={refetch}
-              colors={[Colors.primary]}
-              tintColor={Colors.primary}
+              colors={[colors.primary]}
+              tintColor={colors.primary}
             />
           }
           renderItem={({ item, index }) => (

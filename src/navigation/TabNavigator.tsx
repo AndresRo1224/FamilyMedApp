@@ -1,6 +1,6 @@
 // navegacion por tabs
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import {
@@ -14,9 +14,10 @@ import ContenidosScreen from '../screens/Contenidos/ContenidosScreen';
 import CalculadorasScreen from '../screens/Calculadoras/CalculadorasScreen';
 import AtlasScreen from '../screens/Atlas/AtlasScreen';
 import GuiasScreen from '../screens/Guias/GuiasScreen';
+import BibliografiaScreen from '../screens/Bibliografia/BibliografiaScreen';
 
-import { Colors } from '../constants/colors';
-import { tabNavigatorStyles as s } from './TabNavigator.styles';
+import { useTheme } from '../contexts/ThemeContext';
+import { makeTabNavigatorStyles } from './TabNavigator.styles';
 
 export type TabParamList = {
   Home: undefined;
@@ -24,6 +25,7 @@ export type TabParamList = {
   Calculadoras: undefined;
   Atlas: undefined;
   Guias: undefined;
+  Bibliografia: undefined;
 };
 
 const Tab = createBottomTabNavigator<TabParamList>();
@@ -41,6 +43,7 @@ const TAB_ICONS: Record<
   Calculadoras: { active: 'calculator', inactive: 'calculator-outline' },
   Atlas: { active: 'images', inactive: 'images-outline' },
   Guias: { active: 'clipboard', inactive: 'clipboard-outline' },
+  Bibliografia: { active: 'bookmark', inactive: 'bookmark-outline' },
 };
 
 // boton custom del tab
@@ -55,9 +58,11 @@ const CustomTabButton: React.FC<CustomTabButtonProps> = ({
   accessibilityState,
   onPress,
 }) => {
+  const { colors } = useTheme();
+  const s = useMemo(() => makeTabNavigatorStyles(colors), [colors]);
   const focused = accessibilityState?.selected ?? false;
   const iconName = focused ? TAB_ICONS[name].active : TAB_ICONS[name].inactive;
-  const color = focused ? Colors.primary : Colors.textSecondary;
+  const color = focused ? colors.primary : colors.textSecondary;
 
   return (
     <TouchableOpacity
@@ -80,13 +85,14 @@ const CustomTabButton: React.FC<CustomTabButtonProps> = ({
   );
 };
 
-const screenOptions: BottomTabNavigationOptions = {
-  headerShown: false,
-  tabBarShowLabel: false,
-  tabBarStyle: s.tabBar,
-};
-
 const TabNavigator: React.FC = () => {
+  const { colors } = useTheme();
+  const s = useMemo(() => makeTabNavigatorStyles(colors), [colors]);
+  const screenOptions: BottomTabNavigationOptions = {
+    headerShown: false,
+    tabBarShowLabel: false,
+    tabBarStyle: s.tabBar,
+  };
   return (
     <Tab.Navigator screenOptions={screenOptions} initialRouteName="Home">
       <Tab.Screen
@@ -131,6 +137,15 @@ const TabNavigator: React.FC = () => {
         options={{
           tabBarButton: (props) => (
             <CustomTabButton {...props} name="Guias" label="Guías" />
+          ),
+        }}
+      />
+      <Tab.Screen
+        name="Bibliografia"
+        component={BibliografiaScreen}
+        options={{
+          tabBarButton: (props) => (
+            <CustomTabButton {...props} name="Bibliografia" label="Biblio" />
           ),
         }}
       />

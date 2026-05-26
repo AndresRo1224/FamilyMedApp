@@ -1,27 +1,27 @@
 // estilos del detalle de contenido
 
 import { StyleSheet } from 'react-native';
-import { Colors } from '../../constants/colors';
+import { UdesColorPalette } from '../../constants/colors';
 import { Typography } from '../../constants/typography';
 
-export const contenidoDetailStyles = StyleSheet.create({
+export const makeContenidoDetailStyles = (c: UdesColorPalette) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.background,
+    backgroundColor: c.background,
   },
   centered: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
     padding: 24,
-    backgroundColor: Colors.background,
+    backgroundColor: c.background,
   },
   errorText: {
     ...Typography.body,
-    color: Colors.textSecondary,
+    color: c.textSecondary,
   },
   retryButton: {
-    backgroundColor: Colors.primary,
+    backgroundColor: c.primary,
     paddingHorizontal: 18,
     paddingVertical: 10,
     borderRadius: 20,
@@ -33,13 +33,13 @@ export const contenidoDetailStyles = StyleSheet.create({
 
   // banner
   banner: {
-    backgroundColor: Colors.primary,
+    backgroundColor: c.primary,
     paddingHorizontal: 20,
     paddingBottom: 24,
     borderBottomLeftRadius: 24,
     borderBottomRightRadius: 24,
     elevation: 6,
-    shadowColor: Colors.shadow,
+    shadowColor: c.shadow,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.18,
     shadowRadius: 8,
@@ -104,21 +104,21 @@ export const contenidoDetailStyles = StyleSheet.create({
   },
   sectionTitle: {
     ...Typography.h4,
-    color: Colors.text,
+    color: c.text,
     marginTop: 18,
     marginBottom: 10,
   },
   body: {
     ...Typography.body,
-    color: Colors.text,
+    color: c.text,
     lineHeight: 24,
   },
   pointsBox: {
-    backgroundColor: Colors.surface,
+    backgroundColor: c.surface,
     borderRadius: 12,
     padding: 14,
     borderLeftWidth: 3,
-    borderLeftColor: Colors.primary,
+    borderLeftColor: c.primary,
   },
   pointRow: {
     flexDirection: 'row',
@@ -129,24 +129,24 @@ export const contenidoDetailStyles = StyleSheet.create({
     width: 6,
     height: 6,
     borderRadius: 3,
-    backgroundColor: Colors.primary,
+    backgroundColor: c.primary,
     marginRight: 10,
     marginTop: 8,
   },
   pointText: {
     ...Typography.body,
-    color: Colors.text,
+    color: c.text,
     flex: 1,
     lineHeight: 22,
   },
   refsBox: {
-    backgroundColor: Colors.surface,
+    backgroundColor: c.surface,
     borderRadius: 12,
     padding: 14,
   },
   refText: {
     ...Typography.bodySmall,
-    color: Colors.textSecondary,
+    color: c.textSecondary,
     marginBottom: 6,
     lineHeight: 20,
   },
@@ -156,18 +156,18 @@ export const contenidoDetailStyles = StyleSheet.create({
     marginTop: 18,
   },
   tagChip: {
-    backgroundColor: Colors.surface,
+    backgroundColor: c.surface,
     paddingHorizontal: 10,
     paddingVertical: 4,
     borderRadius: 14,
     marginRight: 6,
     marginBottom: 6,
     borderWidth: 1,
-    borderColor: Colors.border,
+    borderColor: c.border,
   },
   tagText: {
     ...Typography.caption,
-    color: Colors.primary,
+    color: c.primary,
     fontWeight: '600',
   },
 });

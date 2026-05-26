@@ -1,7 +1,7 @@
 // pantalla de detalle de un contenido
 // llega aqui al tocar una card en la pantalla de Contenidos
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import {
   ActivityIndicator,
   ScrollView,
@@ -15,10 +15,10 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
-import { Colors } from '../../constants/colors';
+import { useTheme } from '../../contexts/ThemeContext';
 import { useContenidoDetail } from '../../hooks/useContenidoDetail';
 import type { RootStackParamList } from '../../navigation/RootNavigator';
-import { contenidoDetailStyles as s } from './ContenidoDetailScreen.styles';
+import { makeContenidoDetailStyles } from './ContenidoDetailScreen.styles';
 
 const LEVEL_LABELS: Record<string, string> = {
   basico: 'Básico',
@@ -33,6 +33,8 @@ const ContenidoDetailScreen: React.FC = () => {
   const insets = useSafeAreaInsets();
   const route = useRoute<DetailRoute>();
   const navigation = useNavigation<DetailNav>();
+  const { colors } = useTheme();
+  const s = useMemo(() => makeContenidoDetailStyles(colors), [colors]);
   const { id } = route.params;
 
   const { data, loading, error, refetch } = useContenidoDetail(id);
@@ -41,8 +43,8 @@ const ContenidoDetailScreen: React.FC = () => {
   if (loading && !data) {
     return (
       <View style={s.centered}>
-        <StatusBar barStyle="light-content" backgroundColor={Colors.primary} />
-        <ActivityIndicator size="large" color={Colors.primary} />
+        <StatusBar barStyle="light-content" backgroundColor={colors.primary} />
+        <ActivityIndicator size="large" color={colors.primary} />
         <Text style={[s.errorText, { marginTop: 12 }]}>Cargando…</Text>
       </View>
     );
@@ -52,7 +54,7 @@ const ContenidoDetailScreen: React.FC = () => {
   if (error || !data) {
     return (
       <View style={s.centered}>
-        <StatusBar barStyle="light-content" backgroundColor={Colors.primary} />
+        <StatusBar barStyle="light-content" backgroundColor={colors.primary} />
         <Text style={[s.errorText, { marginBottom: 12, textAlign: 'center' }]}>
           {error ?? 'No se pudo cargar el contenido.'}
         </Text>
@@ -63,7 +65,7 @@ const ContenidoDetailScreen: React.FC = () => {
           style={[s.retryButton, { backgroundColor: 'transparent', marginTop: 8 }]}
           onPress={() => navigation.goBack()}
         >
-          <Text style={[s.retryText, { color: Colors.primary }]}>Volver</Text>
+          <Text style={[s.retryText, { color: colors.primary }]}>Volver</Text>
         </TouchableOpacity>
       </View>
     );
@@ -71,7 +73,7 @@ const ContenidoDetailScreen: React.FC = () => {
 
   return (
     <View style={s.container}>
-      <StatusBar barStyle="light-content" backgroundColor={Colors.primary} />
+      <StatusBar barStyle="light-content" backgroundColor={colors.primary} />
 
       {/* banner con boton X para cerrar el modal */}
       <View style={[s.banner, { paddingTop: insets.top + 12 }]}>

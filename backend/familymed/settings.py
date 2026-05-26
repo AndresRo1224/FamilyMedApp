@@ -31,6 +31,37 @@ ALLOWED_HOSTS = os.getenv(
 ).split(',')
 
 
+# headers de seguridad: solo se activan en produccion (DEBUG=False)
+# en dev local quedan apagados para no forzar https en localhost
+if not DEBUG:
+    # render termina el TLS en su proxy, este header le dice a django que la
+    # conexion original fue https
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+    SECURE_SSL_REDIRECT = True
+    # cookies solo por https
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    # HSTS: obliga https por 1 año
+    SECURE_HSTS_SECONDS = 31536000
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    SECURE_HSTS_PRELOAD = True
+    # evita que el navegador adivine el content-type
+    SECURE_CONTENT_TYPE_NOSNIFF = True
+    # no permite que el sitio se cargue en un iframe (clickjacking)
+    X_FRAME_OPTIONS = 'DENY'
+    # confia en el dominio de render para formularios del admin (CSRF)
+    # un host '.onrender.com' se convierte en 'https://*.onrender.com'
+    CSRF_TRUSTED_ORIGINS = []
+    for h in ALLOWED_HOSTS:
+        h = h.strip()
+        if not h or h == '*':
+            continue
+        if h.startswith('.'):
+            CSRF_TRUSTED_ORIGINS.append(f'https://*{h}')
+        else:
+            CSRF_TRUSTED_ORIGINS.append(f'https://{h}')
+
+
 # duracion del JWT propio que emitimos
 JWT_LIFETIME_DAYS = 7
 
@@ -79,7 +110,24 @@ MIDDLEWARE = [
 ]
 
 # permite que la app movil (otro origen) llame al backend
-CORS_ALLOW_ALL_ORIGINS = True
+# si se define CORS_ALLOWED_ORIGINS en el .env, se restringe a esos origenes;
+# si no, permite todos (la API usa JWT en header, no cookies, asi que el
+# riesgo de CSRF es bajo)
+_cors_origins = os.getenv('CORS_ALLOWED_ORIGINS', '').strip()
+if _cors_origins:
+    CORS_ALLOWED_ORIGINS = [o.strip() for o in _cors_origins.split(',') if o.strip()]
+else:
+    CORS_ALLOW_ALL_ORIGINS = True
+
+
+# configuracion de Django REST Framework
+# throttling: limita peticiones por IP para frenar fuerza bruta en auth
+REST_FRAMEWORK = {
+    'DEFAULT_THROTTLE_RATES': {
+        'login': '10/min',
+        'registro': '5/hour',
+    },
+}
 
 
 # logging: imprime tracebacks de errores 500 en los logs del hosting

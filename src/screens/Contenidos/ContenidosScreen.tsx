@@ -17,11 +17,11 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
-import { Colors } from '../../constants/colors';
+import { useTheme } from '../../contexts/ThemeContext';
 import { useContenidos } from '../../hooks/useContenidos';
 import type { RootStackParamList } from '../../navigation/RootNavigator';
 import type { Contenido, ContenidoNivel } from '../../services/types';
-import { contenidosStyles as s } from './ContenidosScreen.styles';
+import { makeContenidosStyles } from './ContenidosScreen.styles';
 
 type ContenidosNav = NativeStackNavigationProp<RootStackParamList>;
 
@@ -53,6 +53,8 @@ interface FilterChipProps {
 }
 
 const FilterChip: React.FC<FilterChipProps> = ({ option, active, onPress }) => {
+  const { colors } = useTheme();
+  const s = useMemo(() => makeContenidosStyles(colors), [colors]);
   return (
     <TouchableOpacity
       activeOpacity={0.8}
@@ -80,6 +82,8 @@ const ContentCard: React.FC<ContentCardProps> = ({
   animValue,
   onPress,
 }) => {
+  const { colors } = useTheme();
+  const s = useMemo(() => makeContenidosStyles(colors), [colors]);
   const scale = useRef(new Animated.Value(1)).current;
 
   const pressIn = () => {
@@ -153,6 +157,8 @@ const ContentCard: React.FC<ContentCardProps> = ({
 const ContenidosScreen: React.FC = () => {
   const insets = useSafeAreaInsets();
   const navigation = useNavigation<ContenidosNav>();
+  const { colors } = useTheme();
+  const s = useMemo(() => makeContenidosStyles(colors), [colors]);
   const [activeFilter, setActiveFilter] = useState<FilterValue>('all');
   const [search, setSearch] = useState('');
 
@@ -225,7 +231,7 @@ const ContenidosScreen: React.FC = () => {
 
   return (
     <View style={s.container}>
-      <StatusBar barStyle="light-content" backgroundColor={Colors.primary} />
+      <StatusBar barStyle="light-content" backgroundColor={colors.primary} />
 
       {/* banner azul */}
       <Animated.View
@@ -255,10 +261,10 @@ const ContenidosScreen: React.FC = () => {
           style={{
             flexDirection: 'row',
             alignItems: 'center',
-            backgroundColor: Colors.surface,
+            backgroundColor: colors.surface,
             borderRadius: 12,
             borderWidth: 1,
-            borderColor: Colors.border,
+            borderColor: colors.border,
             paddingHorizontal: 12,
             height: 44,
           }}
@@ -266,13 +272,13 @@ const ContenidosScreen: React.FC = () => {
           <Ionicons
             name="search-outline"
             size={18}
-            color={Colors.textTertiary}
+            color={colors.textTertiary}
             style={{ marginRight: 8 }}
           />
           <TextInput
-            style={{ flex: 1, color: Colors.text, paddingVertical: 0 }}
+            style={{ flex: 1, color: colors.text, paddingVertical: 0 }}
             placeholder="Buscar por título, subtítulo o etiqueta…"
-            placeholderTextColor={Colors.textTertiary}
+            placeholderTextColor={colors.textTertiary}
             value={search}
             onChangeText={setSearch}
             autoCapitalize="none"
@@ -283,7 +289,7 @@ const ContenidosScreen: React.FC = () => {
               <Ionicons
                 name="close-circle"
                 size={18}
-                color={Colors.textTertiary}
+                color={colors.textTertiary}
               />
             </TouchableOpacity>
           )}
@@ -311,7 +317,7 @@ const ContenidosScreen: React.FC = () => {
       {/* loading inicial */}
       {loading && contenidos.length === 0 ? (
         <View style={s.emptyState}>
-          <ActivityIndicator size="large" color={Colors.primary} />
+          <ActivityIndicator size="large" color={colors.primary} />
           <Text style={[s.emptyText, { marginTop: 12 }]}>
             Cargando contenidos…
           </Text>
@@ -341,8 +347,8 @@ const ContenidosScreen: React.FC = () => {
             <RefreshControl
               refreshing={loading && contenidos.length > 0}
               onRefresh={refetch}
-              colors={[Colors.primary]}
-              tintColor={Colors.primary}
+              colors={[colors.primary]}
+              tintColor={colors.primary}
             />
           }
           renderItem={({ item, index }) => (

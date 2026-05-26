@@ -1,13 +1,13 @@
 // estilos de la pantalla principal
 
 import { StyleSheet } from 'react-native';
-import { Colors } from '../../constants/colors';
+import { UdesColorPalette } from '../../constants/colors';
 import { Typography } from '../../constants/typography';
 
-export const homeStyles = StyleSheet.create({
+export const makeHomeStyles = (c: UdesColorPalette) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.background,
+    backgroundColor: c.background,
   },
   scrollContent: {
     paddingBottom: 32,
@@ -15,12 +15,12 @@ export const homeStyles = StyleSheet.create({
 
   // banner azul superior
   headerBanner: {
-    backgroundColor: Colors.primary,
+    backgroundColor: c.primary,
     paddingHorizontal: 20,
     paddingBottom: 26,
     borderBottomLeftRadius: 24,
     borderBottomRightRadius: 24,
-    shadowColor: Colors.shadow,
+    shadowColor: c.shadow,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.15,
     shadowRadius: 8,
@@ -29,7 +29,7 @@ export const homeStyles = StyleSheet.create({
   headerAccent: {
     width: 42,
     height: 4,
-    backgroundColor: Colors.gold,
+    backgroundColor: c.gold,
     borderRadius: 2,
     marginBottom: 14,
   },
@@ -57,7 +57,7 @@ export const homeStyles = StyleSheet.create({
   // titulos de seccion
   sectionTitle: {
     ...Typography.h3,
-    color: Colors.text,
+    color: c.text,
     paddingHorizontal: 20,
     marginTop: 24,
     marginBottom: 14,
@@ -71,12 +71,12 @@ export const homeStyles = StyleSheet.create({
     paddingHorizontal: 20,
   },
   moduleCard: {
-    backgroundColor: Colors.surface,
+    backgroundColor: c.surface,
     borderRadius: 14,
     padding: 16,
     borderWidth: 1,
-    borderColor: Colors.border,
-    shadowColor: Colors.shadow,
+    borderColor: c.border,
+    shadowColor: c.shadow,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.06,
     shadowRadius: 6,
@@ -85,24 +85,24 @@ export const homeStyles = StyleSheet.create({
   moduleAccent: {
     width: 36,
     height: 4,
-    backgroundColor: Colors.gold,
+    backgroundColor: c.gold,
     borderRadius: 2,
     marginBottom: 12,
   },
   moduleTitle: {
     ...Typography.h4,
-    color: Colors.text,
+    color: c.text,
     marginBottom: 4,
   },
   moduleDescription: {
     ...Typography.bodySmall,
-    color: Colors.textSecondary,
+    color: c.textSecondary,
     marginBottom: 10,
     minHeight: 36,
   },
   moduleCount: {
     ...Typography.caption,
-    color: Colors.primary,
+    color: c.primary,
     textTransform: 'uppercase',
     letterSpacing: 0.5,
     fontWeight: '700',
@@ -115,12 +115,12 @@ export const homeStyles = StyleSheet.create({
   },
   recentCard: {
     width: 210,
-    backgroundColor: Colors.surface,
+    backgroundColor: c.surface,
     borderRadius: 12,
     padding: 14,
     borderWidth: 1,
-    borderColor: Colors.border,
-    shadowColor: Colors.shadow,
+    borderColor: c.border,
+    shadowColor: c.shadow,
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.04,
     shadowRadius: 4,
@@ -128,7 +128,7 @@ export const homeStyles = StyleSheet.create({
   },
   recentModule: {
     ...Typography.caption,
-    color: Colors.primary,
+    color: c.primary,
     textTransform: 'uppercase',
     letterSpacing: 0.5,
     marginBottom: 6,
@@ -136,12 +136,12 @@ export const homeStyles = StyleSheet.create({
   },
   recentTitle: {
     ...Typography.bodyLarge,
-    color: Colors.text,
+    color: c.text,
     marginBottom: 10,
     minHeight: 48,
   },
   recentDate: {
     ...Typography.caption,
-    color: Colors.textTertiary,
+    color: c.textTertiary,
   },
 });

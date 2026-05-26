@@ -17,12 +17,12 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
-import { Colors } from '../../constants/colors';
+import { useTheme } from '../../contexts/ThemeContext';
 import { useAtlas } from '../../hooks/useAtlas';
 import { buildMediaUrl } from '../../services/api';
 import type { RootStackParamList } from '../../navigation/RootNavigator';
 import type { AtlasCategoria, AtlasImagen } from '../../services/types';
-import { atlasStyles as s } from './AtlasScreen.styles';
+import { makeAtlasStyles } from './AtlasScreen.styles';
 
 type AtlasNav = NativeStackNavigationProp<RootStackParamList>;
 
@@ -68,6 +68,8 @@ const FilterChip: React.FC<FilterChipProps> = ({
   active,
   onPress,
 }) => {
+  const { colors } = useTheme();
+  const s = useMemo(() => makeAtlasStyles(colors), [colors]);
   return (
     <TouchableOpacity
       activeOpacity={0.8}
@@ -91,11 +93,13 @@ interface AtlasCardProps {
 }
 
 const AtlasCard: React.FC<AtlasCardProps> = ({ item, animValue, onPress }) => {
+  const { colors } = useTheme();
+  const s = useMemo(() => makeAtlasStyles(colors), [colors]);
   const scale = useRef(new Animated.Value(1)).current;
   const [imageError, setImageError] = useState(false);
   const visual = CATEGORY_VISUAL[item.categoria] ?? {
     icon: 'image' as IconName,
-    bg: Colors.primary,
+    bg: colors.primary,
   };
   const categoryLabel = CATEGORY_LABELS[item.categoria] ?? item.categoria;
 
@@ -178,6 +182,8 @@ const AtlasCard: React.FC<AtlasCardProps> = ({ item, animValue, onPress }) => {
 const AtlasScreen: React.FC = () => {
   const insets = useSafeAreaInsets();
   const navigation = useNavigation<AtlasNav>();
+  const { colors } = useTheme();
+  const s = useMemo(() => makeAtlasStyles(colors), [colors]);
   const [activeFilter, setActiveFilter] = useState<FilterValue>('all');
 
   const { data: imagenes, loading, error, refetch } = useAtlas();
@@ -234,7 +240,7 @@ const AtlasScreen: React.FC = () => {
 
   return (
     <View style={s.container}>
-      <StatusBar barStyle="light-content" backgroundColor={Colors.primary} />
+      <StatusBar barStyle="light-content" backgroundColor={colors.primary} />
 
       {/* banner */}
       <Animated.View
@@ -275,7 +281,7 @@ const AtlasScreen: React.FC = () => {
       {/* loading o error o grid */}
       {loading && imagenes.length === 0 ? (
         <View style={s.emptyState}>
-          <ActivityIndicator size="large" color={Colors.primary} />
+          <ActivityIndicator size="large" color={colors.primary} />
           <Text style={[s.emptyText, { marginTop: 12 }]}>
             Cargando galería…
           </Text>
@@ -305,8 +311,8 @@ const AtlasScreen: React.FC = () => {
             <RefreshControl
               refreshing={loading && imagenes.length > 0}
               onRefresh={refetch}
-              colors={[Colors.primary]}
-              tintColor={Colors.primary}
+              colors={[colors.primary]}
+              tintColor={colors.primary}
             />
           }
           renderItem={({ item, index }) => (

@@ -1,6 +1,6 @@
 // pantalla de login y registro con email/password
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
@@ -19,14 +19,16 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { Colors } from '../../constants/colors';
 import { useAuth } from '../../contexts/AuthContext';
+import { useTheme } from '../../contexts/ThemeContext';
 import { SERVER_BASE_URL } from '../../services/api';
-import { loginStyles as s } from './LoginScreen.styles';
+import { makeLoginStyles } from './LoginScreen.styles';
 
 const LoginScreen: React.FC = () => {
   const insets = useSafeAreaInsets();
   const { signIn, signUp } = useAuth();
+  const { colors } = useTheme();
+  const s = useMemo(() => makeLoginStyles(colors), [colors]);
 
   const [isRegistro, setIsRegistro] = useState(false);
 
@@ -112,7 +114,7 @@ const LoginScreen: React.FC = () => {
       style={s.container}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
-      <StatusBar barStyle="light-content" backgroundColor={Colors.primary} />
+      <StatusBar barStyle="light-content" backgroundColor={colors.primary} />
 
       <ScrollView
         contentContainerStyle={s.scrollContent}
@@ -159,14 +161,14 @@ const LoginScreen: React.FC = () => {
                   name="person-outline"
                   size={18}
                   color={
-                    nombreFocused ? Colors.primary : Colors.textTertiary
+                    nombreFocused ? colors.primary : colors.textTertiary
                   }
                   style={s.inputIcon}
                 />
                 <TextInput
                   style={s.input}
                   placeholder="Tu nombre completo"
-                  placeholderTextColor={Colors.textTertiary}
+                  placeholderTextColor={colors.textTertiary}
                   value={nombre}
                   onChangeText={setNombre}
                   onFocus={() => setNombreFocused(true)}
@@ -189,13 +191,13 @@ const LoginScreen: React.FC = () => {
               <Ionicons
                 name="mail-outline"
                 size={18}
-                color={emailFocused ? Colors.primary : Colors.textTertiary}
+                color={emailFocused ? colors.primary : colors.textTertiary}
                 style={s.inputIcon}
               />
               <TextInput
                 style={s.input}
                 placeholder="correo@outlook.com"
-                placeholderTextColor={Colors.textTertiary}
+                placeholderTextColor={colors.textTertiary}
                 value={email}
                 onChangeText={setEmail}
                 onFocus={() => setEmailFocused(true)}
@@ -219,13 +221,13 @@ const LoginScreen: React.FC = () => {
               <Ionicons
                 name="lock-closed-outline"
                 size={18}
-                color={passwordFocused ? Colors.primary : Colors.textTertiary}
+                color={passwordFocused ? colors.primary : colors.textTertiary}
                 style={s.inputIcon}
               />
               <TextInput
                 style={s.input}
                 placeholder={isRegistro ? 'Mínimo 8 caracteres' : '••••••••'}
-                placeholderTextColor={Colors.textTertiary}
+                placeholderTextColor={colors.textTertiary}
                 value={password}
                 onChangeText={setPassword}
                 onFocus={() => setPasswordFocused(true)}
@@ -240,7 +242,7 @@ const LoginScreen: React.FC = () => {
                 <Ionicons
                   name={showPassword ? 'eye-off-outline' : 'eye-outline'}
                   size={18}
-                  color={Colors.textTertiary}
+                  color={colors.textTertiary}
                 />
               </TouchableOpacity>
             </View>
@@ -296,7 +298,7 @@ const LoginScreen: React.FC = () => {
               <Ionicons
                 name="open-outline"
                 size={18}
-                color={Colors.primary}
+                color={colors.primary}
               />
               <Text style={s.secondaryButtonText}>
                 Soy docente · Abrir panel web

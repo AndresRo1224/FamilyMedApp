@@ -15,11 +15,11 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
-import { Colors } from '../../constants/colors';
+import { useTheme } from '../../contexts/ThemeContext';
 import { useGuias } from '../../hooks/useGuias';
 import type { RootStackParamList } from '../../navigation/RootNavigator';
 import type { Guia, GuiaTipo } from '../../services/types';
-import { guiasStyles as s } from './GuiasScreen.styles';
+import { makeGuiasStyles } from './GuiasScreen.styles';
 
 type GuiasNav = NativeStackNavigationProp<RootStackParamList>;
 
@@ -54,6 +54,8 @@ interface FilterChipProps {
 }
 
 const FilterChip: React.FC<FilterChipProps> = ({ option, active, onPress }) => {
+  const { colors } = useTheme();
+  const s = useMemo(() => makeGuiasStyles(colors), [colors]);
   return (
     <TouchableOpacity
       activeOpacity={0.8}
@@ -77,6 +79,8 @@ interface GuideCardProps {
 }
 
 const GuideCard: React.FC<GuideCardProps> = ({ guia, animValue, onPress }) => {
+  const { colors } = useTheme();
+  const s = useMemo(() => makeGuiasStyles(colors), [colors]);
   const scale = useRef(new Animated.Value(1)).current;
 
   const pressIn = () => {
@@ -152,6 +156,8 @@ const GuideCard: React.FC<GuideCardProps> = ({ guia, animValue, onPress }) => {
 const GuiasScreen: React.FC = () => {
   const insets = useSafeAreaInsets();
   const navigation = useNavigation<GuiasNav>();
+  const { colors } = useTheme();
+  const s = useMemo(() => makeGuiasStyles(colors), [colors]);
   const [activeFilter, setActiveFilter] = useState<FilterValue>('all');
 
   const { data: guias, loading, error, refetch } = useGuias();
@@ -207,7 +213,7 @@ const GuiasScreen: React.FC = () => {
 
   return (
     <View style={s.container}>
-      <StatusBar barStyle="light-content" backgroundColor={Colors.primary} />
+      <StatusBar barStyle="light-content" backgroundColor={colors.primary} />
 
       {/* banner azul */}
       <Animated.View
@@ -247,7 +253,7 @@ const GuiasScreen: React.FC = () => {
       {/* loading / error / lista */}
       {loading && guias.length === 0 ? (
         <View style={s.emptyState}>
-          <ActivityIndicator size="large" color={Colors.primary} />
+          <ActivityIndicator size="large" color={colors.primary} />
           <Text style={[s.emptyText, { marginTop: 12 }]}>
             Cargando guías…
           </Text>
@@ -275,8 +281,8 @@ const GuiasScreen: React.FC = () => {
             <RefreshControl
               refreshing={loading && guias.length > 0}
               onRefresh={refetch}
-              colors={[Colors.primary]}
-              tintColor={Colors.primary}
+              colors={[colors.primary]}
+              tintColor={colors.primary}
             />
           }
           renderItem={({ item, index }) => (

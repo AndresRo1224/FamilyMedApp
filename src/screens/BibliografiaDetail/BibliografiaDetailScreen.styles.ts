@@ -1,10 +1,10 @@
-// estilos del detalle de calculadora
+// estilos del detalle de bibliografia
 
 import { StyleSheet } from 'react-native';
 import { UdesColorPalette } from '../../constants/colors';
 import { Typography } from '../../constants/typography';
 
-export const makeCalculadoraDetailStyles = (c: UdesColorPalette) => StyleSheet.create({
+export const makeBibliografiaDetailStyles = (c: UdesColorPalette) => StyleSheet.create({
   container: { flex: 1, backgroundColor: c.background },
   centered: {
     flex: 1, justifyContent: 'center', alignItems: 'center',
@@ -36,17 +36,20 @@ export const makeCalculadoraDetailStyles = (c: UdesColorPalette) => StyleSheet.c
     width: 40, height: 3, backgroundColor: '#FFFFFF',
     borderRadius: 2, marginBottom: 10, opacity: 0.7,
   },
-  shortBadge: {
+  metaRow: {
+    flexDirection: 'row', alignItems: 'center', marginBottom: 8,
+  },
+  typeBadge: {
     backgroundColor: 'rgba(255,255,255,0.22)',
     paddingHorizontal: 10, paddingVertical: 4,
-    borderRadius: 10, alignSelf: 'flex-start', marginBottom: 8,
+    borderRadius: 10, marginRight: 8,
   },
-  shortBadgeText: {
+  typeBadgeText: {
     ...Typography.caption, color: '#FFFFFF',
     fontWeight: '700', textTransform: 'uppercase', letterSpacing: 0.5,
   },
-  title: { ...Typography.h2, color: '#FFFFFF', marginBottom: 6 },
-  subtitle: { ...Typography.body, color: 'rgba(255,255,255,0.85)' },
+  metaText: { ...Typography.bodySmall, color: 'rgba(255,255,255,0.85)' },
+  title: { ...Typography.h2, color: '#FFFFFF' },
 
   scrollContent: { padding: 20, paddingBottom: 40 },
   sectionTitle: {
@@ -54,37 +57,6 @@ export const makeCalculadoraDetailStyles = (c: UdesColorPalette) => StyleSheet.c
     marginTop: 18, marginBottom: 10,
   },
   body: { ...Typography.body, color: c.text, lineHeight: 24 },
-
-  formulaBox: {
-    backgroundColor: c.surfaceAlt,
-    borderLeftWidth: 3, borderLeftColor: c.primary,
-    borderRadius: 8, padding: 14,
-  },
-  formulaText: { ...Typography.body, color: c.text },
-
-  listBox: {
-    backgroundColor: c.surface, borderRadius: 12, padding: 14,
-    borderLeftWidth: 3, borderLeftColor: c.gold,
-  },
-  row: {
-    flexDirection: 'row', alignItems: 'flex-start', marginBottom: 8,
-  },
-  dot: {
-    width: 6, height: 6, borderRadius: 3,
-    backgroundColor: c.gold, marginRight: 10, marginTop: 8,
-  },
-  rowText: { ...Typography.body, color: c.text, flex: 1, lineHeight: 22 },
-
-  outputBox: {
-    backgroundColor: c.primary + '15',
-    borderRadius: 8, padding: 14,
-  },
-  outputText: { ...Typography.body, color: c.primary, fontWeight: '600' },
-
-  reference: {
-    ...Typography.caption, color: c.textTertiary,
-    fontStyle: 'italic', marginTop: 18,
-  },
 
   tagsRow: { flexDirection: 'row', flexWrap: 'wrap', marginTop: 18 },
   tagChip: {

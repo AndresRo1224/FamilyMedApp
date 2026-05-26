@@ -1,28 +1,28 @@
 // estilos del detalle de atlas
 
 import { StyleSheet } from 'react-native';
-import { Colors } from '../../constants/colors';
+import { UdesColorPalette } from '../../constants/colors';
 import { Typography } from '../../constants/typography';
 
-export const atlasDetailStyles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: Colors.background },
+export const makeAtlasDetailStyles = (c: UdesColorPalette) => StyleSheet.create({
+  container: { flex: 1, backgroundColor: c.background },
   centered: {
     flex: 1, justifyContent: 'center', alignItems: 'center',
-    padding: 24, backgroundColor: Colors.background,
+    padding: 24, backgroundColor: c.background,
   },
-  errorText: { ...Typography.body, color: Colors.textSecondary },
+  errorText: { ...Typography.body, color: c.textSecondary },
   retryButton: {
-    backgroundColor: Colors.primary,
+    backgroundColor: c.primary,
     paddingHorizontal: 18, paddingVertical: 10, borderRadius: 20,
   },
   retryText: { ...Typography.button, color: '#FFFFFF' },
 
   banner: {
-    backgroundColor: Colors.primary,
+    backgroundColor: c.primary,
     paddingHorizontal: 20, paddingBottom: 24,
     borderBottomLeftRadius: 24, borderBottomRightRadius: 24,
     elevation: 6,
-    shadowColor: Colors.shadow,
+    shadowColor: c.shadow,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.18, shadowRadius: 8,
   },
@@ -52,39 +52,39 @@ export const atlasDetailStyles = StyleSheet.create({
 
   imageBox: {
     width: '100%', height: 240,
-    backgroundColor: Colors.surfaceAlt,
+    backgroundColor: c.surfaceAlt,
     borderRadius: 12, overflow: 'hidden',
     alignItems: 'center', justifyContent: 'center',
   },
   image: { width: '100%', height: '100%' },
   placeholderBox: { alignItems: 'center', justifyContent: 'center' },
   placeholderText: {
-    ...Typography.bodySmall, color: Colors.textTertiary, marginTop: 8,
+    ...Typography.bodySmall, color: c.textTertiary, marginTop: 8,
   },
 
   sectionTitle: {
-    ...Typography.h4, color: Colors.text,
+    ...Typography.h4, color: c.text,
     marginTop: 18, marginBottom: 10,
   },
-  body: { ...Typography.body, color: Colors.text, lineHeight: 24 },
+  body: { ...Typography.body, color: c.text, lineHeight: 24 },
 
   listBox: {
-    backgroundColor: Colors.surface, borderRadius: 12, padding: 14,
-    borderLeftWidth: 3, borderLeftColor: Colors.primary,
+    backgroundColor: c.surface, borderRadius: 12, padding: 14,
+    borderLeftWidth: 3, borderLeftColor: c.primary,
   },
   row: {
     flexDirection: 'row', alignItems: 'flex-start', marginBottom: 8,
   },
   dot: {
     width: 6, height: 6, borderRadius: 3,
-    backgroundColor: Colors.primary, marginRight: 10, marginTop: 8,
+    backgroundColor: c.primary, marginRight: 10, marginTop: 8,
   },
-  rowText: { ...Typography.body, color: Colors.text, flex: 1, lineHeight: 22 },
+  rowText: { ...Typography.body, color: c.text, flex: 1, lineHeight: 22 },
 
   clinicalBox: {
-    backgroundColor: Colors.gold + '15',
-    borderLeftWidth: 3, borderLeftColor: Colors.gold,
+    backgroundColor: c.gold + '15',
+    borderLeftWidth: 3, borderLeftColor: c.gold,
     borderRadius: 8, padding: 14,
   },
-  clinicalText: { ...Typography.body, color: Colors.text, lineHeight: 22 },
+  clinicalText: { ...Typography.body, color: c.text, lineHeight: 22 },
 });

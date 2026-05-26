@@ -1,23 +1,23 @@
 // estilos de guias
 
 import { StyleSheet } from 'react-native';
-import { Colors } from '../../constants/colors';
+import { UdesColorPalette } from '../../constants/colors';
 import { Typography } from '../../constants/typography';
 
-export const guiasStyles = StyleSheet.create({
+export const makeGuiasStyles = (c: UdesColorPalette) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.background,
+    backgroundColor: c.background,
   },
 
   // banner azul
   headerBanner: {
-    backgroundColor: Colors.primary,
+    backgroundColor: c.primary,
     paddingHorizontal: 20,
     paddingBottom: 24,
     borderBottomLeftRadius: 24,
     borderBottomRightRadius: 24,
-    shadowColor: Colors.shadow,
+    shadowColor: c.shadow,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.15,
     shadowRadius: 8,
@@ -26,7 +26,7 @@ export const guiasStyles = StyleSheet.create({
   headerAccent: {
     width: 42,
     height: 4,
-    backgroundColor: Colors.gold,
+    backgroundColor: c.gold,
     borderRadius: 2,
     marginBottom: 14,
   },
@@ -43,9 +43,9 @@ export const guiasStyles = StyleSheet.create({
   // filtros
   filtersWrapper: {
     paddingVertical: 16,
-    backgroundColor: Colors.surface,
+    backgroundColor: c.surface,
     borderBottomWidth: 1,
-    borderBottomColor: Colors.border,
+    borderBottomColor: c.border,
   },
   filtersList: {
     paddingHorizontal: 20,
@@ -58,12 +58,12 @@ export const guiasStyles = StyleSheet.create({
     borderWidth: 1,
   },
   chipActive: {
-    backgroundColor: Colors.primary,
-    borderColor: Colors.primary,
+    backgroundColor: c.primary,
+    borderColor: c.primary,
   },
   chipInactive: {
-    backgroundColor: Colors.surfaceAlt,
-    borderColor: Colors.border,
+    backgroundColor: c.surfaceAlt,
+    borderColor: c.border,
   },
   chipText: {
     ...Typography.label,
@@ -73,7 +73,7 @@ export const guiasStyles = StyleSheet.create({
     fontWeight: '700',
   },
   chipTextInactive: {
-    color: Colors.textSecondary,
+    color: c.textSecondary,
   },
 
   // lista
@@ -84,12 +84,12 @@ export const guiasStyles = StyleSheet.create({
     gap: 14,
   },
   card: {
-    backgroundColor: Colors.surface,
+    backgroundColor: c.surface,
     borderRadius: 14,
     padding: 16,
     borderWidth: 1,
-    borderColor: Colors.border,
-    shadowColor: Colors.shadow,
+    borderColor: c.border,
+    shadowColor: c.shadow,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.05,
     shadowRadius: 6,
@@ -102,7 +102,7 @@ export const guiasStyles = StyleSheet.create({
     marginBottom: 10,
   },
   typeBadge: {
-    backgroundColor: Colors.primary,
+    backgroundColor: c.primary,
     paddingHorizontal: 10,
     paddingVertical: 4,
     borderRadius: 10,
@@ -117,16 +117,16 @@ export const guiasStyles = StyleSheet.create({
   },
   lastUpdated: {
     ...Typography.caption,
-    color: Colors.textTertiary,
+    color: c.textTertiary,
   },
   cardTitle: {
     ...Typography.h4,
-    color: Colors.text,
+    color: c.text,
     marginBottom: 6,
   },
   cardSummary: {
     ...Typography.bodySmall,
-    color: Colors.textSecondary,
+    color: c.textSecondary,
     marginBottom: 12,
   },
 
@@ -135,7 +135,7 @@ export const guiasStyles = StyleSheet.create({
     marginTop: 4,
     gap: 6,
     borderTopWidth: 1,
-    borderTopColor: Colors.borderSubtle,
+    borderTopColor: c.borderSubtle,
     paddingTop: 10,
   },
   stepRow: {
@@ -145,18 +145,18 @@ export const guiasStyles = StyleSheet.create({
   },
   stepNumber: {
     ...Typography.caption,
-    color: Colors.primary,
+    color: c.primary,
     fontWeight: '700',
     minWidth: 18,
   },
   stepText: {
     ...Typography.bodySmall,
-    color: Colors.textSecondary,
+    color: c.textSecondary,
     flex: 1,
   },
   sourceText: {
     ...Typography.caption,
-    color: Colors.textTertiary,
+    color: c.textTertiary,
     marginTop: 10,
     fontStyle: 'italic',
   },
@@ -168,6 +168,6 @@ export const guiasStyles = StyleSheet.create({
   },
   emptyText: {
     ...Typography.body,
-    color: Colors.textSecondary,
+    color: c.textSecondary,
   },
 });

@@ -1,4 +1,4 @@
-// detalle modal de una guia clinica
+// detalle modal de una referencia bibliografica
 
 import React, { useMemo } from 'react';
 import {
@@ -15,29 +15,22 @@ import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 import { useTheme } from '../../contexts/ThemeContext';
-import { useGuiaDetail } from '../../hooks/useGuiaDetail';
+import { useBibliografiaDetail } from '../../hooks/useBibliografiaDetail';
 import type { RootStackParamList } from '../../navigation/RootNavigator';
-import { makeGuiaDetailStyles } from './GuiaDetailScreen.styles';
+import { makeBibliografiaDetailStyles } from './BibliografiaDetailScreen.styles';
 
-type DetailRoute = RouteProp<RootStackParamList, 'GuiaDetail'>;
-type DetailNav = NativeStackNavigationProp<RootStackParamList, 'GuiaDetail'>;
+type DetailRoute = RouteProp<RootStackParamList, 'BibliografiaDetail'>;
+type DetailNav = NativeStackNavigationProp<RootStackParamList, 'BibliografiaDetail'>;
 
-const TYPE_LABELS: Record<string, string> = {
-  algoritmo: 'Algoritmo',
-  protocolo: 'Protocolo',
-  tecnica: 'Técnica',
-  situacion_especial: 'Situación Especial',
-};
-
-const GuiaDetailScreen: React.FC = () => {
+const BibliografiaDetailScreen: React.FC = () => {
   const insets = useSafeAreaInsets();
   const route = useRoute<DetailRoute>();
   const navigation = useNavigation<DetailNav>();
   const { colors } = useTheme();
-  const s = useMemo(() => makeGuiaDetailStyles(colors), [colors]);
+  const s = useMemo(() => makeBibliografiaDetailStyles(colors), [colors]);
   const { id } = route.params;
 
-  const { data, loading, error, refetch } = useGuiaDetail(id);
+  const { data, loading, error, refetch } = useBibliografiaDetail(id);
 
   if (loading && !data) {
     return (
@@ -54,7 +47,7 @@ const GuiaDetailScreen: React.FC = () => {
       <View style={s.centered}>
         <StatusBar barStyle="light-content" backgroundColor={colors.primary} />
         <Text style={[s.errorText, { marginBottom: 12, textAlign: 'center' }]}>
-          {error ?? 'No se pudo cargar la guía.'}
+          {error ?? 'No se pudo cargar la referencia.'}
         </Text>
         <TouchableOpacity style={s.retryButton} onPress={refetch}>
           <Text style={s.retryText}>Reintentar</Text>
@@ -82,67 +75,40 @@ const GuiaDetailScreen: React.FC = () => {
           <Ionicons name="close" size={22} color="#FFFFFF" />
         </TouchableOpacity>
         <View style={s.headerAccent} />
-        <View style={s.typeBadge}>
-          <Text style={s.typeBadgeText}>
-            {TYPE_LABELS[data.tipo] ?? data.tipo}
-          </Text>
+        <View style={s.metaRow}>
+          {!!data.tipo && (
+            <View style={s.typeBadge}>
+              <Text style={s.typeBadgeText}>{data.tipo}</Text>
+            </View>
+          )}
+          {data.anio > 0 && <Text style={s.metaText}>{data.anio}</Text>}
         </View>
         <Text style={s.title}>{data.titulo}</Text>
-        {!!data.ultima_actualizacion && (
-          <Text style={s.metaText}>
-            Actualizada: {data.ultima_actualizacion}
-          </Text>
-        )}
       </View>
 
       <ScrollView
         contentContainerStyle={s.scrollContent}
         showsVerticalScrollIndicator={false}
       >
+        {data.autores && data.autores.length > 0 && (
+          <>
+            <Text style={s.sectionTitle}>Autores</Text>
+            <Text style={s.body}>{data.autores.join(', ')}</Text>
+          </>
+        )}
+
+        {!!data.revista && (
+          <>
+            <Text style={s.sectionTitle}>Publicado en</Text>
+            <Text style={s.body}>{data.revista}</Text>
+          </>
+        )}
+
         {!!data.resumen && (
           <>
             <Text style={s.sectionTitle}>Resumen</Text>
             <Text style={s.body}>{data.resumen}</Text>
           </>
-        )}
-
-        {data.pasos && data.pasos.length > 0 && (
-          <>
-            <Text style={s.sectionTitle}>Pasos</Text>
-            <View style={s.stepsBox}>
-              {data.pasos.map((paso, i) => (
-                <View key={i} style={s.stepRow}>
-                  <View style={s.stepNumber}>
-                    <Text style={s.stepNumberText}>{i + 1}</Text>
-                  </View>
-                  <Text style={s.stepText}>{paso}</Text>
-                </View>
-              ))}
-            </View>
-          </>
-        )}
-
-        {data.advertencias && data.advertencias.length > 0 && (
-          <>
-            <Text style={s.sectionTitle}>Advertencias</Text>
-            <View style={s.warningBox}>
-              {data.advertencias.map((adv, i) => (
-                <View key={i} style={s.warningRow}>
-                  <Ionicons
-                    name="warning-outline"
-                    size={16}
-                    color="#dc2626"
-                    style={{ marginRight: 8, marginTop: 3 }}
-                  />
-                  <Text style={s.warningText}>{adv}</Text>
-                </View>
-              ))}
-            </View>
-          </>
-        )}
-
-        {!!data.fuente && (
-          <Text style={s.source}>Fuente: {data.fuente}</Text>
         )}
 
         {data.etiquetas && data.etiquetas.length > 0 && (
@@ -159,4 +125,4 @@ const GuiaDetailScreen: React.FC = () => {
   );
 };
 
-export default GuiaDetailScreen;
+export default BibliografiaDetailScreen;

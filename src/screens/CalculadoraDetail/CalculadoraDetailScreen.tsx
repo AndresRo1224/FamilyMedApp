@@ -1,6 +1,6 @@
 // detalle modal de una calculadora clinica
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import {
   ActivityIndicator,
   ScrollView,
@@ -14,10 +14,10 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
-import { Colors } from '../../constants/colors';
+import { useTheme } from '../../contexts/ThemeContext';
 import { useCalculadoraDetail } from '../../hooks/useCalculadoraDetail';
 import type { RootStackParamList } from '../../navigation/RootNavigator';
-import { calculadoraDetailStyles as s } from './CalculadoraDetailScreen.styles';
+import { makeCalculadoraDetailStyles } from './CalculadoraDetailScreen.styles';
 
 type DetailRoute = RouteProp<RootStackParamList, 'CalculadoraDetail'>;
 type DetailNav = NativeStackNavigationProp<RootStackParamList, 'CalculadoraDetail'>;
@@ -26,6 +26,8 @@ const CalculadoraDetailScreen: React.FC = () => {
   const insets = useSafeAreaInsets();
   const route = useRoute<DetailRoute>();
   const navigation = useNavigation<DetailNav>();
+  const { colors } = useTheme();
+  const s = useMemo(() => makeCalculadoraDetailStyles(colors), [colors]);
   const { id } = route.params;
 
   const { data, loading, error, refetch } = useCalculadoraDetail(id);
@@ -33,8 +35,8 @@ const CalculadoraDetailScreen: React.FC = () => {
   if (loading && !data) {
     return (
       <View style={s.centered}>
-        <StatusBar barStyle="light-content" backgroundColor={Colors.primary} />
-        <ActivityIndicator size="large" color={Colors.primary} />
+        <StatusBar barStyle="light-content" backgroundColor={colors.primary} />
+        <ActivityIndicator size="large" color={colors.primary} />
         <Text style={[s.errorText, { marginTop: 12 }]}>Cargando…</Text>
       </View>
     );
@@ -43,7 +45,7 @@ const CalculadoraDetailScreen: React.FC = () => {
   if (error || !data) {
     return (
       <View style={s.centered}>
-        <StatusBar barStyle="light-content" backgroundColor={Colors.primary} />
+        <StatusBar barStyle="light-content" backgroundColor={colors.primary} />
         <Text style={[s.errorText, { marginBottom: 12, textAlign: 'center' }]}>
           {error ?? 'No se pudo cargar la calculadora.'}
         </Text>
@@ -54,7 +56,7 @@ const CalculadoraDetailScreen: React.FC = () => {
           style={[s.retryButton, { backgroundColor: 'transparent', marginTop: 8 }]}
           onPress={() => navigation.goBack()}
         >
-          <Text style={[s.retryText, { color: Colors.primary }]}>Cerrar</Text>
+          <Text style={[s.retryText, { color: colors.primary }]}>Cerrar</Text>
         </TouchableOpacity>
       </View>
     );
@@ -62,7 +64,7 @@ const CalculadoraDetailScreen: React.FC = () => {
 
   return (
     <View style={s.container}>
-      <StatusBar barStyle="light-content" backgroundColor={Colors.primary} />
+      <StatusBar barStyle="light-content" backgroundColor={colors.primary} />
 
       <View style={[s.banner, { paddingTop: insets.top + 12 }]}>
         <TouchableOpacity

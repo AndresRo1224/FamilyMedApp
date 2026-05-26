@@ -1,6 +1,6 @@
 // detalle modal de una imagen del atlas
 
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import {
   ActivityIndicator,
   Image,
@@ -15,11 +15,11 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
-import { Colors } from '../../constants/colors';
+import { useTheme } from '../../contexts/ThemeContext';
 import { useAtlasDetail } from '../../hooks/useAtlasDetail';
 import { buildMediaUrl } from '../../services/api';
 import type { RootStackParamList } from '../../navigation/RootNavigator';
-import { atlasDetailStyles as s } from './AtlasDetailScreen.styles';
+import { makeAtlasDetailStyles } from './AtlasDetailScreen.styles';
 
 type DetailRoute = RouteProp<RootStackParamList, 'AtlasDetail'>;
 type DetailNav = NativeStackNavigationProp<RootStackParamList, 'AtlasDetail'>;
@@ -35,6 +35,8 @@ const AtlasDetailScreen: React.FC = () => {
   const insets = useSafeAreaInsets();
   const route = useRoute<DetailRoute>();
   const navigation = useNavigation<DetailNav>();
+  const { colors } = useTheme();
+  const s = useMemo(() => makeAtlasDetailStyles(colors), [colors]);
   const { id } = route.params;
 
   const { data, loading, error, refetch } = useAtlasDetail(id);
@@ -43,8 +45,8 @@ const AtlasDetailScreen: React.FC = () => {
   if (loading && !data) {
     return (
       <View style={s.centered}>
-        <StatusBar barStyle="light-content" backgroundColor={Colors.primary} />
-        <ActivityIndicator size="large" color={Colors.primary} />
+        <StatusBar barStyle="light-content" backgroundColor={colors.primary} />
+        <ActivityIndicator size="large" color={colors.primary} />
         <Text style={[s.errorText, { marginTop: 12 }]}>Cargando…</Text>
       </View>
     );
@@ -53,7 +55,7 @@ const AtlasDetailScreen: React.FC = () => {
   if (error || !data) {
     return (
       <View style={s.centered}>
-        <StatusBar barStyle="light-content" backgroundColor={Colors.primary} />
+        <StatusBar barStyle="light-content" backgroundColor={colors.primary} />
         <Text style={[s.errorText, { marginBottom: 12, textAlign: 'center' }]}>
           {error ?? 'No se pudo cargar la imagen.'}
         </Text>
@@ -64,7 +66,7 @@ const AtlasDetailScreen: React.FC = () => {
           style={[s.retryButton, { backgroundColor: 'transparent', marginTop: 8 }]}
           onPress={() => navigation.goBack()}
         >
-          <Text style={[s.retryText, { color: Colors.primary }]}>Cerrar</Text>
+          <Text style={[s.retryText, { color: colors.primary }]}>Cerrar</Text>
         </TouchableOpacity>
       </View>
     );
@@ -75,7 +77,7 @@ const AtlasDetailScreen: React.FC = () => {
 
   return (
     <View style={s.container}>
-      <StatusBar barStyle="light-content" backgroundColor={Colors.primary} />
+      <StatusBar barStyle="light-content" backgroundColor={colors.primary} />
 
       <View style={[s.banner, { paddingTop: insets.top + 12 }]}>
         <TouchableOpacity
@@ -108,7 +110,7 @@ const AtlasDetailScreen: React.FC = () => {
             />
           ) : (
             <View style={s.placeholderBox}>
-              <Ionicons name="image-outline" size={64} color={Colors.textTertiary} />
+              <Ionicons name="image-outline" size={64} color={colors.textTertiary} />
               <Text style={s.placeholderText}>Imagen no disponible</Text>
             </View>
           )}

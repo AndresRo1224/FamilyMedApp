@@ -10,6 +10,7 @@ import React, {
 
 import {
   AuthUser,
+  changePassword as apiChangePassword,
   clearAuth,
   fetchProfile,
   getCachedUser,
@@ -18,7 +19,15 @@ import {
   registerWithEmail,
   saveToken,
   saveUser,
+  updateProfile as apiUpdateProfile,
 } from '../services/auth';
+
+interface UpdateProfilePayload {
+  nombre_completo?: string;
+  cedula?: string;
+  institucion?: string;
+  codigo_programa?: string;
+}
 
 interface AuthContextType {
   user: AuthUser | null;
@@ -31,6 +40,11 @@ interface AuthContextType {
   }) => Promise<void>;
   signOut: () => Promise<void>;
   refreshProfile: () => Promise<void>;
+  updateProfile: (cambios: UpdateProfilePayload) => Promise<void>;
+  changePassword: (params: {
+    password_actual: string;
+    password_nueva: string;
+  }) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -98,6 +112,24 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   }, []);
 
+  // actualiza campos del perfil y refresca el usuario en el contexto
+  const updateProfile = useCallback(
+    async (cambios: UpdateProfilePayload) => {
+      const updated = await apiUpdateProfile(cambios);
+      await saveUser(updated);
+      setUser(updated);
+    },
+    [],
+  );
+
+  // cambia la contraseña; no toca el usuario en contexto (no cambia datos visibles)
+  const changePassword = useCallback(
+    async (params: { password_actual: string; password_nueva: string }) => {
+      await apiChangePassword(params);
+    },
+    [],
+  );
+
   return (
     <AuthContext.Provider
       value={{
@@ -107,6 +139,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         signUp,
         signOut,
         refreshProfile,
+        updateProfile,
+        changePassword,
       }}
     >
       {children}

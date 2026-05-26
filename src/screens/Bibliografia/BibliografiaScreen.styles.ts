@@ -1,10 +1,10 @@
-// estilos del atlas
+// estilos de bibliografia
 
 import { StyleSheet } from 'react-native';
 import { UdesColorPalette } from '../../constants/colors';
 import { Typography } from '../../constants/typography';
 
-export const makeAtlasStyles = (c: UdesColorPalette) => StyleSheet.create({
+export const makeBibliografiaStyles = (c: UdesColorPalette) => StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: c.background,
@@ -40,101 +40,86 @@ export const makeAtlasStyles = (c: UdesColorPalette) => StyleSheet.create({
     marginTop: 4,
   },
 
-  // filtros
-  filtersWrapper: {
-    paddingVertical: 16,
-    backgroundColor: c.surface,
-    borderBottomWidth: 1,
-    borderBottomColor: c.border,
-  },
-  filtersList: {
+  // buscador
+  searchWrapper: {
     paddingHorizontal: 20,
-    gap: 10,
+    paddingTop: 12,
   },
-  chip: {
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 20,
+  searchBox: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: c.surface,
+    borderRadius: 12,
     borderWidth: 1,
-  },
-  chipActive: {
-    backgroundColor: c.primary,
-    borderColor: c.primary,
-  },
-  chipInactive: {
-    backgroundColor: c.surfaceAlt,
     borderColor: c.border,
+    paddingHorizontal: 12,
+    height: 44,
   },
-  chipText: {
-    ...Typography.label,
-  },
-  chipTextActive: {
-    color: '#FFFFFF',
-    fontWeight: '700',
-  },
-  chipTextInactive: {
-    color: c.textSecondary,
+  searchInput: {
+    ...Typography.body,
+    flex: 1,
+    color: c.text,
+    paddingVertical: 0,
   },
 
-  // grid
-  gridContent: {
-    padding: 14,
+  // lista
+  listContent: {
+    paddingHorizontal: 20,
+    paddingTop: 16,
     paddingBottom: 24,
+    gap: 14,
   },
-  gridRow: {
-    justifyContent: 'space-between',
-    marginBottom: 12,
-  },
-
-  // card individual del grid
   card: {
     backgroundColor: c.surface,
     borderRadius: 14,
+    padding: 16,
     borderWidth: 1,
     borderColor: c.border,
-    overflow: 'hidden',
     shadowColor: c.shadow,
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.06,
+    shadowOpacity: 0.05,
     shadowRadius: 6,
     elevation: 2,
   },
-  imageBox: {
-    width: '100%',
-    aspectRatio: 1,
+  cardHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
     alignItems: 'center',
-    justifyContent: 'center',
+    marginBottom: 10,
   },
-  categoryBadge: {
-    position: 'absolute',
-    top: 8,
-    left: 8,
-    backgroundColor: 'rgba(13, 27, 62, 0.65)',
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: 8,
+  typeBadge: {
+    backgroundColor: c.primary,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 10,
+    flexShrink: 0,
   },
-  categoryBadgeText: {
+  typeBadgeText: {
     ...Typography.caption,
     color: '#FFFFFF',
-    fontSize: 10,
-    fontWeight: '700',
-    letterSpacing: 0.3,
+    fontSize: 11,
+    letterSpacing: 0.5,
     textTransform: 'uppercase',
+    fontWeight: '700',
   },
-  cardFooter: {
-    padding: 12,
-    backgroundColor: c.surface,
+  year: {
+    ...Typography.caption,
+    color: c.textTertiary,
   },
   cardTitle: {
-    ...Typography.bodySmall,
+    ...Typography.h4,
     color: c.text,
-    fontWeight: '600',
-    marginBottom: 3,
+    marginBottom: 6,
   },
-  cardDescription: {
-    ...Typography.caption,
+  authors: {
+    ...Typography.bodySmall,
     color: c.textSecondary,
+    marginBottom: 4,
+  },
+  journal: {
+    ...Typography.caption,
+    color: c.textTertiary,
+    fontStyle: 'italic',
   },
 
   // empty
