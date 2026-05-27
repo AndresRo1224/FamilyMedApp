@@ -18,9 +18,19 @@ urlpatterns = [
         name='cms_guias_add',
     ),
     path(
+        'bulk/',
+        staff_member_required(GuiaCRUD.bulk_action_view),
+        name='cms_guias_bulk',
+    ),
+    path(
         '<str:item_id>/editar/',
         staff_member_required(GuiaCRUD.change_view),
         name='cms_guias_change',
+    ),
+    path(
+        '<str:item_id>/preview/',
+        staff_member_required(GuiaCRUD.preview_view),
+        name='cms_guias_preview',
     ),
     path(
         '<str:item_id>/eliminar/',

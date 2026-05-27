@@ -1,0 +1,201 @@
+{% extends "cms/base.html" %}
+
+{% block cms_content %}
+
+<p style="color: var(--text-secondary); margin-bottom: 18px;">
+  Resumen general del CMS. Toca cualquier card para ir al listado correspondiente.
+</p>
+
+{# tarjetas de stats por coleccion #}
+<div class="cms-dashboard">
+  {% for s in stats %}
+  <a href="{% url s.list_url %}" class="cms-stat-card">
+    <div class="cms-stat-icon"><i class="{{ s.icon }}"></i></div>
+    <div class="cms-stat-value">{{ s.total }}</div>
+    <div class="cms-stat-label">{{ s.title }}</div>
+    {% if s.detail %}<div class="cms-stat-detail">{{ s.detail }}</div>{% endif %}
+  </a>
+  {% endfor %}
+
+  {# usuarios de la app #}
+  <a href="{% url 'cms_usuarios_app_list' %}" class="cms-stat-card">
+    <div class="cms-stat-icon"><i class="fas fa-user-friends"></i></div>
+    <div class="cms-stat-value">{{ users_total }}</div>
+    <div class="cms-stat-label">Usuarios app</div>
+    <div class="cms-stat-detail">{{ users_activos }} activos</div>
+  </a>
+</div>
+
+{# graficos #}
+<div class="cms-dashboard-grid">
+  <div class="cms-panel">
+    <h3 class="cms-panel-title">
+      <i class="fas fa-chart-line panel-icon"></i>
+      Vistas en las últimas 8 semanas
+    </h3>
+    <canvas id="chart-views" height="180"></canvas>
+  </div>
+
+  <div class="cms-panel">
+    <h3 class="cms-panel-title">
+      <i class="fas fa-chart-pie panel-icon"></i>
+      Distribución por módulo
+    </h3>
+    <canvas id="chart-pie" height="180"></canvas>
+  </div>
+</div>
+
+{# top vistos + recientes #}
+<div class="cms-dashboard-grid">
+  <div class="cms-panel">
+    <h3 class="cms-panel-title">
+      <i class="fas fa-fire panel-icon"></i>
+      Top 5 más vistos
+    </h3>
+    {% if top_vistos %}
+    <ul class="cms-list-simple">
+      {% for t in top_vistos %}
+      <li>
+        <i class="{{ t.icon }}" style="color: var(--udes-primary); width: 18px;"></i>
+        <a href="{% url t.change_url_name t.item_id %}">{{ t.title|truncatechars:60 }}</a>
+        <span class="cms-list-meta">{{ t.vistas }} vistas</span>
+      </li>
+      {% endfor %}
+    </ul>
+    {% else %}
+    <p style="color: var(--text-tertiary); text-align:center; padding: 24px 0;">
+      Todavía no hay vistas registradas.
+    </p>
+    {% endif %}
+  </div>
+
+  <div class="cms-panel">
+    <h3 class="cms-panel-title">
+      <i class="fas fa-clock panel-icon"></i>
+      Últimos creados
+    </h3>
+    {% if recientes %}
+    <ul class="cms-list-simple">
+      {% for r in recientes %}
+      <li>
+        <i class="{{ r.icon }}" style="color: var(--udes-primary); width: 18px;"></i>
+        <a href="{% url r.change_url_name r.item_id %}">{{ r.title|truncatechars:50 }}</a>
+        <span class="cms-list-meta">{{ r.creado_en|date:"d/m/Y" }}</span>
+      </li>
+      {% endfor %}
+    </ul>
+    {% else %}
+    <p style="color: var(--text-tertiary); text-align:center; padding: 24px 0;">
+      Aún no se ha creado contenido.
+    </p>
+    {% endif %}
+  </div>
+</div>
+
+{# actividad reciente del audit log #}
+{% if audit_recent %}
+<div class="cms-panel">
+  <h3 class="cms-panel-title">
+    <i class="fas fa-history panel-icon"></i>
+    Actividad reciente
+    <a href="{% url 'cms_audit' %}" style="margin-left:auto; font-size:13px; font-weight:500; color:var(--udes-primary); text-decoration:none;">Ver todo →</a>
+  </h3>
+  {% for e in audit_recent %}
+  <div class="cms-audit-row" style="padding-left:0; padding-right:0;">
+    <div class="cms-audit-icon" style="background-color: {{ e.action_color }};">
+      <i class="{{ e.action_icon }}"></i>
+    </div>
+    <div class="cms-audit-info">
+      <div class="cms-audit-action">
+        {{ e.user_full|default:e.username }} · {{ e.action_label }}
+        {% if e.label %}<span style="color: var(--text-secondary);">"{{ e.label|truncatechars:60 }}"</span>{% endif %}
+      </div>
+      <div class="cms-audit-meta">
+        {{ e.collection }} · {{ e.timestamp|date:"d/m/Y H:i" }}
+        {% if e.count > 1 %}· {{ e.count }} items{% endif %}
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script>
+  (function () {
+    var labels = {{ chart_labels|safe }};
+    var data = {{ chart_data|safe }};
+    var pieLabels = {{ pie_labels|safe }};
+    var pieData = {{ pie_data|safe }};
+
+    // detecta tema actual para colores adaptativos
+    var isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+    var textColor = isDark ? '#A8B0C2' : '#5B6378';
+    var gridColor = isDark ? 'rgba(168,176,194,0.1)' : 'rgba(91,99,120,0.1)';
+
+    var primary = isDark ? '#2E6FD9' : '#004899';
+    var primaryFill = isDark ? 'rgba(46,111,217,0.18)' : 'rgba(0,72,153,0.12)';
+    var palette = ['#004899', '#2E6FD9', '#C99F81', '#29B6F6', '#4CAF50'];
+
+    var ctxLine = document.getElementById('chart-views');
+    if (ctxLine) {
+      new Chart(ctxLine, {
+        type: 'line',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: 'Vistas',
+            data: data,
+            borderColor: primary,
+            backgroundColor: primaryFill,
+            fill: true,
+            tension: 0.35,
+            borderWidth: 2.5,
+            pointBackgroundColor: primary,
+            pointRadius: 4,
+          }],
+        },
+        options: {
+          responsive: true,
+          plugins: { legend: { display: false } },
+          scales: {
+            y: {
+              beginAtZero: true,
+              ticks: { color: textColor },
+              grid: { color: gridColor },
+            },
+            x: {
+              ticks: { color: textColor },
+              grid: { color: gridColor },
+            },
+          },
+        },
+      });
+    }
+
+    var ctxPie = document.getElementById('chart-pie');
+    if (ctxPie) {
+      new Chart(ctxPie, {
+        type: 'doughnut',
+        data: {
+          labels: pieLabels,
+          datasets: [{
+            data: pieData,
+            backgroundColor: palette,
+            borderWidth: 0,
+          }],
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: {
+              position: 'bottom',
+              labels: { color: textColor, padding: 12 },
+            },
+          },
+        },
+      });
+    }
+  })();
+</script>
+{% endblock %}

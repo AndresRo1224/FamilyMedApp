@@ -14,16 +14,21 @@ from .forms import CalculadoraForm
 class CalculadoraCRUD(MongoCRUD):
     collection_name = 'calculadoras'
     list_template = 'cms/calculadoras/list.html'
+    preview_template = 'cms/preview/calculadora.html'
     form_class = CalculadoraForm
 
     list_url_name = 'cms_calculadoras_list'
     add_url_name = 'cms_calculadoras_add'
     change_url_name = 'cms_calculadoras_change'
     delete_url_name = 'cms_calculadoras_delete'
+    bulk_url_name = 'cms_calculadoras_bulk'
+    preview_url_name = 'cms_calculadoras_preview'
 
     title_singular = 'calculadora'
     title_plural = 'Calculadoras'
     sidebar_section = 'CMS · Calculadoras'
+
+    searchable_fields = ('nombre', 'nombre_corto', 'descripcion', 'categoria', 'etiquetas')
 
     @classmethod
     def label_for(cls, doc):

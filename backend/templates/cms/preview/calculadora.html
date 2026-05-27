@@ -1,0 +1,56 @@
+{% extends "cms/preview/_layout.html" %}
+
+{% block preview_body %}
+<div class="cms-mobile-banner">
+  <div class="accent"></div>
+  {% if item.nombre_corto %}
+  <span style="background:rgba(255,255,255,0.22); padding:3px 10px; border-radius:10px; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.4px;">
+    {{ item.nombre_corto }}
+  </span>
+  {% endif %}
+  <h2 style="margin-top:8px;">{{ item.nombre }}</h2>
+  {% if item.descripcion %}<p>{{ item.descripcion }}</p>{% endif %}
+</div>
+
+<div class="cms-mobile-body">
+  {% if item.proposito %}
+  <h3>Propósito</h3>
+  <p>{{ item.proposito }}</p>
+  {% endif %}
+
+  <h3>Fórmula</h3>
+  <div style="background: var(--surface-alt); padding: 14px; border-radius: 10px; font-family: 'Courier New', monospace; font-size:14px; color: var(--text);">
+    {{ item.formula }}
+  </div>
+
+  {% if item.parametros %}
+  <h3>Parámetros</h3>
+  <div style="background: var(--surface-alt); border-radius:10px; padding:14px; border-left: 3px solid var(--udes-primary);">
+    {% for p in item.parametros %}
+    <div style="display:flex; gap:10px; margin-bottom:8px;">
+      <span style="color: var(--udes-primary); font-weight:700;">•</span>
+      <span style="flex:1; font-size:14px;">{{ p }}</span>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  {% if item.unidad_salida %}
+  <h3>Resultado</h3>
+  <div style="background: var(--surface-alt); padding: 14px; border-radius:10px; color: var(--text); font-weight: 600;">
+    {{ item.unidad_salida }}
+  </div>
+  {% endif %}
+
+  {% if item.uso_clinico %}
+  <h3>Uso clínico</h3>
+  <p>{{ item.uso_clinico }}</p>
+  {% endif %}
+
+  {% if item.referencia %}
+  <p style="font-size: 12px; color: var(--text-tertiary); margin-top: 16px; font-style: italic;">
+    Referencia: {{ item.referencia }}
+  </p>
+  {% endif %}
+</div>
+{% endblock %}

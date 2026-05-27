@@ -1,14 +1,37 @@
 {% extends "cms/base.html" %}
 
 {% block cms_content %}
+<div class="cms-form-header">
+  <div></div>
+  <div class="cms-form-header-actions">
+    {% if preview_url %}
+      <a href="{{ preview_url }}" target="_blank" class="btn btn-default" style="padding:8px 14px;">
+        <i class="fas fa-eye"></i> Vista previa
+      </a>
+    {% endif %}
+    <a href="{{ cancel_url }}" class="btn btn-default" style="padding:8px 14px;">
+      Volver
+    </a>
+  </div>
+</div>
+
 <div class="card" style="background-color: var(--surface, #fff); padding: 24px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); max-width: 900px;">
   <form method="post" enctype="multipart/form-data">
     {% csrf_token %}
 
     {% if form.errors %}
-    <div style="background:#fee2e2; border:1px solid #fca5a5; padding:12px; border-radius:8px; margin-bottom:16px;">
-      <strong>Hay errores en el formulario:</strong>
-      {{ form.errors }}
+    <div class="cms-message cms-message-error" style="margin-bottom: 18px;">
+      <i class="fas fa-times-circle"></i>
+      <div>
+        <strong>Revisa los errores del formulario:</strong>
+        <ul style="margin: 6px 0 0 18px;">
+          {% for field, errors in form.errors.items %}
+            {% for err in errors %}
+              <li>{% if field != "__all__" %}<strong>{{ field }}:</strong> {% endif %}{{ err }}</li>
+            {% endfor %}
+          {% endfor %}
+        </ul>
+      </div>
     </div>
     {% endif %}
 
@@ -19,7 +42,7 @@
       </label>
       {{ field }}
       {% if field.help_text %}
-      <small style="display:block; margin-top:4px; color:#6b7280;">{{ field.help_text }}</small>
+      <small style="display:block; margin-top:4px; color:var(--text-tertiary,#6b7280);">{{ field.help_text }}</small>
       {% endif %}
       {% if field.errors %}
       <small style="display:block; margin-top:4px; color:#dc2626;">{{ field.errors|join:", " }}</small>
@@ -27,9 +50,9 @@
     </div>
     {% endfor %}
 
-    <div style="display:flex; gap:10px; margin-top:24px;">
+    <div style="display:flex; gap:10px; margin-top:24px; padding-top:20px; border-top: 1px solid var(--border, #E2E5EC);">
       <button type="submit" class="btn btn-primary" style="padding:10px 20px;">
-        Guardar
+        <i class="fas fa-save"></i> Guardar
       </button>
       <a href="{{ cancel_url }}" class="btn btn-default" style="padding:10px 20px;">
         Cancelar

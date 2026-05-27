@@ -14,16 +14,22 @@ from .forms import ContenidoForm
 class ContenidoCRUD(MongoCRUD):
     collection_name = 'contenidos'
     list_template = 'cms/contenidos/list.html'
+    preview_template = 'cms/preview/contenido.html'
     form_class = ContenidoForm
 
     list_url_name = 'cms_contenidos_list'
     add_url_name = 'cms_contenidos_add'
     change_url_name = 'cms_contenidos_change'
     delete_url_name = 'cms_contenidos_delete'
+    bulk_url_name = 'cms_contenidos_bulk'
+    preview_url_name = 'cms_contenidos_preview'
 
     title_singular = 'contenido'
     title_plural = 'Contenidos'
     sidebar_section = 'CMS · Contenidos'
+
+    searchable_fields = ('titulo', 'subtitulo', 'etiquetas')
+    has_estado = True
 
     @classmethod
     def form_to_mongo(cls, form_data, files=None, original=None):

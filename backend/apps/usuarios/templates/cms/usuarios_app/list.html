@@ -1,14 +1,13 @@
 {% extends "cms/base.html" %}
 
 {% block cms_content %}
-<div style="margin-bottom: 16px;">
-  <p style="margin:0; color: var(--text-secondary, #5b6378);">
-    {{ items|length }} {% if items|length == 1 %}usuario{% else %}usuarios{% endif %} registrados en la app móvil.
-  </p>
-</div>
+{# usuarios no tiene "Nuevo" desde aca; sobreescribimos add_url para que no aparezca #}
+{% with singular_or_plural="usuarios" %}
+  {% include "cms/_list_toolbar.html" with add_url="" %}
+{% endwith %}
 
-<div style="background:var(--surface,#fff); border-radius:12px; box-shadow:0 2px 8px rgba(0,0,0,0.06); overflow:hidden;">
-  <table class="table" style="margin:0; width:100%;">
+<div class="cms-list-card">
+  <table class="cms-list-table">
     <thead>
       <tr>
         <th>Correo</th>
@@ -51,11 +50,18 @@
       {% empty %}
       <tr>
         <td colspan="6" style="text-align:center; padding:40px;">
-          <p style="color:var(--text-tertiary, #8891a4); margin:0;">Aún no hay usuarios registrados en la app.</p>
+          <p style="color:var(--text-tertiary, #8891a4); margin:0;">
+            {% if query %}No hay usuarios que coincidan con la búsqueda.{% else %}Aún no hay usuarios registrados en la app.{% endif %}
+          </p>
+          {% if query %}
+            <a href="{% url list_url_name %}" class="btn btn-default" style="margin-top:10px;">Limpiar búsqueda</a>
+          {% endif %}
         </td>
       </tr>
       {% endfor %}
     </tbody>
   </table>
 </div>
+
+{% include "cms/_paginator.html" %}
 {% endblock %}

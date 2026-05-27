@@ -1,0 +1,25 @@
+{% extends "cms/base.html" %}
+
+{# layout base de las pantallas de preview - se ve como el celular #}
+
+{% block cms_content %}
+<div style="margin-bottom: 14px; display:flex; justify-content:space-between; align-items:center;">
+  <div style="color:var(--text-secondary);">
+    <i class="fas fa-mobile-alt"></i> Así se verá en la app móvil
+  </div>
+  <div class="cms-preview-actions">
+    <a href="{{ edit_url }}" class="btn btn-info" style="padding:8px 14px;">
+      <i class="fas fa-edit"></i> Editar
+    </a>
+    <a href="{{ cancel_url }}" class="btn btn-default" style="padding:8px 14px;">
+      Volver al listado
+    </a>
+  </div>
+</div>
+
+<div class="cms-preview-wrap">
+  <div class="cms-mobile-frame">
+    {% block preview_body %}{% endblock %}
+  </div>
+</div>
+{% endblock %}

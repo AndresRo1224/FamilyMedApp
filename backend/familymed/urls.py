@@ -7,6 +7,7 @@ from django.urls import include, path
 
 urlpatterns = [
     # CMS embebido en el admin (urls antes que admin/ para evitar conflictos)
+    path('admin/dashboard/', include('apps.cms.admin_urls')),
     path('admin/contenidos/', include('apps.contenidos.admin_urls')),
     path('admin/calculadoras/', include('apps.calculadoras.admin_urls')),
     path('admin/atlas/', include('apps.atlas.admin_urls')),

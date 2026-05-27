@@ -1,0 +1,56 @@
+{# barra superior compartida: contador + buscador + filtro de estado + boton "nuevo" #}
+
+<div class="cms-toolbar">
+  <div class="cms-toolbar-info">
+    {% if query or estado_filter %}
+      <strong>{{ pagination.total_items }}</strong>
+      de
+      <strong>{{ total_all }}</strong>
+      {{ singular_or_plural }}
+      <small style="margin-left:8px; color:var(--text-tertiary,#8891a4);">
+        {% if query %}búsqueda: "{{ query }}"{% endif %}
+        {% if estado_filter %} · estado: {{ estado_filter }}{% endif %}
+        <a href="{% url list_url_name %}" style="margin-left:6px;">limpiar</a>
+      </small>
+    {% else %}
+      <strong>{{ pagination.total_items }}</strong> {{ singular_or_plural }}
+    {% endif %}
+  </div>
+
+  <div class="cms-toolbar-actions">
+    {# buscador #}
+    <form method="get" class="cms-search-form">
+      <input
+        type="text"
+        name="q"
+        value="{{ query }}"
+        placeholder="Buscar..."
+        class="cms-search-input"
+      />
+      {% if estado_filter %}
+        <input type="hidden" name="estado" value="{{ estado_filter }}" />
+      {% endif %}
+      <button type="submit" class="btn btn-default cms-search-btn">
+        <i class="fas fa-search"></i>
+      </button>
+    </form>
+
+    {# filtro de estado (solo si el modelo tiene estado) #}
+    {% if has_estado %}
+      <select
+        class="cms-estado-select"
+        onchange="window.location.href='?' + new URLSearchParams({q: '{{ query|escapejs }}', estado: this.value}).toString();"
+      >
+        <option value="" {% if not estado_filter %}selected{% endif %}>Todos</option>
+        <option value="publicado" {% if estado_filter == 'publicado' %}selected{% endif %}>Publicados</option>
+        <option value="borrador" {% if estado_filter == 'borrador' %}selected{% endif %}>Borradores</option>
+      </select>
+    {% endif %}
+
+    {% if add_url %}
+      <a href="{{ add_url }}" class="btn btn-primary cms-add-btn">
+        <i class="fas fa-plus"></i> Nuevo
+      </a>
+    {% endif %}
+  </div>
+</div>

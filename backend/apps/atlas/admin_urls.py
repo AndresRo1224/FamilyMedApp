@@ -18,9 +18,19 @@ urlpatterns = [
         name='cms_atlas_add',
     ),
     path(
+        'bulk/',
+        staff_member_required(AtlasCRUD.bulk_action_view),
+        name='cms_atlas_bulk',
+    ),
+    path(
         '<str:item_id>/editar/',
         staff_member_required(AtlasCRUD.change_view),
         name='cms_atlas_change',
+    ),
+    path(
+        '<str:item_id>/preview/',
+        staff_member_required(AtlasCRUD.preview_view),
+        name='cms_atlas_preview',
     ),
     path(
         '<str:item_id>/eliminar/',

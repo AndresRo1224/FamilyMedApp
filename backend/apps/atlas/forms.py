@@ -19,15 +19,19 @@ TAMANO_MAX_MB = 5
 
 
 class AtlasForm(forms.Form):
-    titulo = forms.CharField(max_length=200, label='Título')
+    titulo = forms.CharField(
+        max_length=200, min_length=3, label='Título',
+        help_text='Entre 3 y 200 caracteres.',
+    )
     descripcion = forms.CharField(
         widget=forms.Textarea(attrs={'rows': 3}), label='Descripción',
+        help_text='Mínimo 20 caracteres.',
     )
     categoria = forms.ChoiceField(choices=CATEGORIA_CHOICES, label='Categoría')
     hallazgos = forms.CharField(
         widget=forms.Textarea(attrs={'rows': 5}),
         label='Hallazgos',
-        help_text='Un hallazgo por línea',
+        help_text='Un hallazgo por línea (mínimo 1).',
     )
     significancia_clinica = forms.CharField(
         widget=forms.Textarea(attrs={'rows': 3}),
@@ -36,8 +40,29 @@ class AtlasForm(forms.Form):
     imagen = forms.FileField(
         required=False,
         label='Imagen',
-        help_text='Sube una imagen jpg/png/webp (máx 5MB). Si no subes nada y ya hay una, se mantiene.',
+        widget=forms.FileInput(attrs={
+            'accept': 'image/jpeg,image/png,image/webp',
+            'id': 'atlas-imagen-input',
+        }),
+        help_text=f'jpg/png/webp · máximo {TAMANO_MAX_MB}MB · se mantiene la anterior si no subes una nueva.',
     )
+
+    def clean_descripcion(self):
+        v = (self.cleaned_data.get('descripcion') or '').strip()
+        if len(v) < 20:
+            raise forms.ValidationError(
+                'La descripción es muy corta (mínimo 20 caracteres).'
+            )
+        return v
+
+    def clean_hallazgos(self):
+        v = (self.cleaned_data.get('hallazgos') or '').strip()
+        hallazgos = [h.strip() for h in v.split('\n') if h.strip()]
+        if not hallazgos:
+            raise forms.ValidationError(
+                'Debes ingresar al menos un hallazgo (uno por línea).'
+            )
+        return v
 
     def clean_imagen(self):
         # valida extension, tipo MIME y tamaño antes de guardar el archivo

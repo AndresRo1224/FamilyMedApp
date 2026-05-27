@@ -1,0 +1,41 @@
+{% extends "cms/preview/_layout.html" %}
+
+{% block preview_body %}
+<div class="cms-mobile-banner">
+  <div class="accent"></div>
+  <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+    {% if item.tipo %}
+    <span style="background:rgba(255,255,255,0.22); padding:3px 10px; border-radius:10px; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.4px;">
+      {{ item.tipo }}
+    </span>
+    {% endif %}
+    {% if item.anio %}<span style="color:rgba(255,255,255,0.85); font-size:13px;">{{ item.anio }}</span>{% endif %}
+  </div>
+  <h2 style="margin-top:8px;">{{ item.titulo }}</h2>
+</div>
+
+<div class="cms-mobile-body">
+  {% if item.autores %}
+  <h3>Autores</h3>
+  <p>{{ item.autores|join:", " }}</p>
+  {% endif %}
+
+  {% if item.revista %}
+  <h3>Publicado en</h3>
+  <p>{{ item.revista }}</p>
+  {% endif %}
+
+  {% if item.resumen %}
+  <h3>Resumen</h3>
+  <p>{{ item.resumen }}</p>
+  {% endif %}
+
+  {% if item.etiquetas %}
+  <div style="display:flex; flex-wrap:wrap; gap:6px; margin-top: 14px;">
+    {% for t in item.etiquetas %}
+    <span style="background: var(--surface-alt); border:1px solid var(--border); color: var(--udes-primary); padding: 4px 10px; border-radius: 12px; font-size:12px; font-weight:600;">#{{ t }}</span>
+    {% endfor %}
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

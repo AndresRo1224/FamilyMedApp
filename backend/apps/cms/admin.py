@@ -24,5 +24,5 @@ class PanelCMSAdmin(admin.ModelAdmin):
         return False
 
     def changelist_view(self, request, extra_context=None):
-        # al hacer click en "Panel" en sidebar, mandamos al CMS de contenidos
-        return redirect('cms_contenidos_list')
+        # al hacer click en "Panel" en sidebar, mandamos al dashboard
+        return redirect('cms_dashboard')

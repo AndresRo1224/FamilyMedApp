@@ -1,0 +1,59 @@
+{% extends "cms/base.html" %}
+
+{% block cms_content %}
+
+<div class="cms-toolbar">
+  <div class="cms-toolbar-info">
+    <strong>{{ entries|length }}</strong> acciones registradas
+  </div>
+  <div class="cms-toolbar-actions">
+    <form method="get" style="display:flex; gap:8px; align-items:center; margin:0;">
+      <label style="font-size:13px; color: var(--text-secondary);">Filtrar:</label>
+      <select name="collection" class="cms-estado-select" onchange="this.form.submit();">
+        <option value="">Todas las colecciones</option>
+        {% for key, label in collections_available %}
+          <option value="{{ key }}" {% if collection_filter == key %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+      </select>
+    </form>
+  </div>
+</div>
+
+<div class="cms-list-card" style="padding: 6px 0;">
+  {% if entries %}
+    {% for e in entries %}
+    <div class="cms-audit-row">
+      <div class="cms-audit-icon" style="background-color: {{ e.action_color }};">
+        <i class="{{ e.action_icon }}"></i>
+      </div>
+      <div class="cms-audit-info">
+        <div class="cms-audit-action">
+          {{ e.user_full|default:e.username }} · {{ e.action_label }}
+          {% if e.label %}<span style="color: var(--text-secondary);">"{{ e.label|truncatechars:80 }}"</span>{% endif %}
+        </div>
+        <div class="cms-audit-meta">
+          {{ e.collection }} · {{ e.timestamp|date:"d/m/Y H:i:s" }}
+          {% if e.count > 1 %}· <strong>{{ e.count }}</strong> items afectados{% endif %}
+          {% if e.item_id %}· ID: <code style="font-size:11px;">{{ e.item_id|truncatechars:14 }}</code>{% endif %}
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  {% else %}
+    <div style="padding: 40px; text-align: center;">
+      <p style="color: var(--text-tertiary); margin: 0;">
+        {% if collection_filter %}
+          No hay registros para esta colección.
+        {% else %}
+          Aún no hay acciones registradas. Las acciones del CMS empezarán a aparecer aquí.
+        {% endif %}
+      </p>
+    </div>
+  {% endif %}
+</div>
+
+<p style="margin-top: 14px; color: var(--text-tertiary); font-size: 12px;">
+  Se muestran las últimas 200 acciones. Para consultas más antiguas, contactar al administrador.
+</p>
+
+{% endblock %}

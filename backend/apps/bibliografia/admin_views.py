@@ -14,16 +14,21 @@ from .forms import BibliografiaForm
 class BibliografiaCRUD(MongoCRUD):
     collection_name = 'bibliografia'
     list_template = 'cms/bibliografia/list.html'
+    preview_template = 'cms/preview/bibliografia.html'
     form_class = BibliografiaForm
 
     list_url_name = 'cms_bibliografia_list'
     add_url_name = 'cms_bibliografia_add'
     change_url_name = 'cms_bibliografia_change'
     delete_url_name = 'cms_bibliografia_delete'
+    bulk_url_name = 'cms_bibliografia_bulk'
+    preview_url_name = 'cms_bibliografia_preview'
 
     title_singular = 'referencia'
     title_plural = 'Bibliografía'
     sidebar_section = 'CMS · Bibliografía'
+
+    searchable_fields = ('titulo', 'autores', 'revista', 'tipo', 'etiquetas')
 
     @classmethod
     def form_to_mongo(cls, form_data, files=None, original=None):

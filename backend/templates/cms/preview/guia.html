@@ -1,0 +1,59 @@
+{% extends "cms/preview/_layout.html" %}
+
+{% block preview_body %}
+<div class="cms-mobile-banner">
+  <div class="accent"></div>
+  <span style="background:rgba(255,255,255,0.22); padding:3px 10px; border-radius:10px; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.4px;">
+    {{ item.tipo }}
+  </span>
+  <h2 style="margin-top:8px;">{{ item.titulo }}</h2>
+  {% if item.ultima_actualizacion %}<p>Actualizada: {{ item.ultima_actualizacion }}</p>{% endif %}
+</div>
+
+<div class="cms-mobile-body">
+  {% if item.resumen %}
+  <h3>Resumen</h3>
+  <p>{{ item.resumen }}</p>
+  {% endif %}
+
+  {% if item.pasos %}
+  <h3>Pasos</h3>
+  <div style="background: var(--surface-alt); border-radius:10px; padding:14px;">
+    {% for paso in item.pasos %}
+    <div style="display:flex; gap:12px; margin-bottom:12px; align-items:flex-start;">
+      <div style="background: var(--udes-primary); color: white; width:24px; height:24px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:12px; flex-shrink:0;">
+        {{ forloop.counter }}
+      </div>
+      <p style="flex:1; margin:0; font-size:14px; line-height:1.5;">{{ paso }}</p>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  {% if item.advertencias %}
+  <h3>Advertencias</h3>
+  <div style="background: rgba(220, 38, 38, 0.08); border-left: 3px solid #dc2626; border-radius:10px; padding:14px;">
+    {% for adv in item.advertencias %}
+    <div style="display:flex; gap:10px; margin-bottom:8px; align-items:flex-start;">
+      <i class="fas fa-exclamation-triangle" style="color:#dc2626; margin-top:3px;"></i>
+      <span style="flex:1; font-size:14px; color: var(--text);">{{ adv }}</span>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  {% if item.fuente %}
+  <p style="font-size: 12px; color: var(--text-tertiary); margin-top:14px; font-style: italic;">
+    Fuente: {{ item.fuente }}
+  </p>
+  {% endif %}
+
+  {% if item.etiquetas %}
+  <div style="display:flex; flex-wrap:wrap; gap:6px; margin-top: 14px;">
+    {% for t in item.etiquetas %}
+    <span style="background: var(--surface-alt); border:1px solid var(--border); color: var(--udes-primary); padding: 4px 10px; border-radius: 12px; font-size:12px; font-weight:600;">#{{ t }}</span>
+    {% endfor %}
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

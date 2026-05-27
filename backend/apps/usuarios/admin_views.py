@@ -21,6 +21,8 @@ class UsuarioAppCRUD(MongoCRUD):
     title_plural = 'Usuarios de la app'
     sidebar_section = 'CMS · Usuarios'
 
+    searchable_fields = ('correo', 'nombre_completo', 'cedula', 'codigo_programa', 'rol')
+
     @classmethod
     def label_for(cls, doc):
         return doc.get('nombre_completo') or doc.get('correo') or str(doc.get('_id', ''))

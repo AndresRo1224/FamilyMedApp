@@ -14,16 +14,21 @@ from .forms import GuiaForm
 class GuiaCRUD(MongoCRUD):
     collection_name = 'guias'
     list_template = 'cms/guias/list.html'
+    preview_template = 'cms/preview/guia.html'
     form_class = GuiaForm
 
     list_url_name = 'cms_guias_list'
     add_url_name = 'cms_guias_add'
     change_url_name = 'cms_guias_change'
     delete_url_name = 'cms_guias_delete'
+    bulk_url_name = 'cms_guias_bulk'
+    preview_url_name = 'cms_guias_preview'
 
     title_singular = 'guía'
     title_plural = 'Guías clínicas'
     sidebar_section = 'CMS · Guías'
+
+    searchable_fields = ('titulo', 'resumen', 'fuente', 'etiquetas')
 
     @classmethod
     def form_to_mongo(cls, form_data, files=None, original=None):

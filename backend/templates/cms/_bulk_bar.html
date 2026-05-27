@@ -1,0 +1,72 @@
+{# barra inferior de acciones masivas que aparece cuando se selecciona algo #}
+{# requiere: bulk_url, has_estado (opcional, si tiene -> mostrar publicar/despublicar) #}
+
+<form
+  id="bulk-form"
+  method="post"
+  action="{{ bulk_url }}"
+  class="cms-bulk-bar"
+  style="display:none;"
+>
+  {% csrf_token %}
+
+  <div class="cms-bulk-info">
+    <span id="bulk-count">0</span> seleccionados
+  </div>
+
+  <div class="cms-bulk-actions">
+    {% if has_estado %}
+      <button type="submit" name="bulk_action" value="publish" class="btn btn-success cms-bulk-btn">
+        <i class="fas fa-check"></i> Publicar
+      </button>
+      <button type="submit" name="bulk_action" value="unpublish" class="btn btn-warning cms-bulk-btn">
+        <i class="fas fa-eye-slash"></i> Despublicar
+      </button>
+    {% endif %}
+    <button
+      type="submit"
+      name="bulk_action"
+      value="delete"
+      class="btn btn-danger cms-bulk-btn"
+      onclick="return confirm('¿Eliminar los items seleccionados? Esta acción no se puede deshacer.');"
+    >
+      <i class="fas fa-trash"></i> Eliminar
+    </button>
+  </div>
+</form>
+
+<script>
+  // sincroniza checkboxes con la barra de acciones masivas
+  (function () {
+    const form = document.getElementById('bulk-form');
+    const counter = document.getElementById('bulk-count');
+    const checkAll = document.getElementById('check-all');
+    const checks = document.querySelectorAll('.row-check');
+
+    function refresh() {
+      // limpia hidden inputs anteriores
+      form.querySelectorAll('input[name="selected_ids"]').forEach(n => n.remove());
+      let count = 0;
+      checks.forEach(c => {
+        if (c.checked) {
+          const h = document.createElement('input');
+          h.type = 'hidden';
+          h.name = 'selected_ids';
+          h.value = c.value;
+          form.appendChild(h);
+          count++;
+        }
+      });
+      counter.textContent = count;
+      form.style.display = count > 0 ? 'flex' : 'none';
+    }
+
+    if (checkAll) {
+      checkAll.addEventListener('change', () => {
+        checks.forEach(c => { c.checked = checkAll.checked; });
+        refresh();
+      });
+    }
+    checks.forEach(c => c.addEventListener('change', refresh));
+  })();
+</script>

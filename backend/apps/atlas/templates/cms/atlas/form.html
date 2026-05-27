@@ -1,0 +1,48 @@
+{% extends "cms/_form.html" %}
+
+{% block cms_content %}
+{# mostramos la imagen actual primero si la hay (encima del form normal) #}
+{% if current_image_url %}
+<div class="cms-form-header" style="margin-bottom: 8px;">
+  <div></div>
+</div>
+<div style="margin-bottom: 16px; padding: 16px; background: var(--surface); border: 1px solid var(--border); border-radius: 12px;">
+  <p style="margin:0 0 10px 0; font-weight: 600; color: var(--text);">Imagen actual:</p>
+  <img src="{{ current_image_url }}" alt="Imagen actual" class="cms-image-preview" style="display:block; max-width: 320px; max-height: 240px;">
+  <small style="display:block; margin-top:8px; color: var(--text-tertiary);">
+    Sube una imagen nueva abajo si quieres reemplazarla.
+  </small>
+</div>
+{% endif %}
+
+{{ block.super }}
+
+{# preview en vivo al seleccionar archivo #}
+<script>
+  (function () {
+    var input = document.getElementById('atlas-imagen-input');
+    if (!input) return;
+
+    var preview = document.createElement('img');
+    preview.className = 'cms-image-preview';
+    preview.style.display = 'none';
+    preview.style.maxWidth = '320px';
+    preview.style.maxHeight = '240px';
+    preview.alt = 'Vista previa';
+
+    // insertamos el preview justo despues del input file (dentro del mismo div del field)
+    input.parentNode.insertBefore(preview, input.nextSibling);
+
+    input.addEventListener('change', function (e) {
+      var file = e.target.files && e.target.files[0];
+      if (!file) {
+        preview.style.display = 'none';
+        return;
+      }
+      var url = URL.createObjectURL(file);
+      preview.src = url;
+      preview.style.display = 'block';
+    });
+  })();
+</script>
+{% endblock %}

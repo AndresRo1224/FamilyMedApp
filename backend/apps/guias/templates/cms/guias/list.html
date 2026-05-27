@@ -1,19 +1,15 @@
 {% extends "cms/base.html" %}
 
 {% block cms_content %}
-<div style="margin-bottom: 16px; display:flex; justify-content:space-between; align-items:center;">
-  <p style="margin:0; color: var(--text-secondary, #5b6378);">
-    {{ items|length }} {% if items|length == 1 %}guía{% else %}guías{% endif %} en total.
-  </p>
-  <a href="{{ add_url }}" class="btn btn-primary" style="padding:10px 18px;">
-    <i class="fas fa-plus"></i> Nueva guía
-  </a>
-</div>
+{% with singular_or_plural="guías" %}
+  {% include "cms/_list_toolbar.html" %}
+{% endwith %}
 
-<div style="background:var(--surface,#fff); border-radius:12px; box-shadow:0 2px 8px rgba(0,0,0,0.06); overflow:hidden;">
-  <table class="table" style="margin:0; width:100%;">
+<div class="cms-list-card">
+  <table class="cms-list-table">
     <thead>
       <tr>
+        <th style="width:32px;"><input type="checkbox" id="check-all" class="cms-row-check"></th>
         <th>Título</th>
         <th>Tipo</th>
         <th>Pasos</th>
@@ -24,6 +20,7 @@
     <tbody>
       {% for item in items %}
       <tr>
+        <td><input type="checkbox" class="row-check cms-row-check" value="{{ item.id_str }}"></td>
         <td>
           <strong>{{ item.titulo }}</strong>
           {% if item.resumen %}
@@ -40,13 +37,22 @@
       </tr>
       {% empty %}
       <tr>
-        <td colspan="5" style="text-align:center; padding:40px;">
-          <p style="color:var(--text-tertiary, #8891a4); margin-bottom:12px;">No hay guías registradas.</p>
-          <a href="{{ add_url }}" class="btn btn-primary">Crear la primera</a>
+        <td colspan="6" style="text-align:center; padding:40px;">
+          <p style="color:var(--text-tertiary, #8891a4); margin-bottom:12px;">
+            {% if query %}No hay guías que coincidan con la búsqueda.{% else %}No hay guías registradas.{% endif %}
+          </p>
+          {% if not query %}
+            <a href="{{ add_url }}" class="btn btn-primary">Crear la primera</a>
+          {% else %}
+            <a href="{% url list_url_name %}" class="btn btn-default">Limpiar búsqueda</a>
+          {% endif %}
         </td>
       </tr>
       {% endfor %}
     </tbody>
   </table>
 </div>
+
+{% include "cms/_paginator.html" %}
+{% include "cms/_bulk_bar.html" %}
 {% endblock %}

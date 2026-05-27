@@ -262,18 +262,26 @@ JAZZMIN_SETTINGS = {
     # auth.delete_user lo usamos como heuristica para "es admin"
     'topmenu_links': [
         {'name': 'Inicio', 'url': 'admin:index', 'permissions': ['cms.view_panelcms']},
+        {'name': 'Dashboard', 'url': 'cms_dashboard', 'permissions': ['cms.view_panelcms']},
         {'name': 'Contenidos', 'url': 'cms_contenidos_list', 'permissions': ['cms.view_panelcms']},
         {'name': 'Calculadoras', 'url': 'cms_calculadoras_list', 'permissions': ['cms.view_panelcms']},
         {'name': 'Atlas', 'url': 'cms_atlas_list', 'permissions': ['cms.view_panelcms']},
         {'name': 'Guías', 'url': 'cms_guias_list', 'permissions': ['cms.view_panelcms']},
         {'name': 'Bibliografía', 'url': 'cms_bibliografia_list', 'permissions': ['cms.view_panelcms']},
         {'name': 'Usuarios app', 'url': 'cms_usuarios_app_list', 'permissions': ['auth.delete_user']},
+        {'name': 'Auditoría', 'url': 'cms_audit', 'permissions': ['auth.delete_user']},
     ],
 
     # links extra en la sidebar izquierda, todos bajo la app virtual "cms"
     # asi en movil tambien se ven, no solo en el topmenu
     'custom_links': {
         'cms': [
+            {
+                'name': 'Dashboard',
+                'url': 'cms_dashboard',
+                'icon': 'fas fa-chart-line',
+                'permissions': ['cms.view_panelcms'],
+            },
             {
                 'name': 'Contenidos',
                 'url': 'cms_contenidos_list',
@@ -308,6 +316,12 @@ JAZZMIN_SETTINGS = {
                 'name': 'Usuarios de la app',
                 'url': 'cms_usuarios_app_list',
                 'icon': 'fas fa-user-friends',
+                'permissions': ['auth.delete_user'],
+            },
+            {
+                'name': 'Auditoría',
+                'url': 'cms_audit',
+                'icon': 'fas fa-history',
                 'permissions': ['auth.delete_user'],
             },
         ],
@@ -356,7 +370,6 @@ JAZZMIN_UI_TWEAKS = {
     'sidebar_nav_legacy_style': False,
     'sidebar_nav_flat_style': False,
     'theme': 'default',
-    'dark_mode_theme': None,
     'button_classes': {
         'primary': 'btn-primary',
         'secondary': 'btn-secondary',

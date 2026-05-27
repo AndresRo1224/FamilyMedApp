@@ -1,0 +1,38 @@
+{# paginator compartido entre todas las listas #}
+
+{% if pagination.total_pages > 1 %}
+<nav class="cms-paginator" aria-label="Paginación">
+  <span class="cms-paginator-info">
+    Página {{ pagination.page }} de {{ pagination.total_pages }} ·
+    {{ pagination.total_items }} resultados
+  </span>
+
+  <div class="cms-paginator-buttons">
+    {% if pagination.has_prev %}
+      <a href="?page={{ pagination.prev_page }}{% if query %}&q={{ query }}{% endif %}{% if estado_filter %}&estado={{ estado_filter }}{% endif %}" class="cms-page-btn">
+        ‹ Anterior
+      </a>
+    {% else %}
+      <span class="cms-page-btn disabled">‹ Anterior</span>
+    {% endif %}
+
+    {% for p in pagination.pages_range %}
+      {% if p == pagination.page %}
+        <span class="cms-page-btn current">{{ p }}</span>
+      {% else %}
+        <a href="?page={{ p }}{% if query %}&q={{ query }}{% endif %}{% if estado_filter %}&estado={{ estado_filter }}{% endif %}" class="cms-page-btn">
+          {{ p }}
+        </a>
+      {% endif %}
+    {% endfor %}
+
+    {% if pagination.has_next %}
+      <a href="?page={{ pagination.next_page }}{% if query %}&q={{ query }}{% endif %}{% if estado_filter %}&estado={{ estado_filter }}{% endif %}" class="cms-page-btn">
+        Siguiente ›
+      </a>
+    {% else %}
+      <span class="cms-page-btn disabled">Siguiente ›</span>
+    {% endif %}
+  </div>
+</nav>
+{% endif %}
