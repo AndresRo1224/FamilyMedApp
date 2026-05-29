@@ -75,7 +75,7 @@ def registro(request):
         return Response(
             {
                 'error': (
-                    'Solo se aceptan correos Microsoft '
+                    'Solo se aceptan correos Gmail (@gmail.com), Microsoft '
                     '(@outlook.com, @hotmail.com, @live.com) o '
                     'institucionales UDES (@udes.edu.co).'
                 ),

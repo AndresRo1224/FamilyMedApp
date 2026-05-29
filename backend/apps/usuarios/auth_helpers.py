@@ -15,6 +15,7 @@ DOMINIOS_PERMITIDOS = (
     'outlook.com',
     'hotmail.com',
     'live.com',
+    'gmail.com',
     'udes.edu.co',
 )
 

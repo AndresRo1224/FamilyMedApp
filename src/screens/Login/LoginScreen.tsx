@@ -150,7 +150,9 @@ const LoginScreen: React.FC = () => {
             {isRegistro ? 'Crear cuenta' : 'Iniciar sesión'}
           </Text>
           <Text style={s.formSubtitle}>
-            Solo correos @outlook.com, @hotmail.com, @live.com o @udes.edu.co.
+            {isRegistro
+              ? 'Usa un correo @gmail.com, @outlook.com, @hotmail.com, @live.com o @udes.edu.co.'
+              : 'Ingresa con tu correo y contraseña.'}
           </Text>
 
           {/* nombre completo (solo en registro) */}
