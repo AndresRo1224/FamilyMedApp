@@ -2,7 +2,14 @@
 
 from django.urls import path
 
-from .views import cambiar_password, login, perfil_actual, registro
+from .views import (
+    cambiar_password,
+    confirmar_reset,
+    login,
+    perfil_actual,
+    registro,
+    solicitar_reset,
+)
 
 
 urlpatterns = [
@@ -18,4 +25,10 @@ urlpatterns = [
 
     # POST /api/auth/cambiar-password/  → cambia la contraseña (requiere la actual)
     path('cambiar-password/', cambiar_password, name='auth-cambiar-password'),
+
+    # POST /api/auth/solicitar-reset/  → envia codigo de recuperacion al correo
+    path('solicitar-reset/', solicitar_reset, name='auth-solicitar-reset'),
+
+    # POST /api/auth/confirmar-reset/  → valida codigo y cambia la contraseña
+    path('confirmar-reset/', confirmar_reset, name='auth-confirmar-reset'),
 ]

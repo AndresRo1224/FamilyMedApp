@@ -18,14 +18,20 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../contexts/ThemeContext';
 import { SERVER_BASE_URL } from '../../services/api';
+import type { RootStackParamList } from '../../navigation/RootNavigator';
 import { makeLoginStyles } from './LoginScreen.styles';
+
+type LoginNav = NativeStackNavigationProp<RootStackParamList, 'Login'>;
 
 const LoginScreen: React.FC = () => {
   const insets = useSafeAreaInsets();
+  const navigation = useNavigation<LoginNav>();
   const { signIn, signUp } = useAuth();
   const { colors } = useTheme();
   const s = useMemo(() => makeLoginStyles(colors), [colors]);
@@ -263,6 +269,17 @@ const LoginScreen: React.FC = () => {
               </Text>
             )}
           </TouchableOpacity>
+
+          {/* olvide mi contraseña (solo en modo login) */}
+          {!isRegistro && (
+            <TouchableOpacity
+              style={{ marginTop: 14, alignItems: 'center' }}
+              activeOpacity={0.7}
+              onPress={() => navigation.navigate('RecuperarPassword')}
+            >
+              <Text style={s.forgotText}>¿Olvidaste tu contraseña?</Text>
+            </TouchableOpacity>
+          )}
 
           {/* toggle login/registro */}
           <TouchableOpacity

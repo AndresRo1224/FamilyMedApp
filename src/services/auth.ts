@@ -146,3 +146,35 @@ export async function changePassword(params: {
     throw new Error(data.error || `Error ${response.status}`);
   }
 }
+
+// paso 1 del reset: pide que el backend envie un codigo al correo
+export async function solicitarReset(correo: string): Promise<string> {
+  const response = await fetch(`${API_BASE_URL}/auth/solicitar-reset/`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ correo }),
+  });
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    throw new Error(data.error || `Error ${response.status}`);
+  }
+  return data.mensaje || 'Si el correo está registrado, te enviamos un código.';
+}
+
+// paso 2 del reset: confirma el codigo y guarda la nueva contraseña
+export async function confirmarReset(params: {
+  correo: string;
+  codigo: string;
+  password_nueva: string;
+}): Promise<string> {
+  const response = await fetch(`${API_BASE_URL}/auth/confirmar-reset/`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(params),
+  });
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    throw new Error(data.error || `Error ${response.status}`);
+  }
+  return data.mensaje || 'Contraseña restablecida.';
+}

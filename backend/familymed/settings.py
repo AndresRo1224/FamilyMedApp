@@ -126,8 +126,33 @@ REST_FRAMEWORK = {
     'DEFAULT_THROTTLE_RATES': {
         'login': '10/min',
         'registro': '5/hour',
+        # recuperacion de contraseña: limites estrictos anti abuso
+        'reset_solicitar': '5/hour',
+        'reset_confirmar': '10/hour',
     },
 }
+
+
+# email: en produccion usa SMTP si EMAIL_HOST esta configurado en el .env;
+# en dev (sin config) imprime el correo en la consola para poder ver el codigo
+EMAIL_HOST = os.getenv('EMAIL_HOST', '').strip()
+if EMAIL_HOST:
+    EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+    EMAIL_PORT = int(os.getenv('EMAIL_PORT', '587'))
+    EMAIL_USE_TLS = os.getenv('EMAIL_USE_TLS', 'True') == 'True'
+    EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER', '')
+    EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD', '')
+    DEFAULT_FROM_EMAIL = os.getenv(
+        'DEFAULT_FROM_EMAIL', EMAIL_HOST_USER or 'no-reply@familymed.udes',
+    )
+else:
+    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+    DEFAULT_FROM_EMAIL = 'FamilyMed UDES <no-reply@familymed.udes>'
+
+# minutos que dura valido el codigo de recuperacion
+PASSWORD_RESET_CODE_TTL_MIN = 15
+# maximo de intentos de codigo antes de invalidarlo
+PASSWORD_RESET_MAX_ATTEMPTS = 5
 
 
 # logging: imprime tracebacks de errores 500 en los logs del hosting
@@ -241,6 +266,9 @@ JAZZMIN_SETTINGS = {
     'site_logo': 'images/logo.png',
     'login_logo': 'images/logo.png',
     'site_logo_classes': 'img-circle',
+
+    # favicon de la pestaña del navegador (escudo UDES)
+    'site_icon': 'images/favicon.png',
 
     # CSS personalizado con paleta UDES (light + dark)
     'custom_css': 'css/admin-udes.css',

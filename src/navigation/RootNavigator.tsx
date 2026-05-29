@@ -4,6 +4,7 @@ import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 import LoginScreen from '../screens/Login/LoginScreen';
+import RecuperarPasswordScreen from '../screens/RecuperarPassword/RecuperarPasswordScreen';
 import SettingsScreen from '../screens/Settings/SettingsScreen';
 import EditarPerfilScreen from '../screens/EditarPerfil/EditarPerfilScreen';
 import CambiarPasswordScreen from '../screens/CambiarPassword/CambiarPasswordScreen';
@@ -20,6 +21,7 @@ import { useAuth } from '../contexts/AuthContext';
 
 export type RootStackParamList = {
   Login: undefined;
+  RecuperarPassword: undefined;
   Main: undefined;
   Settings: undefined;
   EditarPerfil: undefined;
@@ -56,7 +58,13 @@ const RootNavigator: React.FC<RootNavigatorProps> = ({ forceLoading = false }) =
       }}
     >
       {!user ? (
-        <Stack.Screen name="Login" component={LoginScreen} />
+        <>
+          <Stack.Screen name="Login" component={LoginScreen} />
+          <Stack.Screen
+            name="RecuperarPassword"
+            component={RecuperarPasswordScreen}
+          />
+        </>
       ) : (
         <>
           <Stack.Screen name="Main" component={TabNavigator} />

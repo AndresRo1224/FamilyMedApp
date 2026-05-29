@@ -10,3 +10,11 @@ class LoginRateThrottle(AnonRateThrottle):
 
 class RegistroRateThrottle(AnonRateThrottle):
     scope = 'registro'
+
+
+class ResetSolicitarThrottle(AnonRateThrottle):
+    scope = 'reset_solicitar'
+
+
+class ResetConfirmarThrottle(AnonRateThrottle):
+    scope = 'reset_confirmar'
