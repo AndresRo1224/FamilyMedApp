@@ -334,6 +334,12 @@ def cambiar_password(request):
 
 # =================== recuperacion de contraseña (olvide mi clave) ===================
 
+# se leen con getattr + default para que funcione aunque el settings desplegado
+# todavia no tenga estas constantes (evita errores 500 por desincronizacion)
+RESET_TTL_MIN = getattr(settings, 'PASSWORD_RESET_CODE_TTL_MIN', 15)
+RESET_MAX_ATTEMPTS = getattr(settings, 'PASSWORD_RESET_MAX_ATTEMPTS', 5)
+
+
 def _generar_codigo():
     # codigo de 6 digitos aleatorio y seguro (100000 - 999999)
     return f'{secrets.randbelow(900000) + 100000:06d}'
@@ -341,19 +347,21 @@ def _generar_codigo():
 
 def _enviar_codigo_email(correo, codigo):
     # manda el codigo por correo. en dev (console backend) sale en los logs.
+    # remitente: si DEFAULT_FROM_EMAIL no esta definido, usa uno generico
+    remitente = getattr(settings, 'DEFAULT_FROM_EMAIL', 'no-reply@familymed.udes')
     asunto = 'Código de recuperación · FamilyMed UDES'
     cuerpo = (
         f'Hola,\n\n'
         f'Tu código para restablecer la contraseña de FamilyMed es:\n\n'
         f'    {codigo}\n\n'
-        f'Este código vence en {settings.PASSWORD_RESET_CODE_TTL_MIN} minutos. '
+        f'Este código vence en {RESET_TTL_MIN} minutos. '
         f'Si no solicitaste el cambio, ignora este correo.\n\n'
         f'Universidad de Santander · FamilyMed'
     )
     send_mail(
         asunto,
         cuerpo,
-        settings.DEFAULT_FROM_EMAIL,
+        remitente,
         [correo],
         fail_silently=False,
     )
@@ -388,9 +396,7 @@ def solicitar_reset(request):
         # solo si el usuario existe y esta activo generamos el codigo
         if usuario is not None and usuario.get('activo', True):
             codigo = _generar_codigo()
-            expira = datetime.utcnow() + timedelta(
-                minutes=settings.PASSWORD_RESET_CODE_TTL_MIN,
-            )
+            expira = datetime.utcnow() + timedelta(minutes=RESET_TTL_MIN)
             # upsert: un solo codigo vigente por correo
             db.password_resets.update_one(
                 {'correo': correo},
@@ -469,7 +475,7 @@ def confirmar_reset(request):
         return error_codigo
 
     # demasiados intentos?
-    if reset.get('intentos', 0) >= settings.PASSWORD_RESET_MAX_ATTEMPTS:
+    if reset.get('intentos', 0) >= RESET_MAX_ATTEMPTS:
         db.password_resets.delete_one({'correo': correo})
         return Response(
             {'error': 'Demasiados intentos fallidos. Solicita un código nuevo.'},
