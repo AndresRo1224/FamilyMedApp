@@ -133,21 +133,11 @@ REST_FRAMEWORK = {
 }
 
 
-# email: en produccion usa SMTP si EMAIL_HOST esta configurado en el .env;
-# en dev (sin config) imprime el correo en la consola para poder ver el codigo
-EMAIL_HOST = os.getenv('EMAIL_HOST', '').strip()
-if EMAIL_HOST:
-    EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-    EMAIL_PORT = int(os.getenv('EMAIL_PORT', '587'))
-    EMAIL_USE_TLS = os.getenv('EMAIL_USE_TLS', 'True') == 'True'
-    EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER', '')
-    EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD', '')
-    DEFAULT_FROM_EMAIL = os.getenv(
-        'DEFAULT_FROM_EMAIL', EMAIL_HOST_USER or 'no-reply@familymed.udes',
-    )
-else:
-    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-    DEFAULT_FROM_EMAIL = 'FamilyMed UDES <no-reply@familymed.udes>'
+# email: por ahora se imprime en consola (los hostings gratis bloquean el SMTP
+# saliente). La base de recuperacion de contraseña queda lista; en el futuro
+# se integra un proveedor de correo transaccional por API (ej. Brevo/Resend).
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+DEFAULT_FROM_EMAIL = 'FamilyMed UDES <no-reply@familymed.udes>'
 
 # minutos que dura valido el codigo de recuperacion
 PASSWORD_RESET_CODE_TTL_MIN = 15

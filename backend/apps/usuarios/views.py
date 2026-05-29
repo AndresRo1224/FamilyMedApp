@@ -346,9 +346,9 @@ def _generar_codigo():
 
 
 def _enviar_codigo_email(correo, codigo):
-    # manda el codigo por correo. en dev (console backend) sale en los logs.
-    # remitente: si DEFAULT_FROM_EMAIL no esta definido, usa uno generico
-    remitente = getattr(settings, 'DEFAULT_FROM_EMAIL', 'no-reply@familymed.udes')
+    # manda el codigo por correo usando send_mail (en dev sale por consola).
+    # nota: el envio real por correo queda pendiente de integrar un proveedor
+    # transaccional por API; los hostings gratis bloquean el SMTP saliente.
     asunto = 'Código de recuperación · FamilyMed UDES'
     cuerpo = (
         f'Hola,\n\n'
@@ -358,6 +358,7 @@ def _enviar_codigo_email(correo, codigo):
         f'Si no solicitaste el cambio, ignora este correo.\n\n'
         f'Universidad de Santander · FamilyMed'
     )
+    remitente = getattr(settings, 'DEFAULT_FROM_EMAIL', 'no-reply@familymed.udes')
     send_mail(
         asunto,
         cuerpo,

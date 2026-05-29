@@ -1,15 +1,14 @@
-// pantalla para recuperar contraseña con codigo enviado al correo
-// 2 pasos: 1) pedir correo  2) meter codigo + nueva contraseña
+// pantalla de recuperar contraseña
+// la recuperacion automatica por correo queda como funcion "proximamente";
+// por ahora se indica al usuario contactar a soporte / docente.
 
-import React, { useMemo, useState } from 'react';
+import React, { useMemo } from 'react';
 import {
-  ActivityIndicator,
-  KeyboardAvoidingView,
-  Platform,
+  Linking,
   ScrollView,
   StatusBar,
+  StyleSheet,
   Text,
-  TextInput,
   TouchableOpacity,
   View,
 } from 'react-native';
@@ -19,96 +18,36 @@ import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 import { useTheme } from '../../contexts/ThemeContext';
-import { useToast } from '../../contexts/ToastContext';
 import { useHaptics } from '../../hooks/useHaptics';
-import { confirmarReset, solicitarReset } from '../../services/auth';
 import type { RootStackParamList } from '../../navigation/RootNavigator';
 import { makeRecuperarPasswordStyles } from './RecuperarPasswordScreen.styles';
 
 type Nav = NativeStackNavigationProp<RootStackParamList, 'RecuperarPassword'>;
 
+const SOPORTE_EMAIL = 'familymed.udes@gmail.com';
+
 const RecuperarPasswordScreen: React.FC = () => {
   const insets = useSafeAreaInsets();
   const navigation = useNavigation<Nav>();
   const { colors } = useTheme();
-  const { showToast } = useToast();
   const haptics = useHaptics();
   const s = useMemo(() => makeRecuperarPasswordStyles(colors), [colors]);
 
-  // paso 1 = pedir correo, paso 2 = codigo + nueva contraseña
-  const [step, setStep] = useState<1 | 2>(1);
-  const [correo, setCorreo] = useState('');
-  const [codigo, setCodigo] = useState('');
-  const [nueva, setNueva] = useState('');
-  const [confirmar, setConfirmar] = useState('');
-  const [showPass, setShowPass] = useState(false);
-  const [loading, setLoading] = useState(false);
-
-  // paso 1: pide el codigo al backend
-  const handleSolicitar = async () => {
-    const mail = correo.trim().toLowerCase();
-    if (!mail || !mail.includes('@')) {
-      haptics.warning();
-      showToast('Ingresa un correo válido', 'error');
-      return;
-    }
-    setLoading(true);
-    try {
-      const msg = await solicitarReset(mail);
-      haptics.success();
-      showToast(msg, 'info');
-      setStep(2);
-    } catch (e) {
-      const m = e instanceof Error ? e.message : 'Error desconocido';
-      haptics.error();
-      showToast(m, 'error');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // paso 2: confirma el codigo y cambia la contraseña
-  const handleConfirmar = async () => {
-    const code = codigo.trim();
-    if (code.length !== 6) {
-      haptics.warning();
-      showToast('El código son 6 dígitos', 'error');
-      return;
-    }
-    if (nueva.length < 8 || nueva.length > 128) {
-      haptics.warning();
-      showToast('La contraseña debe tener entre 8 y 128 caracteres', 'error');
-      return;
-    }
-    if (nueva !== confirmar) {
-      haptics.warning();
-      showToast('Las contraseñas no coinciden', 'error');
-      return;
-    }
-    setLoading(true);
-    try {
-      const msg = await confirmarReset({
-        correo: correo.trim().toLowerCase(),
-        codigo: code,
-        password_nueva: nueva,
-      });
-      haptics.success();
-      showToast(msg, 'success');
-      navigation.goBack();
-    } catch (e) {
-      const m = e instanceof Error ? e.message : 'Error desconocido';
-      haptics.error();
-      showToast(m, 'error');
-    } finally {
-      setLoading(false);
-    }
+  const escribirSoporte = () => {
+    haptics.tap();
+    const asunto = encodeURIComponent('Recuperar contraseña - FamilyMed');
+    const cuerpo = encodeURIComponent(
+      'Hola, olvidé mi contraseña de FamilyMed. Mi correo registrado es: ',
+    );
+    Linking.openURL(
+      `mailto:${SOPORTE_EMAIL}?subject=${asunto}&body=${cuerpo}`,
+    ).catch(() => {
+      // si no hay app de correo configurada, no hacemos nada
+    });
   };
 
   return (
-    <KeyboardAvoidingView
-      style={s.container}
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-    >
+    <View style={s.container}>
       <StatusBar barStyle="light-content" backgroundColor={colors.primary} />
 
       {/* banner con back */}
@@ -126,174 +65,146 @@ const RecuperarPasswordScreen: React.FC = () => {
       </View>
 
       <ScrollView
-        contentContainerStyle={s.scrollContent}
-        keyboardShouldPersistTaps="handled"
+        contentContainerStyle={local.content}
         showsVerticalScrollIndicator={false}
       >
-        {/* indicador de pasos */}
-        <View style={s.stepsRow}>
-          <View style={[s.stepDot, s.stepDotActive]}>
-            <Text style={[s.stepDotText, { color: '#FFFFFF' }]}>1</Text>
-          </View>
-          <View style={[s.stepLine, step === 2 && s.stepLineActive]} />
-          <View
-            style={[
-              s.stepDot,
-              step === 2 ? s.stepDotActive : s.stepDotInactive,
-            ]}
-          >
-            <Text
-              style={[
-                s.stepDotText,
-                { color: step === 2 ? '#FFFFFF' : colors.textTertiary },
-              ]}
-            >
-              2
-            </Text>
-          </View>
+        <View
+          style={[
+            local.iconCircle,
+            { backgroundColor: colors.primary + '14' },
+          ]}
+        >
+          <Ionicons name="mail-unread-outline" size={48} color={colors.primary} />
         </View>
 
-        {step === 1 ? (
-          <>
-            <Text style={s.helperText}>
-              Ingresa el correo de tu cuenta y te enviaremos un código de 6
-              dígitos para restablecer tu contraseña.
-            </Text>
+        <View style={[local.badge, { backgroundColor: colors.gold }]}>
+          <Text style={local.badgeText}>PRÓXIMAMENTE</Text>
+        </View>
 
-            <View style={s.inputGroup}>
-              <Text style={s.inputLabel}>Correo</Text>
-              <View style={s.inputWrapper}>
-                <Ionicons
-                  name="mail-outline"
-                  size={18}
-                  color={colors.textTertiary}
-                  style={s.inputIcon}
-                />
-                <TextInput
-                  style={s.input}
-                  placeholder="correo@outlook.com"
-                  placeholderTextColor={colors.textTertiary}
-                  value={correo}
-                  onChangeText={setCorreo}
-                  autoCapitalize="none"
-                  keyboardType="email-address"
-                  autoComplete="email"
-                />
-              </View>
-            </View>
+        <Text style={[local.title, { color: colors.text }]}>
+          Recuperación por correo
+        </Text>
+        <Text style={[local.desc, { color: colors.textSecondary }]}>
+          Estamos terminando la recuperación automática de contraseña por
+          correo electrónico. Estará disponible muy pronto.
+        </Text>
 
-            <TouchableOpacity
-              style={[s.primaryButton, loading && { opacity: 0.6 }]}
-              activeOpacity={0.85}
-              onPress={handleSolicitar}
-              disabled={loading}
-            >
-              {loading ? (
-                <ActivityIndicator color="#FFFFFF" />
-              ) : (
-                <Text style={s.primaryButtonText}>Enviar código</Text>
-              )}
-            </TouchableOpacity>
-          </>
-        ) : (
-          <>
-            <Text style={s.helperText}>
-              Escribe el código que enviamos a{' '}
-              <Text style={s.emailHint}>{correo.trim().toLowerCase()}</Text> y
-              tu nueva contraseña. El código vence en 15 minutos.
-            </Text>
+        <View
+          style={[
+            local.infoBox,
+            { backgroundColor: colors.surface, borderColor: colors.border },
+          ]}
+        >
+          <Ionicons
+            name="information-circle-outline"
+            size={20}
+            color={colors.primary}
+          />
+          <Text style={[local.infoText, { color: colors.textSecondary }]}>
+            Mientras tanto, si olvidaste tu contraseña, escríbenos y te
+            ayudamos a restablecer tu acceso.
+          </Text>
+        </View>
 
-            <View style={s.inputGroup}>
-              <Text style={s.inputLabel}>Código de 6 dígitos</Text>
-              <TextInput
-                style={s.codeInput}
-                placeholder="000000"
-                placeholderTextColor={colors.textTertiary}
-                value={codigo}
-                onChangeText={(t) => setCodigo(t.replace(/[^0-9]/g, '').slice(0, 6))}
-                keyboardType="number-pad"
-                maxLength={6}
-              />
-            </View>
+        <TouchableOpacity
+          style={[local.primaryBtn, { backgroundColor: colors.primary }]}
+          activeOpacity={0.85}
+          onPress={escribirSoporte}
+        >
+          <Ionicons name="mail-outline" size={18} color="#FFFFFF" />
+          <Text style={local.primaryBtnText}>Escribir a soporte</Text>
+        </TouchableOpacity>
 
-            <View style={s.inputGroup}>
-              <Text style={s.inputLabel}>Nueva contraseña</Text>
-              <View style={s.inputWrapper}>
-                <Ionicons
-                  name="lock-closed-outline"
-                  size={18}
-                  color={colors.textTertiary}
-                  style={s.inputIcon}
-                />
-                <TextInput
-                  style={s.input}
-                  placeholder="Mínimo 8 caracteres"
-                  placeholderTextColor={colors.textTertiary}
-                  value={nueva}
-                  onChangeText={setNueva}
-                  secureTextEntry={!showPass}
-                  autoCapitalize="none"
-                />
-                <TouchableOpacity onPress={() => setShowPass(!showPass)}>
-                  <Ionicons
-                    name={showPass ? 'eye-off-outline' : 'eye-outline'}
-                    size={18}
-                    color={colors.textTertiary}
-                  />
-                </TouchableOpacity>
-              </View>
-            </View>
-
-            <View style={s.inputGroup}>
-              <Text style={s.inputLabel}>Confirmar contraseña</Text>
-              <View style={s.inputWrapper}>
-                <Ionicons
-                  name="lock-closed-outline"
-                  size={18}
-                  color={colors.textTertiary}
-                  style={s.inputIcon}
-                />
-                <TextInput
-                  style={s.input}
-                  placeholder="Repite la nueva contraseña"
-                  placeholderTextColor={colors.textTertiary}
-                  value={confirmar}
-                  onChangeText={setConfirmar}
-                  secureTextEntry={!showPass}
-                  autoCapitalize="none"
-                />
-              </View>
-            </View>
-
-            <TouchableOpacity
-              style={[s.primaryButton, loading && { opacity: 0.6 }]}
-              activeOpacity={0.85}
-              onPress={handleConfirmar}
-              disabled={loading}
-            >
-              {loading ? (
-                <ActivityIndicator color="#FFFFFF" />
-              ) : (
-                <Text style={s.primaryButtonText}>Restablecer contraseña</Text>
-              )}
-            </TouchableOpacity>
-
-            {/* reenviar / volver al paso 1 */}
-            <TouchableOpacity
-              style={s.linkButton}
-              activeOpacity={0.7}
-              onPress={() => {
-                setCodigo('');
-                setStep(1);
-              }}
-            >
-              <Text style={s.linkText}>¿No te llegó? Cambiar correo o reenviar</Text>
-            </TouchableOpacity>
-          </>
-        )}
+        <TouchableOpacity
+          style={local.secondaryBtn}
+          activeOpacity={0.7}
+          onPress={() => navigation.goBack()}
+        >
+          <Text style={[local.secondaryBtnText, { color: colors.primary }]}>
+            Volver al inicio de sesión
+          </Text>
+        </TouchableOpacity>
       </ScrollView>
-    </KeyboardAvoidingView>
+    </View>
   );
 };
+
+const local = StyleSheet.create({
+  content: {
+    alignItems: 'center',
+    paddingHorizontal: 28,
+    paddingTop: 36,
+    paddingBottom: 40,
+  },
+  iconCircle: {
+    width: 96,
+    height: 96,
+    borderRadius: 48,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 16,
+  },
+  badge: {
+    paddingHorizontal: 12,
+    paddingVertical: 4,
+    borderRadius: 12,
+    marginBottom: 14,
+  },
+  badgeText: {
+    color: '#FFFFFF',
+    fontSize: 11,
+    fontWeight: '800',
+    letterSpacing: 1,
+  },
+  title: {
+    fontSize: 22,
+    fontWeight: '800',
+    textAlign: 'center',
+    marginBottom: 8,
+  },
+  desc: {
+    fontSize: 15,
+    lineHeight: 22,
+    textAlign: 'center',
+    maxWidth: 320,
+    marginBottom: 24,
+  },
+  infoBox: {
+    flexDirection: 'row',
+    gap: 10,
+    alignItems: 'flex-start',
+    padding: 14,
+    borderRadius: 12,
+    borderWidth: 1,
+    marginBottom: 24,
+  },
+  infoText: {
+    flex: 1,
+    fontSize: 13,
+    lineHeight: 19,
+  },
+  primaryBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    borderRadius: 12,
+    height: 52,
+    alignSelf: 'stretch',
+  },
+  primaryBtnText: {
+    color: '#FFFFFF',
+    fontWeight: '700',
+    fontSize: 15,
+  },
+  secondaryBtn: {
+    marginTop: 16,
+    alignItems: 'center',
+  },
+  secondaryBtnText: {
+    fontSize: 14,
+    fontWeight: '600',
+  },
+});
 
 export default RecuperarPasswordScreen;
